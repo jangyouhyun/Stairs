@@ -2,7 +2,7 @@
 
 <br>
 
-<img src="https://github.com/jangyouhyun/Stairs/blob/main/dalle3/dalle-work.gif?raw=true" width="200%" height="200%">
+<img src="https://github.com/jangyouhyun/Stairs/blob/main/dalle3/dalle-work.gif?raw=true" width="30%" height="30%">
 
 ### <b>유북 시스템의 챗봇 기능 구현"</b>
 
