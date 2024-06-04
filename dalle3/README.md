@@ -2,7 +2,7 @@
 
 <br>
 
-<img src="https://github.com/jangyouhyun/Stairs/blob/main/chatbot_system/chatbot_dataoutput_1.gif?raw=true" width="70%" height="70%">
+<img src="https://github.com/jangyouhyun/Stairs/blob/main/dalle3/dalle-work.gif?raw=true" width="70%" height="70%">
 
 ### <b>유북 시스템의 챗봇 기능 구현"</b>
 
@@ -10,6 +10,6 @@
 > <br/>개발자 : [장유현](https://github.com/jangyouhyun)
 > <br/>v 1.1.0 : 05/27/24<br/>
 
-<img src="[https://github.com/jangyouhyun/Stairs/blob/main/chatbot_system/chatbot_work.gif?raw=true](https://github.com/jangyouhyun/Stairs/blob/main/chatbot_system/chatbot_dataoutput_1.gif?raw=true)" width="50%" height="50%">
+<img src="https://github.com/jangyouhyun/Stairs/blob/main/dalle3/dalle-work.gif?raw=true" width="50%" height="50%">
 1. 웹페이지 접속 후 , 초기 스크립트 생성 대기 후 생성하고자 하는 이미지 설명 입력<br/><br/>
 2. 완료 후 출력되는 이미지 데이터 확인 가능<br/><br/>
