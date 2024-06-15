@@ -1,7 +1,7 @@
 # :memo: U-Book 유북 :books:
 ### 내가 만드는 나만의 자서전 :pencil2:
 <br>
-<br>
+
 
 ## :seedling: 07 계단팀 팀원 소개
 |**🌟양다나🌟**|**:four_leaf_clover:안민지:four_leaf_clover:**|**:rabbit:장유현:rabbit:**|
@@ -9,7 +9,7 @@
 |<img src="https://github.com/jangyouhyun/Stairs/assets/163497403/3f08aaca-abd1-4f1b-9875-ca1b3784df2b" width="280" height="260">|<img src="https://github.com/jangyouhyun/Stairs/assets/163497403/316761f9-8d3d-4052-8f40-f1423b12b20f" width="280" height="260">|<img src="https://github.com/jangyouhyun/Stairs/assets/163497403/69001661-56bc-4789-bbb3-4014a550b0b5" width="280" height="260">|
 |  팀장/AI  |  백엔드  | 프론트엔드 |
 <br>
-<br>
+
 
 ## :crown: repo 소개
 
