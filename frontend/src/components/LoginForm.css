@@ -1,0 +1,51 @@
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.input-field {
+  width: 100%;
+  max-width: 500px; /* 입력 필드의 최대 너비를 늘림 */
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-family: 'MinSans-Regular', sans-serif;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 500px; /* 버튼 컨테이너의 최대 너비를 늘림 */
+  gap: 10px; /* 버튼 간격 설정 */
+}
+
+.login-button, .signup-button {
+  width: calc(50% - 5px); /* 버튼 길이 설정 */
+  padding: 10px;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  font-family: 'MinSans-Regular', sans-serif;
+}
+
+.login-button {
+  background-color: #CEAB93; /* 로그인 버튼 색상 */
+}
+
+.signup-button {
+  background-color: #AD8B73; /* 회원가입 버튼 색상 */
+}
+
+.login-button:hover {
+  background-color: #AD8B73;
+}
+
+.signup-button:hover {
+  background-color: #CEAB93;
+}
