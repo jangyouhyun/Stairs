@@ -6,6 +6,12 @@
   height: 100vh;
   background-color: #E3CAA5;
   color: #AD8B73;
+  border-radius: 10px;
+  padding: 40px 40px; /* 패딩 추가 */
+  margin-top : 60px;
+  margin-bottom: 60px;
+  width: 120%;
+  box-sizing: border-box;
 }
 
 .signup-icon {
@@ -27,6 +33,7 @@
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-sizing: border-box;
 }
 
 .input-field {
@@ -40,7 +47,8 @@
 
 .input-group {
   display: flex;
-  width: 100%;
+  width: 105%;
+  padding : 0px;
   align-items: center;
   justify-content: space-between; /* 같은 가로선상에 두기 위해 추가 */
 }
