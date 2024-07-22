@@ -1,0 +1,4 @@
+# node module files
+youbook/node_modules/
+youbook/frontend/node_modules/
+youbook/backend/node_modules/
