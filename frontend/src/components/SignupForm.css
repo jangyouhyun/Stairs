@@ -4,14 +4,8 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #E3CAA5;
-  color: #AD8B73;
-  border-radius: 10px;
-  padding: 40px 40px; /* 패딩 추가 */
-  margin-top : 60px;
-  margin-bottom: 60px;
-  width: 120%;
-  box-sizing: border-box;
+  background-color: white;
+  color: #363636;
 }
 
 .signup-icon {
@@ -29,11 +23,10 @@
   align-items: center;
   width: 100%;
   max-width: 500px;
-  background-color: #D0B38C;
+  background-color: #F5F5F5;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  box-sizing: border-box;
 }
 
 .input-field {
@@ -47,14 +40,13 @@
 
 .input-group {
   display: flex;
-  width: 105%;
-  padding : 0px;
+  width: 104%;
   align-items: center;
   justify-content: space-between; /* 같은 가로선상에 두기 위해 추가 */
 }
 
 .input-group .input-field {
-  flex: 2.5; /* 필드의 너비를 증가시킵니다 */
+  flex: 2.5;
   margin-right: 10px;
 }
 
@@ -82,7 +74,7 @@
 
 .password-hint {
   font-size: 0.8rem;
-  color: #777;
+  color: #363636;
   margin-bottom: 10px;
   text-align: left;
   width: 100%;

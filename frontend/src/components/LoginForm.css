@@ -34,18 +34,3 @@
   font-family: 'MinSans-Regular', sans-serif;
 }
 
-.login-button {
-  background-color: #CEAB93; /* 로그인 버튼 색상 */
-}
-
-.signup-button {
-  background-color: #AD8B73; /* 회원가입 버튼 색상 */
-}
-
-.login-button:hover {
-  background-color: #AD8B73;
-}
-
-.signup-button:hover {
-  background-color: #CEAB93;
-}

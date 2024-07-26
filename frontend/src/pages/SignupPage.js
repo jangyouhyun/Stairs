@@ -51,6 +51,7 @@ function SignupPage() {
             남자
           </label>
         </div>
+        <input type="date" placeholder="생년월일" className="input-field" />
         <input type="text" placeholder="휴대폰 번호" className="input-field" />
         <input type="email" placeholder="이메일" className="input-field" />
         <button type="submit" className="submit-button">완료</button>
