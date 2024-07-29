@@ -53,6 +53,27 @@ function SignupPage() {
     });
   };
 
+  const checkIdAvailability = async () => {
+    if (!formData.id) {
+      alert('아이디를 입력하세요');
+      return;
+    }
+    try {
+      const response = await fetch('/auth/check_id', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: formData.id })
+      });
+
+      const data = await response.json();
+      alert(data.message);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <div className="signup-container">
       <label htmlFor="profile-image-input">
@@ -67,7 +88,7 @@ function SignupPage() {
       />
       <form className="signup-form" onSubmit={handleSubmit}>
         <div className="input-group">
-        <input 
+          <input 
             type="text" 
             placeholder="아이디" 
             name="id" 
@@ -75,7 +96,7 @@ function SignupPage() {
             onChange={handleChange}
             className="input-field" 
           />
-          <button type="button" className="check-button" onClick={() => alert('사용 가능한 아이디입니다!')}>중복확인</button>
+          <button type="button" className="check-button" onClick={checkIdAvailability}>중복확인</button>
         </div>
         <input 
           type="password" 
@@ -104,7 +125,7 @@ function SignupPage() {
         />
         <div className="gender-container">
           <label>
-          <input 
+            <input 
               type="radio" 
               name="gender" 
               value="여성"
@@ -114,7 +135,7 @@ function SignupPage() {
             여자
           </label>
           <label>
-          <input 
+            <input 
               type="radio" 
               name="gender" 
               value="남성"
@@ -127,10 +148,11 @@ function SignupPage() {
         <input 
           type="date" 
           placeholder="생년월일" 
-          name = "birth"
+          name="birth"
           value={formData.birth}
           onChange={handleChange}
-          className="input-field" />
+          className="input-field" 
+        />
         <input 
           type="text" 
           placeholder="휴대폰 번호" 

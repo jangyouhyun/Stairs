@@ -4,6 +4,29 @@ var db = require('../src/db.js');
 
 router.use(express.json());
 
+// 아이디 중복 확인
+// 아이디 중복 확인
+router.post('/check_id', function (request, response) {
+    var id = request.body.id;
+    if (id) {
+        db.query('SELECT * FROM user_info WHERE id = ?', [id], function (error, results, fields) {
+            if (error) {
+                console.error('Database error:', error);
+                response.status(500).json({ success: false, message: 'Internal server error' });
+                throw error;
+            }
+            if (results.length > 0) {
+                response.json({ success: false, message: '이미 존재하는 아이디입니다' });
+            } else {
+                response.json({ success: true, message: '사용 가능한 아이디입니다' });
+            }
+        });
+    } else {
+        response.status(400).json({ success: false, message: '아이디를 입력하세요' });
+    }
+});
+
+
 // 로그인 프로세스
 router.post('/login_process', function (request, response) {
     var id = request.body.id;
