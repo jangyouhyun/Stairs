@@ -1,3 +1,4 @@
+// LoginForm.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginForm.css';
@@ -14,10 +15,9 @@ function LoginForm() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ id, pw: password })
+        body: JSON.stringify({ id, password }) // password로 수정
       });
   
-      // 응답 상태 코드 확인
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -34,7 +34,6 @@ function LoginForm() {
       alert('An error occurred. Please try again.');
     }
   };
-  
 
   return (
     <form className="login-form" onSubmit={(e) => e.preventDefault()}>
@@ -49,7 +48,7 @@ function LoginForm() {
         type="password"
         placeholder="비밀번호"
         className="input-field"
-        name="password"
+        name="password" // password로 수정
         onChange={(e) => setPassword(e.target.value)}
       />
       <div className="button-container">

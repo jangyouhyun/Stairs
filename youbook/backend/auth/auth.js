@@ -44,18 +44,18 @@ router.post('/register_process', function(request, response) {
     var username = request.body.username;
     var email = request.body.email;
     var phone_num = request.body.phone_num;
-    //var birth = request.body.birth;
+    var birth = request.body.birth;
     var gender = request.body.gender;
 
-    if (username && password && password2 && id && email && phone_num && gender) {
+    if (username && password && password2 && id && email && phone_num && gender && birth) {
         db.query('SELECT * FROM user_info WHERE id = ? or phone_number = ?', [id, phone_num], function(error, results, fields) {
             if (error) {
                 response.status(500).json({ success: false, message: 'Internal server error' });
                 throw error;
             }
             if (results.length <= 0 && password === password2) {
-                db.query('INSERT INTO user_info (id, pw, name, email, phone_number, gender) VALUES(?,?,?,?,?,?)', 
-                [id, password, username, email, phone_num, gender], function (error, data) {
+                db.query('INSERT INTO user_info (id, pw, name, email, phone_number, gender, birth) VALUES(?,?,?,?,?,?,?)', 
+                [id, password, username, email, phone_num, gender, birth], function (error, data) {
                     if (error) {
                         response.status(500).json({ success: false, message: 'Internal server error' });
                         throw error;
