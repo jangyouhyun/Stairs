@@ -7,7 +7,7 @@
 > /youbook 에서 npm install<br>
 > /youbook/frontend 에서 npm install<br>
 > /youbook/backend 에서 npm install<br>
-> redis 설치 -> 세션 저장소 - (mac) brew install redis / (window) <br><br>https://github.com/microsoftarchive/redis/releases -> msi 파일 설치<br>
+> redis 설치 -> 세션 저장소 - (mac) brew install redis / (window) https://github.com/microsoftarchive/redis/releases -> msi 파일 설치<br>
 > redis-server 실행 - 터미널(관리자권한) 실행 후 redis-server 입력<br>
 
 > database 세팅 - mysql -u root -p // pw를 root 로 해야 정상동작한다<br>
