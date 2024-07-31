@@ -15,6 +15,7 @@ function SignupPage() {
     birth: '',
     gender: ''
   });
+  const [passwordError, setPasswordError] = useState(false);
   const navigate = useNavigate();
 
   const handleProfileImageChange = (event) => {
@@ -27,10 +28,24 @@ function SignupPage() {
       ...formData,
       [name]: value
     });
+
+    if (name === 'pw') {
+      validatePassword(value);
+    }
+  };
+
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    setPasswordError(!passwordRegex.test(password));
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    if (passwordError) {
+      alert('비밀번호가 유효하지 않습니다.');
+      return;
+    }
 
     fetch('/auth/register_process', {
       method: 'POST',
@@ -104,9 +119,10 @@ function SignupPage() {
           name="pw"
           value={formData.pw}
           onChange={handleChange}
-          className="input-field" 
+          className={`input-field ${passwordError ? 'error' : ''}`} 
         />
         <span className="password-hint">*숫자, 영문 대문자 포함 8자 이상</span>
+        {passwordError && <span className="error-message">비밀번호가 유효하지 않습니다.</span>}
         <input 
           type="password" 
           placeholder="비밀번호 확인" 
