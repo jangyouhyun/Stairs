@@ -1,0 +1,127 @@
+.book-reading-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    font-family: 'MinSans-Regular', sans-serif;
+    background-color: #f8f8f8;
+  }
+  
+  .main-header {
+    position : absolute;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #014034;
+    color: white;
+    padding: 10px 20px;
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .header-left h2 {
+    position : absolute;
+    top : 30px;
+    left : 1000px;
+    font-size : 15px;
+    color : #FBF6E8;
+
+  }
+  
+  .header-right {
+    display: flex;
+    align-items: center;
+  }
+  
+  .regenerate-icon {
+    width: 120px;
+    height: 50px;
+    margin-left: 10px;
+    cursor: pointer;
+    margin : 20px;
+  }
+  
+  .profile-icon{
+    width : 50px;
+    height : 50px;
+    border-radius: 50%;
+  }
+
+  .header-line{
+    display : block;
+    width: 100%;
+    height: 3px;
+    background-color: #FBF6E8;
+    position : absolute;
+    top : 3px;
+    justify-content: center;
+  }
+
+  .book-content {
+    display: flex;
+    width : 1300px;
+    height : 1000px;
+    padding: 10px;
+    margin : 20px;
+    position: relative;
+    justify-content: center;
+    top : 90px;
+  }
+  
+  .page-left,
+  .page-right {
+    flex: 1;
+    background-color: #fdfdfd;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin: 0 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .page-left h3 {
+    margin-bottom: 20px;
+  }
+  
+  .page-left p,
+  .page-right p {
+    margin-bottom: 20px;
+  }
+  
+  .book-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f8f8;
+    padding: 10px 20px;
+    position: relative;
+  }
+  
+  .navigation-buttons {
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-button {
+    background-color: #014034;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin: 0 10px;
+  }
+  
+  .action-buttons {
+    display: flex;
+  }
+  
+  .action-button {
+    background-color: #014034;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+  

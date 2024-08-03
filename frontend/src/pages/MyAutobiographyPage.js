@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './MyAutobiographyPage.css';
 import profileImage from '../assets/images/signup-icon.png'; // 예시 프로필 이미지
 
@@ -11,8 +12,14 @@ function MyAutobiographyPage() {
     { id: 4, category: '카테고리2', content: 'Item 4' },
   ]);
 
+  const navigate = useNavigate();
+
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
+  };
+
+  const handleItemClick = () => {
+    navigate('/book-reading'); // BookReadingPage로 이동
   };
 
   const filteredItems = items.filter(item => item.category === selectedCategory);
@@ -47,6 +54,7 @@ function MyAutobiographyPage() {
             <button className={`category-button ${selectedCategory === '카테고리1' ? 'active' : ''}`} onClick={() => handleCategoryClick('카테고리1')}>카테고리1</button>
             <button className={`category-button ${selectedCategory === '카테고리2' ? 'active' : ''}`} onClick={() => handleCategoryClick('카테고리2')}>카테고리2</button>
           </div>
+          <div class="category-line"></div>
         </div>
         <div className="selection">
           <div className="selection-left">
@@ -63,7 +71,7 @@ function MyAutobiographyPage() {
             <span className="plus-icon">+</span>
           </div>
           {filteredItems.map(item => (
-            <div key={item.id} className="autobiography-item">
+            <div key={item.id} className="autobiography-item" onClick={handleItemClick}>
               <input type="checkbox" />
               {item.content}
             </div>

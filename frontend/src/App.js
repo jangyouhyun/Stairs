@@ -3,9 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import SignupPage from './pages/SignupPage';
 import MainPage from './pages/MainPage';
-import BookPage from './pages/BookPage';
-import MyAutobiographyPage from './pages/MyAutobiographyPage'; // 새로운 페이지 추가
-import './App.css';
+import MyAutobiographyPage from './pages/MyAutobiographyPage';
+import BookReadingPage from './pages/BookReadingPage'; // BookReadingPage 추가
 
 function App() {
   return (
@@ -14,8 +13,8 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/main" element={<MainPage />} />
-        <Route path="/book" element={<BookPage />} />
-        <Route path="/my-autobiography" element={<MyAutobiographyPage />} /> {/* 새로운 페이지 경로 추가 */}
+        <Route path="/my-autobiography" element={<MyAutobiographyPage />} />
+        <Route path="/book-reading" element={<BookReadingPage />} /> {/* BookReadingPage 경로 추가 */}
       </Routes>
     </Router>
   );
