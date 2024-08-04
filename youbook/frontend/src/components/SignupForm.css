@@ -1,0 +1,118 @@
+.signup-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #E3CAA5;
+  color: #AD8B73;
+  border-radius: 10px;
+  padding: 40px 40px; /* 패딩 추가 */
+  margin-top : 60px;
+  margin-bottom: 60px;
+  width: 120%;
+  box-sizing: border-box;
+}
+
+.signup-icon {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  border-radius: 50%; /* 원형으로 만들기 */
+  object-fit: cover; /* 이미지가 원 안에 잘 맞도록 조정 */
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  background-color: #D0B38C;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-family: 'MinSans-Regular', sans-serif;
+}
+
+.input-group {
+  display: flex;
+  width: 105%;
+  padding : 0px;
+  align-items: center;
+  justify-content: space-between; /* 같은 가로선상에 두기 위해 추가 */
+}
+
+.input-group .input-field {
+  flex: 2.5; /* 필드의 너비를 증가시킵니다 */
+  margin-right: 10px;
+}
+
+.input-group .check-button {
+  flex: 1;
+  margin-top: -10px; /* 중복확인 버튼을 더 위로 올림 */
+}
+
+.check-button, .submit-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #014034;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  font-family: 'MinSans-Regular', sans-serif;
+  margin-top: 10px;
+}
+
+.check-button:hover, .submit-button:hover {
+  background-color: #012c26;
+}
+
+.password-hint {
+  font-size: 0.8rem;
+  color: #777;
+  margin-bottom: 10px;
+  text-align: left;
+  width: 100%;
+}
+
+.gender-container {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 10px;
+  gap: 10px; /* 두 버튼 사이 간격을 줄임 */
+}
+
+.gender-container label {
+  display: flex;
+  align-items: center;
+  font-family: 'MinSans-Regular', sans-serif;
+}
+
+.gender-container input {
+  margin-right: 5px;
+}
+
+.input-field.error {
+  border-color: red;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}

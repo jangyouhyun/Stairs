@@ -1,0 +1,157 @@
+/* 기본 스타일 */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'MinSans-Regular', sans-serif;
+  background-color: #FFFFFF; /* 전체 배경색 */
+}
+
+.main-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 60px; /* 헤더 높이만큼 패딩 추가 */
+  background-color: #FFFFFF; /* main-page 배경색 */
+  min-height: calc(100vh - 60px); /* 헤더 높이를 제외한 전체 높이 */
+}
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background-color:  #00322A; /* 상단바 색상 */
+  color: white;
+  padding: 0px 20px;
+  border-radius: 0px;
+  box-sizing: border-box;
+  position: fixed; /* 최상단에 고정 */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* 다른 요소들 위에 위치 */
+  height : 100px;
+}
+
+.menu-button, .profile-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 3rem;
+  cursor: pointer;
+}
+
+.menu-button{
+  margin-top : -10px;
+}
+.profile-button {
+  padding: 0px; /* 버튼 내부 여백 제거 */
+  width: 100%; /* 버튼의 너비 설정 */
+  height: 100%; /* 버튼의 높이 설정 */
+  display: flex;
+  align-items: right;
+  justify-content: right;
+}
+
+.profile-image {
+  padding : 0px;
+  width : 40px;
+  height : 40px;
+  border-radius: 50%; /* 원형으로 만들기 */
+  object-fit: cover;
+}
+
+.title-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%; /* 화면의 가로 폭에서 좌우 간격을 뺀 너비 */
+  max-width: 1800px; /* 최대 너비 설정 */
+  margin: 20px auto; /* 상하 간격 설정 및 가운데 정렬 */
+}
+
+.main-title {
+  font-size: 1.8rem; /* 글꼴 크기 설정 */
+  text-align: left;
+  color: #363636; /* 문구 색상 */
+  flex-grow: 1;
+  margin-left: 20px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: white; /* main-content 배경색 */
+  padding: 40px; /* 패딩 설정 */
+  border-radius: 5px;
+  margin-top: 20px; /* 헤더 아래에 위치하도록 여백 추가 */
+  width: 100%; /* 화면의 가로 폭에서 좌우 간격을 뺀 너비 */
+  max-width: 1400px; /* 최대 너비 설정 */
+  box-sizing: border-box;
+}
+
+.main-image {
+  width: 120px; /* 이미지 크기 조정 */
+  height: 120px; /* 이미지 높이 조정 */
+  margin-right: 20px; /* 이미지와 제목 사이의 여백 설정 */
+  object-fit: cover; /* 이미지가 주어진 공간에 맞게 조정 */
+}
+
+.question-button {
+  background-color: #00462a; /* 상단바 색상과 동일하게 설정 */
+  border: none;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 5px;
+  cursor: pointer;
+  align-self: flex-end; /* 오른쪽 정렬 */
+  margin-bottom: 20px;
+}
+
+.main-textarea {
+  width: 100%;
+  height: 300px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  font-family: 'MinSans-Regular', sans-serif;
+}
+
+/* 반응형 디자인을 위한 미디어 쿼리 */
+@media (max-width: 768px) {
+  .main-container {
+    padding: 10px;
+  }
+  
+  .main-header {
+    flex-direction: row; /* 작은 화면에서도 동일한 위치 유지 */
+  }
+  
+  .main-title {
+    font-size: 1.5rem; /* 작은 화면에서는 글꼴 크기 조정 */
+    margin: 10px 0;
+  }
+  
+  .main-content {
+    padding: 20px; /* 작은 화면에서도 패딩을 크게 설정 */
+    width: calc(100% - 20px); /* 작은 화면에서 좌우 간격을 뺀 너비 */
+  }
+  
+  .main-image {
+    width: 100px; /* 작은 화면에서는 이미지 크기 조정 */
+    height: 100px; /* 작은 화면에서는 이미지 높이 조정 */
+  }
+  
+  .question-button {
+    padding: 15px;
+    font-size: 1.2rem;
+  }
+  
+  .main-textarea {
+    height: 150px;
+  }
+}
