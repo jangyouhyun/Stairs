@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import $ from 'jquery';
-import 'path-to-your-turnjs/turn.js'; // turn.js 파일 경로 설정
+import '../assets/js/turn.js';
 import leftArrow from '../assets/images/left.png';
 import rightArrow from '../assets/images/right.png';
 import signupIcon from '../assets/images/signup-icon.png';

@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 /**
  * turn.js 3rd release
  * www.turnjs.com
