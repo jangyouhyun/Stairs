@@ -9,66 +9,20 @@ body, html {
 }
 
 .main-page {
-  display: flex;
+  height: 100vh;
+  width: 100vw;
   justify-content: center;
   align-items: center;
-  padding-top: 60px; /* 헤더 높이만큼 패딩 추가 */
   background-color: #FFFFFF; /* main-page 배경색 */
-  min-height: calc(100vh - 60px); /* 헤더 높이를 제외한 전체 높이 */
 }
 
-.main-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  background-color:  #00322A; /* 상단바 색상 */
-  color: white;
-  padding: 0px 20px;
-  border-radius: 0px;
-  box-sizing: border-box;
-  position: fixed; /* 최상단에 고정 */
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000; /* 다른 요소들 위에 위치 */
-  height : 120px;
-}
-
-.menu-button, .profile-button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 3rem;
-  cursor: pointer;
-}
-
-.menu-button{
-  margin-top : -10px;
-}
-.profile-button {
-  padding: 0px; /* 버튼 내부 여백 제거 */
-  width: 100%; /* 버튼의 너비 설정 */
-  height: 100%; /* 버튼의 높이 설정 */
-  display: flex;
-  align-items: right;
-  justify-content: right;
-}
-
-.profile-image {
-  padding : 0px;
-  width : 40px;
-  height : 40px;
-  border-radius: 50%; /* 원형으로 만들기 */
-  object-fit: cover;
-}
 
 .title-image-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%; /* 화면의 가로 폭에서 좌우 간격을 뺀 너비 */
-  max-width: 1800px; /* 최대 너비 설정 */
+  width: 110%; /* 화면의 가로 폭에서 좌우 간격을 뺀 너비 */
+  max-width: 1000px; /* 최대 너비 설정 */
   margin: 20px auto; /* 상하 간격 설정 및 가운데 정렬 */
 }
 
@@ -81,17 +35,17 @@ body, html {
 }
 
 .main-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   background-color: white; /* main-content 배경색 */
   padding: 40px; /* 패딩 설정 */
   border-radius: 5px;
-  margin-top: 20px; /* 헤더 아래에 위치하도록 여백 추가 */
-  width: 100%; /* 화면의 가로 폭에서 좌우 간격을 뺀 너비 */
-  max-width: 1400px; /* 최대 너비 설정 */
+  margin-top: 100px; /* 헤더 아래에 위치하도록 여백 추가 */
+  width: 100%;
+  max-width : 750px;
   box-sizing: border-box;
+  position : absolute;
+  top : 50%;
+  left : 50%;
+  transform: translate(-50%, -50%);
 }
 
 .main-image {
@@ -110,6 +64,8 @@ body, html {
   cursor: pointer;
   align-self: flex-end; /* 오른쪽 정렬 */
   margin-bottom: 20px;
+  position : relative;
+  left : 510px;
 }
 
 .main-textarea {

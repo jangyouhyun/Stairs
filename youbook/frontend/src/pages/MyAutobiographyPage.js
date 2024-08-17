@@ -20,7 +20,7 @@ function MyAutobiographyPage() {
   };
 
   const handleItemClick = (id) => {
-    navigate('/book');
+    navigate('/book', { state: { id } });
   };
 
   const handleCheckboxChange = (id) => {
@@ -76,7 +76,7 @@ function MyAutobiographyPage() {
           </ul>
         </nav>
       </aside>
-      <main className="main-content">
+      <main className="page-content">
         <header className="header">
           <h1>나의 자서전 <span className="highlighted-number">3</span></h1>
           <div className="search-bar">
