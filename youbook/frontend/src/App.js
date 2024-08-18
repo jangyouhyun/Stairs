@@ -5,6 +5,7 @@ import SignupPage from './pages/SignupPage';
 import MainPage from './pages/MainPage';
 import BookReadingPage from './pages/BookReadingPage';
 import MyAutobiographyPage from './pages/MyAutobiographyPage';
+import BookDesignPage from './pages/BookDesignPage'; // BookDesignPage.js 추가
 import $ from 'jquery';
 import './assets/js/turn.js';
 
@@ -22,7 +23,8 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/book" element={<BookReadingPage />} />
-        <Route path="/my-autobiography" element={<MyAutobiographyPage />} /> 
+        <Route path="/my-autobiography" element={<MyAutobiographyPage />} />
+        <Route path="/book-design" element={<BookDesignPage />} /> {/* BookDesignPage 경로 추가 */}
       </Routes>
     </Router>
   );

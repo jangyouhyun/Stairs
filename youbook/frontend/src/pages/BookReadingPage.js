@@ -16,6 +16,10 @@ function BookReadingPage() {
     navigate('/my-autobiography');
   };
 
+  const handleEditClick = () => {
+    navigate('/book-design'); // 'book-design' 경로로 이동
+  };
+
   useEffect(() => {
     const $book = $('#book');
 
@@ -26,28 +30,17 @@ function BookReadingPage() {
       elevation: 50,
       gradients: true,
       duration: 1000,
-      pages:6,
+      pages: 6, // 책의 총 페이지 수 설정
       when: {
-        turned: function(event, page, view) {
-          const actualPage = Math.floor((page - 2) / 2) + 1; // 페이지 번호 계산
+        turned: function (event, page) {
+          const actualPage = Math.floor((page - 2) / 2) + 1;
           setCurrentPage(actualPage >= 0 ? actualPage : 0); // 표지일 때는 0으로 설정
-
-          if (page === 1) {
-            // 첫 페이지일 때 중앙 정렬 유지
-            $book.addClass('centered');
-          } else {
-            // 첫 페이지를 넘기면 원래 위치로 복귀
-            $book.removeClass('centered');
-          }
-        }
-      }
+        },
+      },
     });
 
-    // 총 페이지 수를 설정
+    // 총 페이지 수 설정
     setTotalPages(Math.ceil($book.turn('pages') / 2));
-
-    // 초기 상태에서 첫 페이지가 중앙에 있도록 설정
-    $book.addClass('centered');
   }, []);
 
   const handlePrevious = () => {
@@ -81,16 +74,12 @@ function BookReadingPage() {
         <div className="page">
           <div className="page-content">
             <h2>Chapter 1: The Journey to Presidency</h2>
-            <p>
-              Since childhood, I grew up in a humble environment with my family...
-            </p>
+            <p>Since childhood, I grew up in a humble environment with my family...</p>
           </div>
         </div>
         <div className="page">
           <div className="page-content">
-            <p>
-              The path to presidency was far from easy...
-            </p>
+            <p>The path to presidency was far from easy...</p>
           </div>
         </div>
         <div className="hard">
@@ -101,7 +90,7 @@ function BookReadingPage() {
       </div>
       <div className="page-move">
         <span className="left-button" onClick={handlePrevious}>
-          <img src={leftArrow} alt="Previous" /> 
+          <img src={leftArrow} alt="Previous" />
         </span>
         <span className="page-indicator">{currentPage} / {totalPages}</span>
         <span className="right-button" onClick={handleNext}>
@@ -110,7 +99,7 @@ function BookReadingPage() {
       </div>
 
       <div className="book-footer">
-        <button className="footer-button">직접 수정</button>
+        <button className="footer-button" onClick={handleEditClick}>직접 수정</button>
         <button className="footer-button">그대로 완성</button>
       </div>
     </div>
