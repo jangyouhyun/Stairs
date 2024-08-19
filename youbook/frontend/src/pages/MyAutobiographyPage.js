@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MyAutobiographyPage.css';
-import profileImage from '../assets/images/signup-icon.png';
+import defaultProfileImage from '../assets/images/signup-icon.png';
 import search from '../assets/images/search.png';
 
 function MyAutobiographyPage() {
@@ -12,8 +12,30 @@ function MyAutobiographyPage() {
     { id: 3, category: '카테고리2', content: 'Item 3', title: '제목 3', date: '2023-08-12', checked: false },
     { id: 4, category: '카테고리2', content: 'Item 4', title: '제목 4', date: '2023-08-13', checked: false },
   ]);
+  const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
+  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
+  const [searchQuery, setSearchQuery] = useState(''); // 검색어를 저장할 상태 변수
 
   const navigate = useNavigate();
+
+  // 유저 정보를 서버에서 가져옴
+  useEffect(() => {
+    fetch('/api/get_user_info')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log(data); // 데이터를 확인하기 위해 추가
+          setUserName(data.nickname); // 닉네임을 상태에 저장
+          setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로를 상태에 저장
+        } else {
+          console.error(data.message);
+          navigate('/');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching user info:', error);
+      });
+  }, [navigate]);
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
@@ -57,30 +79,42 @@ function MyAutobiographyPage() {
     setItems([...items, newItem]);
   };
 
-  const filteredItems = items.filter(item => item.category === selectedCategory);
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const filteredItems = items.filter(item => 
+    item.category === selectedCategory && 
+    item.title.includes(searchQuery)
+  );
 
   return (
     <div className="my-autobiography-page">
       <aside className="sidebar">
         <div className="profile-section">
-          <img src={profileImage} alt="Profile" className="profile-image" />
-          <div className="profile-name">김이화</div>
+          <img src={profileImagePath} alt="Profile" className="profile-image" />
+          <div className="profile-name">{userName}</div>
         </div>
         <nav className="sidebar-nav">
           <ul>
-            <li>유북 홈</li>
+            <li onClick={() => navigate('/home')}>유북 홈</li>
             <li className="active">나의 자서전 목록</li>
-            <li>1:1 문의 내역</li>
-            <li>개인정보수정</li>
+            <li onClick={() => navigate('/inquiry')}>1:1 문의 내역</li>
+            <li onClick={() => navigate('/profile')}>개인정보수정</li>
             <li onClick={handleLogout}>로그아웃</li>
           </ul>
         </nav>
       </aside>
       <main className="page-content">
         <header className="header">
-          <h1>나의 자서전 <span className="highlighted-number">3</span></h1>
+          <h1>나의 자서전 <span className="highlighted-number">{filteredItems.length}</span></h1>
           <div className="search-bar">
-            <input type="text" placeholder="자서전 제목" />
+            <input 
+              type="text" 
+              placeholder="자서전 제목" 
+              value={searchQuery} 
+              onChange={handleSearch} 
+            />
             <img src={search} alt="Search" className="search-image" />
           </div>
         </header>
