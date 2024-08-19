@@ -27,13 +27,13 @@ router.get('/get_user_info', (req, res) => {
 
 // 사용자 책 정보 가져오기
 router.get('/get_books', (req, res) => {
-	const userId = req.session.nickname;
-  
+	const userId = req.session.nickname; // 세션에서 userId 가져오기
+	
 	if (!userId) {
 	  return res.status(401).json({ success: false, message: 'User not logged in' });
 	}
   
-	db.query('SELECT book_id, create_date, image_path FROM book_list WHERE user_id = ? ORDER BY create_date DESC', [userId], (error, results) => {
+	db.query('SELECT book_id, title, create_date, image_path FROM book_list WHERE user_id = ? ORDER BY create_date DESC', [userId], (error, results) => {
 	  if (error) {
 		console.error('Database query error:', error);
 		return res.status(500).json({ success: false, message: 'Internal server error' });

@@ -6,12 +6,7 @@ import search from '../assets/images/search.png';
 
 function MyAutobiographyPage() {
   const [selectedCategory, setSelectedCategory] = useState('카테고리1');
-  const [items, setItems] = useState([
-    { id: 1, category: '카테고리1', content: 'Item 1', title: '제목 1', date: '2023-08-10', checked: false },
-    { id: 2, category: '카테고리1', content: 'Item 2', title: '제목 2', date: '2023-08-11', checked: false },
-    { id: 3, category: '카테고리2', content: 'Item 3', title: '제목 3', date: '2023-08-12', checked: false },
-    { id: 4, category: '카테고리2', content: 'Item 4', title: '제목 4', date: '2023-08-13', checked: false },
-  ]);
+  const [items, setItems] = useState([]); // 빈 배열로 초기화
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   const [searchQuery, setSearchQuery] = useState(''); // 검색어를 저장할 상태 변수
@@ -24,9 +19,11 @@ function MyAutobiographyPage() {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          console.log(data); // 데이터를 확인하기 위해 추가
           setUserName(data.nickname); // 닉네임을 상태에 저장
           setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로를 상태에 저장
+          
+          // 유저 정보를 가져온 후, book_list 데이터를 가져옴
+          fetchBooks(data.user_id);
         } else {
           console.error(data.message);
           navigate('/');
@@ -36,6 +33,37 @@ function MyAutobiographyPage() {
         console.error('Error fetching user info:', error);
       });
   }, [navigate]);
+
+// book_list 데이터를 가져오는 함수
+const fetchBooks = () => {
+  fetch('/api/get_books')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const fetchedItems = data.books.map((book, index) => {
+          // 날짜를 포맷팅 (시간 제거)
+          const formattedDate = new Date(book.create_date).toISOString().slice(0, 10);
+          
+          return {
+            id: index + 1,
+            category: '카테고리1', // 모든 항목의 카테고리를 '카테고리1'로 설정
+            content: book.image_path || defaultProfileImage, // content 필드에 이미지 경로 설정
+            title: book.title,
+            date: formattedDate, // 포맷된 날짜 설정
+            checked: false,
+          };
+        });
+        setItems(fetchedItems);
+      } else {
+        console.error(data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching books:', error);
+    });
+};
+
+
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
@@ -83,10 +111,9 @@ function MyAutobiographyPage() {
     setSearchQuery(event.target.value);
   };
 
-  const filteredItems = items.filter(item => 
-    item.category === selectedCategory && 
-    item.title.includes(searchQuery)
-  );
+  const filteredItems = items
+  .filter(item => item.title && item.title.includes(searchQuery)); // item.title이 존재하는지 확인
+
 
   return (
     <div className="my-autobiography-page">
@@ -147,7 +174,12 @@ function MyAutobiographyPage() {
                 onChange={() => handleCheckboxChange(item.id)}
               />
               <div className="item-content" onClick={() => handleItemClick(item.id)}>
-                {item.content}
+                <img 
+                  src={item.content} 
+                  alt={item.title} 
+                  className="item-image" 
+                  onError={(e) => e.target.src = defaultProfileImage} 
+                />
                 <div className="item-details">
                   <div className="item-title">{item.title}</div>
                   <div className="item-date">{item.date}</div>
