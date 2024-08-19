@@ -9,7 +9,7 @@ var authCheck = require('../auth/authCheck.js');
 var authRouter = require('../auth/auth.js');
 var writeRouter = require('./write_page.js');
 const userRouter = require('../auth/user.js');
-var template = require('./template.js');
+//var template = require('./template.js');
 const imageRouter = require('./image.js');
 
 // express 모듈 설정 / 포트번호 설정
@@ -64,6 +64,7 @@ app.get('/main', (req, res) => {
 	res.send(html);
 })
 
+// 글 작성 라우터
 app.use('/write', writeRouter);
 
 //유저확인라우터
