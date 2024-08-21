@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import './MainPage.css';
 import chatbotImage from '../assets/images/chatbot1.png'; // 이미지 경로 수정
 import defaultProfileImage from '../assets/images/signup-icon.png';
-import signupIcon from '../assets/images/signup-icon.png'; // signup-icon 이미지 임포트
-
 function MainPage() {
   const [text, setText] = useState('');
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); 

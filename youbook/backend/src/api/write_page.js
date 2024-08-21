@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var template = require('./template.js');
-var db = require('./db.js');
+var db = require('../db.js');
 var bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 
@@ -36,7 +35,6 @@ router.post('/write_process', function (request, response) {
                             throw error;
                         });
                     }
-
                     connection.commit(function (err) {
                         if (err) {
                             return connection.rollback(function () {

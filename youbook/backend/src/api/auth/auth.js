@@ -1,6 +1,6 @@
 var express = require('express'); 
 var router = express.Router(); 
-var db = require('../src/db.js'); 
+var db = require('../../db.js'); 
 const multer = require('multer');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');

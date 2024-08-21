@@ -5,14 +5,14 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const RedisStore = require('connect-redis').default;
 const Redis = require('ioredis');
-var authCheck = require('../auth/authCheck.js');
-var authRouter = require('../auth/auth.js');
-var writeRouter = require('./write_page.js');
-const userRouter = require('../auth/user.js');
-//var template = require('./template.js');
-const imageRouter = require('./image.js');
+var authCheck = require('./api/auth/authCheck.js');
+var authRouter = require('./api/auth/auth.js');
+var writeRouter = require('./api/write_page.js');
+const userRouter = require('./api/get_user_info.js');
+const imageRouter = require('./api/upload_image.js');
+const getBookListRouter = require('./api/get_books.js');
+const deleteBookRouter = require('./api/delete_book.js');
 
-// express 모듈 설정 / 포트번호 설정
 const app = express();
 
 // 요청 본문 해석
@@ -64,14 +64,14 @@ app.get('/main', (req, res) => {
 	res.send(html);
 })
 
-// 글 작성 라우터
-app.use('/write', writeRouter);
-
-//유저확인라우터
+//모든 api 분기 라우터
 app.use('/api', userRouter);
-
-//이미지 업로드 라우터
+app.use('/api', writeRouter);
+app.use('/api', getBookListRouter);
 app.use('/api', imageRouter);
+app.use('/api', deleteBookRouter);
+
+
 
 app.use((req, res, next) => {
     res.status(404).send('Not found');

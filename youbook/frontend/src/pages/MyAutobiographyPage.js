@@ -73,10 +73,30 @@ const fetchBooks = () => {
     navigate('/book', { state: { id } });
   };
 
-  const handleCheckboxChange = (id) => {
+  const handleCheckboxChange = async (id) => {
     setItems(items.map(item =>
       item.id === id ? { ...item, checked: !item.checked } : item
     ));
+
+    // 아이템 삭제 API 로 전송
+    try {
+      const response = await fetch('/api/delete_book_list', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete');
+      }
+
+      const data = await response.json();
+      console.log('Server response:', data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   const handleSelectAll = () => {

@@ -1,3 +1,6 @@
+const express = require('express');
+const router = express.Router();
+var db = require('../db.js'); 
 const multer = require('multer');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
@@ -15,15 +18,10 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-/////////////////////////////////////////////////////
-const express = require('express');
-const router = express.Router();
 
+// 이미지 파일의 경로를 DB에 저장
 router.post('/upload', upload.single('image'), (req, res) => {
-    // 이미지 파일의 경로를 DB에 저장
     const imagePath = `/uploads/${req.file.filename}`;
-    
-    // DB에 경로 저장하는 로직
     const query = 'INSERT INTO images (path) VALUES (?)';
     db.query(query, [imagePath], (err, results) => {
         if (err) {
@@ -33,5 +31,5 @@ router.post('/upload', upload.single('image'), (req, res) => {
     });
 });
 
-module.exports = router;
 
+module.exports = router;
