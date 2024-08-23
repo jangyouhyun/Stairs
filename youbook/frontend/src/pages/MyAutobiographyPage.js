@@ -11,6 +11,7 @@ function MyAutobiographyPage() {
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   const [searchQuery, setSearchQuery] = useState(''); // 검색어를 저장할 상태 변수
 
+
   const navigate = useNavigate();
 
   // 유저 정보를 서버에서 가져옴
@@ -123,9 +124,24 @@ const fetchBooks = () => {
     }
   };
 
-  const handleLogout = () => {
-    navigate('/');
-  };
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        navigate('/');  // 로그아웃 성공 후 메인 페이지로 이동
+      } else {
+        console.error('Failed to log out');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };  
 
   const handleAddNewItem = () => {
     const newItem = {

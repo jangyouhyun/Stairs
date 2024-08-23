@@ -12,6 +12,7 @@ const userRouter = require('./api/get_user_info.js');
 const imageRouter = require('./api/upload_image.js');
 const getBookListRouter = require('./api/get_books.js');
 const deleteBookRouter = require('./api/delete_book.js');
+const logoutRouter = require('./api/auth/logout.js');
 
 const app = express();
 
@@ -70,6 +71,7 @@ app.use('/api', writeRouter);
 app.use('/api', getBookListRouter);
 app.use('/api', imageRouter);
 app.use('/api', deleteBookRouter);
+app.use('/api', logoutRouter);
 
 
 
