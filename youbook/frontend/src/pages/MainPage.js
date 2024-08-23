@@ -29,7 +29,7 @@ function MainPage() {
   };
 
   const handleSubmit = () => {
-    fetch('/write/write_process', {
+    fetch('/api/write_process', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

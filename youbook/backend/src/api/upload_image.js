@@ -21,7 +21,7 @@ const upload = multer({ storage: storage });
 
 // 이미지 파일의 경로를 DB에 저장
 router.post('/upload', upload.single('image'), (req, res) => {
-    const imagePath = `/uploads/${req.file.filename}`;
+    const imagePath = `/uploads//${req.file.filename}`;
     const query = 'INSERT INTO images (path) VALUES (?)';
     db.query(query, [imagePath], (err, results) => {
         if (err) {

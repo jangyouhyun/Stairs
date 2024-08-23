@@ -47,6 +47,7 @@ const fetchBooks = () => {
           return {
             id: index + 1,
             category: '카테고리1', // 모든 항목의 카테고리를 '카테고리1'로 설정
+            book_id: book.book_id,
             content: book.image_path || defaultProfileImage, // content 필드에 이미지 경로 설정
             title: book.title,
             date: formattedDate, // 포맷된 날짜 설정
@@ -73,30 +74,10 @@ const fetchBooks = () => {
     navigate('/book', { state: { id } });
   };
 
-  const handleCheckboxChange = async (id) => {
+  const handleCheckboxChange = (id) => {
     setItems(items.map(item =>
       item.id === id ? { ...item, checked: !item.checked } : item
     ));
-
-    // 아이템 삭제 API 로 전송
-    try {
-      const response = await fetch('/api/delete_book_list', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete');
-      }
-
-      const data = await response.json();
-      console.log('Server response:', data);
-    } catch (error) {
-      console.error('Error:', error);
-    }
   };
 
   const handleSelectAll = () => {
@@ -104,10 +85,41 @@ const fetchBooks = () => {
     setItems(items.map(item => ({ ...item, checked: !allChecked })));
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     const confirmed = window.confirm('정말 삭제하시겠습니까?');
+  
     if (confirmed) {
-      setItems(items.filter(item => !item.checked));
+      // checked가 true인 항목들의 id 추출
+      const checkedId = items
+        .filter(item => item.checked)
+        .map(item => item.book_id);
+  
+      if (checkedId.length > 0) {
+        try {
+          // API 호출: 삭제할 id 목록을 body에 포함
+          const response = await fetch('/api/delete_book_list', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ book_id: checkedId }), // id들의 배열을 전송
+          });
+  
+          if (!response.ok) {
+            throw new Error('Failed to delete items');
+          }
+  
+          const data = await response.json();
+          console.log('Server response:', data);
+  
+          // 성공적으로 삭제된 경우 상태 업데이트
+          setItems(items.filter(item => !item.checked));
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      } else {
+        console.log('No items selected for deletion');
+      }
     }
   };
 

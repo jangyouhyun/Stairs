@@ -78,7 +78,7 @@ const upload = multer({ storage: storage });
 // 회원가입프로세스
 router.post('/register_process', upload.single('profileImage'), function (request, response) {    
     const { id, pw, pw2, username, email, phone_num, birth, gender } = request.body;
-    const profileImagePath = request.file ? `/uploads/${request.file.filename}` : null;
+    const profileImagePath = request.file ? `/uploads//${request.file.filename}` : null;
 
     if (username && pw && pw2 && id && email && phone_num && gender && birth) {
         db.query('SELECT * FROM user_info WHERE id = ? or phone_number = ?', [id, phone_num], function (error, results) {
