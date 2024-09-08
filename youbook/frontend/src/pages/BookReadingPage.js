@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import $ from 'jquery';
-import '../assets/js/turn.js';
+import '../assets/js/turn.js'; // Ensure this path is correct for your project
 import './BookReadingPage.css';
 import signupIcon from '../assets/images/signup-icon.png';
 import leftArrow from '../assets/images/left.png';
@@ -9,50 +9,66 @@ import rightArrow from '../assets/images/right.png';
 
 function BookReadingPage() {
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(0); // 현재 페이지 상태
-  const [totalPages, setTotalPages] = useState(0); // 총 페이지 수 상태
+  const [currentPage, setCurrentPage] = useState(0); // Current page state
+  const [totalPages, setTotalPages] = useState(0); // Total page count
+  const [bookName, setBookName] = useState(''); // Book name state
+  const [category, setCategory] = useState(''); // Book category state
 
+  // Navigate to the autobiography page
   const handleProfileClick = () => {
     navigate('/my-autobiography');
   };
 
+  // Navigate to the book design page
   const handleEditClick = () => {
-    navigate('/book-design'); // 'book-design' 경로로 이동
+    navigate('/book-design');
+  };
+
+  // Handle "임시 저장" click event to show a popup
+  const handleSaveClick = () => {
+    alert('임시 저장되었습니다'); // Show popup when "임시 저장" is clicked
   };
 
   useEffect(() => {
+    // Ensure the DOM is loaded before calling turn.js
     const $book = $('#book');
 
-    $book.turn({
-      width: 800,
-      height: 500,
-      autoCenter: true,
-      elevation: 50,
-      gradients: true,
-      duration: 1000,
-      pages: 6, // 책의 총 페이지 수 설정
-      when: {
-        turned: function (event, page) {
-          const actualPage = Math.floor((page - 2) / 2) + 1;
-          setCurrentPage(actualPage >= 0 ? actualPage : 0); // 표지일 때는 0으로 설정
+    // Ensure book element exists before initializing turn.js
+    if ($book.length) {
+      $book.turn({
+        width: 800,
+        height: 500,
+        autoCenter: true, // Center the book
+        elevation: 50,
+        gradients: true,
+        duration: 1000,
+        pages: 6, // Set total pages
+        when: {
+          turned: function (event, page) {
+            const actualPage = Math.floor((page - 2) / 2) + 1; // Calculate actual page number
+            setCurrentPage(actualPage >= 0 ? actualPage : 0); // Set current page state
+          },
         },
-      },
-    });
+      });
 
-    // 총 페이지 수 설정
-    setTotalPages(Math.ceil($book.turn('pages') / 2));
+      // Set total pages count
+      setTotalPages(Math.ceil($book.turn('pages') / 2));
+    }
   }, []);
 
+  // Handle previous button click to flip the page backward
   const handlePrevious = () => {
     $('#book').turn('previous');
   };
 
+  // Handle next button click to flip the page forward
   const handleNext = () => {
     $('#book').turn('next');
   };
 
   return (
     <div className="book-reading-page">
+      {/* Header */}
       <header className="main-header">
         <button className="menu-button">☰</button>
         <button className="profile-button" onClick={handleProfileClick}>
@@ -60,6 +76,32 @@ function BookReadingPage() {
         </button>
       </header>
 
+      {/* Book name input and category selection */}
+      <div className="book-details">
+      <div className="input-group">
+          <select
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">카테고리</option>
+            <option value="fiction">카테고리1</option>
+            <option value="nonfiction">카테고리2</option>
+            <option value="biography">카테고리3</option>
+          </select>
+        </div>
+        <div className="input-group name">
+          <input
+            type="text"
+            id="bookName"
+            value={bookName}
+            onChange={(e) => setBookName(e.target.value)}
+            placeholder="책 이름을 입력하세요"
+          />
+        </div>
+      </div>
+
+      {/* Book content */}
       <div id="book" className="book-content">
         <div className="hard">
           <div className="page-content">
@@ -88,6 +130,8 @@ function BookReadingPage() {
           </div>
         </div>
       </div>
+
+      {/* Page navigation (left and right arrows) */}
       <div className="page-move">
         <span className="left-button" onClick={handlePrevious}>
           <img src={leftArrow} alt="Previous" />
@@ -98,9 +142,11 @@ function BookReadingPage() {
         </span>
       </div>
 
+      {/* Footer buttons */}
       <div className="book-footer">
         <button className="footer-button" onClick={handleEditClick}>직접 수정</button>
         <button className="footer-button">그대로 완성</button>
+        <button className="footer-button save-button" onClick={handleSaveClick}>임시 저장</button> {/* 임시 저장 button */}
       </div>
     </div>
   );

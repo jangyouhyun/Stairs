@@ -19,8 +19,7 @@ function SignupPage() {
   const navigate = useNavigate();
 
   const handleProfileImageChange = (event) => {
-    const file = event.target.files[0];
-    setProfileImage(file); // 파일 자체를 상태로 저장
+    setProfileImage(URL.createObjectURL(event.target.files[0]));
   };
 
   const handleChange = (event) => {
@@ -48,17 +47,12 @@ function SignupPage() {
       return;
     }
 
-    const data = new FormData(); // FormData 객체 생성
-    for (const key in formData) {
-      data.append(key, formData[key]);
-    }
-    if (profileImage) {
-      data.append('profileImage', profileImage); // 이미지 파일 추가
-    }
-
     fetch('/auth/register_process', {
       method: 'POST',
-      body: data,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
     })
     .then(response => response.json())
     .then(data => {
@@ -98,7 +92,7 @@ function SignupPage() {
   return (
     <div className="signup-container">
       <label htmlFor="profile-image-input">
-        <img src={profileImage ? URL.createObjectURL(profileImage) : signupIcon} alt="Signup Icon" className="signup-icon" />
+        <img src={profileImage || signupIcon} alt="Signup Icon" className="signup-icon" />
       </label>
       <input
         type="file"
