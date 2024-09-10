@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MyAutobiographyPage.css';
-import defaultProfileImage from '../assets/images/signup-icon.png';
+import profileImage from '../assets/images/signup-icon.png';
 import search from '../assets/images/search.png';
 
 function MyAutobiographyPage() {
@@ -89,41 +89,10 @@ const contextMenuRef = useRef(null); // Reference to the context menu
     setItems(items.map(item => ({ ...item, checked: !allChecked })));
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     const confirmed = window.confirm('정말 삭제하시겠습니까?');
-  
     if (confirmed) {
-      // checked가 true인 항목들의 id 추출
-      const checkedId = items
-        .filter(item => item.checked)
-        .map(item => item.book_id);
-  
-      if (checkedId.length > 0) {
-        try {
-          // API 호출: 삭제할 id 목록을 body에 포함
-          const response = await fetch('/api/delete_book_list', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ book_id: checkedId }), // id들의 배열을 전송
-          });
-  
-          if (!response.ok) {
-            throw new Error('Failed to delete items');
-          }
-  
-          const data = await response.json();
-          console.log('Server response:', data);
-  
-          // 성공적으로 삭제된 경우 상태 업데이트
-          setItems(items.filter(item => !item.checked));
-        } catch (error) {
-          console.error('Error:', error);
-        }
-      } else {
-        console.log('No items selected for deletion');
-      }
+      setItems(items.filter(item => !item.checked));
     }
   };
 
@@ -193,7 +162,6 @@ const contextMenuRef = useRef(null); // Reference to the context menu
     };
   }, []);
 
-
   const handleAddNewItem = () => {
     const newItem = {
       id: items.length + 1,
@@ -206,27 +174,68 @@ const contextMenuRef = useRef(null); // Reference to the context menu
     setItems([...items, newItem]);
   };
 
-  const handleSearch = (event) => {
-    setSearchQuery(event.target.value);
+  const handleContextMenu = (event, category) => {
+    event.preventDefault();
+    setShowContextMenu(true);
+    setContextMenuPosition({ x: event.pageX, y: event.pageY });
+    setEditingCategory(category);
   };
 
-  const filteredItems = items
-  .filter(item => item.title && item.title.includes(searchQuery)); // item.title이 존재하는지 확인
+  const handleRenameCategory = (newName) => {
+    setCategories(categories.map(cat => (cat === editingCategory ? newName : cat)));
+    setSelectedCategory(newName === selectedCategory ? newName : selectedCategory);
+    setShowContextMenu(false);
+  };
 
+  const handleDeleteCategory = () => {
+    const confirmed = window.confirm('정말 카테고리를 삭제하시겠습니까?');
+    if (confirmed) {
+      setCategories(categories.filter(cat => cat !== editingCategory));
+      setItems(items.filter(item => item.category !== editingCategory));
+      setSelectedCategory(categories[0]);
+    }
+    setShowContextMenu(false);
+  };
+
+  const handleAddCategory = () => {
+    if (categories.length >= 4) {
+      window.alert('카테고리는 최대 4개까지 추가할 수 있습니다.');
+    } else {
+      const newCategory = `카테고리${categories.length + 1}`;
+      setCategories([...categories, newCategory]);
+      setSelectedCategory(newCategory);
+    }
+  };
+
+  const filteredItems = items.filter(item => item.category === selectedCategory);
+
+  // Event listener to close the context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
+        setShowContextMenu(false); // Hide context menu
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="my-autobiography-page">
       <aside className="sidebar">
         <div className="profile-section">
-          <img src={profileImagePath} alt="Profile" className="profile-image" />
-          <div className="profile-name">{userName}</div>
+          <img src={profileImage} alt="Profile" className="profile-image" />
+          <div className="profile-name">김이화</div>
         </div>
         <nav className="sidebar-nav">
           <ul>
-            <li onClick={() => navigate('/home')}>유북 홈</li>
+            <li>유북 홈</li>
             <li className="active">나의 자서전 목록</li>
-            <li onClick={() => navigate('/inquiry')}>1:1 문의 내역</li>
-            <li onClick={() => navigate('/profile')}>개인정보수정</li>
+            <li>1:1 문의 내역</li>
+            <li>개인정보수정</li>
             <li onClick={handleLogout}>로그아웃</li>
           </ul>
         </nav>
@@ -235,18 +244,14 @@ const contextMenuRef = useRef(null); // Reference to the context menu
         <header className="header">
         <h1>나의 자서전 <span className="highlighted-number">{filteredItems.length}</span></h1>
           <div className="search-bar">
-            <input 
-              type="text" 
-              placeholder="자서전 제목" 
-              value={searchQuery} 
-              onChange={handleSearch} 
-            />
+            <input type="text" placeholder="자서전 제목" />
             <img src={search} alt="Search" className="search-image" />
           </div>
         </header>
         <div className="categories-container">
           <div className="categories">
           {categories.map((category) => (
+            {categories.map((category) => (
               <button
                 key={category}
                 className={`category-button ${selectedCategory === category ? 'active' : ''}`}
@@ -284,12 +289,7 @@ const contextMenuRef = useRef(null); // Reference to the context menu
                 onChange={() => handleCheckboxChange(item.id)}
               />
               <div className="item-content" onClick={() => handleItemClick(item.id)}>
-                <img 
-                  src={item.content} 
-                  alt={item.title} 
-                  className="item-image" 
-                  onError={(e) => e.target.src = defaultProfileImage} 
-                />
+                {item.content}
                 <div className="item-details">
                   <div className="item-title">{item.title}</div>
                   <div className="item-date">{item.date}</div>
@@ -300,8 +300,8 @@ const contextMenuRef = useRef(null); // Reference to the context menu
         </div>
       </main>
 
-            {/* Context menu for categories */}
-            {showContextMenu && (
+      {/* Context menu for categories */}
+      {showContextMenu && (
         <div
           className="context-menu"
           ref={contextMenuRef} // Add reference for outside click detection
