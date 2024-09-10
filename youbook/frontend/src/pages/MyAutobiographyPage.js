@@ -7,18 +7,68 @@ import search from '../assets/images/search.png';
 function MyAutobiographyPage() {
   const [selectedCategory, setSelectedCategory] = useState('카테고리1');
   const [categories, setCategories] = useState(['카테고리1', '카테고리2']); // State for categories
-  const [items, setItems] = useState([
-    { id: 1, category: '카테고리1', content: 'Item 1', title: '제목 1', date: '2023-08-10', checked: false },
-    { id: 2, category: '카테고리1', content: 'Item 2', title: '제목 2', date: '2023-08-11', checked: false },
-    { id: 3, category: '카테고리2', content: 'Item 3', title: '제목 3', date: '2023-08-12', checked: false },
-    { id: 4, category: '카테고리2', content: 'Item 4', title: '제목 4', date: '2023-08-13', checked: false },
-  ]);
+  const [items, setItems] = useState([]); // 빈 배열로 초기화
+  const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
+  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
+  const [searchQuery, setSearchQuery] = useState(''); // 검색어를 저장할 상태 변수
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [editingCategory, setEditingCategory] = useState(null);
 
   const navigate = useNavigate();
-  const contextMenuRef = useRef(null); // Reference to the context menu
+
+  // 유저 정보를 서버에서 가져옴
+  useEffect(() => {
+    fetch('/api/get_user_info')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          setUserName(data.nickname); // 닉네임을 상태에 저장
+          setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로를 상태에 저장
+          
+          // 유저 정보를 가져온 후, book_list 데이터를 가져옴
+          fetchBooks(data.user_id);
+        } else {
+          console.error(data.message);
+          navigate('/');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching user info:', error);
+      });
+  }, [navigate]);
+
+// book_list 데이터를 가져오는 함수
+const fetchBooks = () => {
+  fetch('/api/get_books')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const fetchedItems = data.books.map((book, index) => {
+          // 날짜를 포맷팅 (시간 제거)
+          const formattedDate = new Date(book.create_date).toISOString().slice(0, 10);
+          
+          return {
+            id: index + 1,
+            category: '카테고리1', // 모든 항목의 카테고리를 '카테고리1'로 설정
+            book_id: book.book_id,
+            content: book.image_path || defaultProfileImage, // content 필드에 이미지 경로 설정
+            title: book.title,
+            date: formattedDate, // 포맷된 날짜 설정
+            checked: false,
+          };
+        });
+        setItems(fetchedItems);
+      } else {
+        console.error(data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching books:', error);
+    });
+};
+
+const contextMenuRef = useRef(null); // Reference to the context menu
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
@@ -46,9 +96,71 @@ function MyAutobiographyPage() {
     }
   };
 
-  const handleLogout = () => {
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        navigate('/');  // 로그아웃 성공 후 메인 페이지로 이동
+      } else {
+        console.error('Failed to log out');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
+
+  const handleContextMenu = (event, category) => {
+    event.preventDefault();
+    setShowContextMenu(true);
+    setContextMenuPosition({ x: event.pageX, y: event.pageY });
+    setEditingCategory(category);
+  };
+
+  const handleRenameCategory = (newName) => {
+    setCategories(categories.map(cat => (cat === editingCategory ? newName : cat)));
+    setSelectedCategory(newName === selectedCategory ? newName : selectedCategory);
+    setShowContextMenu(false);
+  };
+
+  const handleDeleteCategory = () => {
+    const confirmed = window.confirm('정말 카테고리를 삭제하시겠습니까?');
+    if (confirmed) {
+      setCategories(categories.filter(cat => cat !== editingCategory));
+      setItems(items.filter(item => item.category !== editingCategory));
+      setSelectedCategory(categories[0]);
+    }
+    setShowContextMenu(false);
+  };
+
+  const handleAddCategory = () => {
+    if (categories.length >= 4) {
+      window.alert('카테고리는 최대 4개까지 추가할 수 있습니다.');
+    } else {
+      const newCategory = `카테고리${categories.length + 1}`;
+      setCategories([...categories, newCategory]);
+      setSelectedCategory(newCategory);
+    }
+  };
+
+  // Event listener to close the context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
+        setShowContextMenu(false); // Hide context menu
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleAddNewItem = () => {
     const newItem = {
@@ -130,7 +242,7 @@ function MyAutobiographyPage() {
       </aside>
       <main className="page-content">
         <header className="header">
-          <h1>나의 자서전 <span className="highlighted-number">3</span></h1>
+        <h1>나의 자서전 <span className="highlighted-number">{filteredItems.length}</span></h1>
           <div className="search-bar">
             <input type="text" placeholder="자서전 제목" />
             <img src={search} alt="Search" className="search-image" />
@@ -138,6 +250,7 @@ function MyAutobiographyPage() {
         </header>
         <div className="categories-container">
           <div className="categories">
+          {categories.map((category) => (
             {categories.map((category) => (
               <button
                 key={category}

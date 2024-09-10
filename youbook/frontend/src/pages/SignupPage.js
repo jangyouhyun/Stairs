@@ -49,10 +49,11 @@ function SignupPage() {
 
     fetch('/auth/register_process', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
+      body: data,
+      // headers: {
+      //   'Content-Type': 'application/json',
+      // },
+      //body: JSON.stringify(formData),
     })
     .then(response => response.json())
     .then(data => {
