@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MyAutobiographyPage.css';
-import profileImage from '../assets/images/signup-icon.png';
+import defaultProfileImage from '../assets/images/signup-icon.png';
 import search from '../assets/images/search.png';
 
 function MyAutobiographyPage() {
@@ -174,37 +174,8 @@ const contextMenuRef = useRef(null); // Reference to the context menu
     setItems([...items, newItem]);
   };
 
-  const handleContextMenu = (event, category) => {
-    event.preventDefault();
-    setShowContextMenu(true);
-    setContextMenuPosition({ x: event.pageX, y: event.pageY });
-    setEditingCategory(category);
-  };
-
-  const handleRenameCategory = (newName) => {
-    setCategories(categories.map(cat => (cat === editingCategory ? newName : cat)));
-    setSelectedCategory(newName === selectedCategory ? newName : selectedCategory);
-    setShowContextMenu(false);
-  };
-
-  const handleDeleteCategory = () => {
-    const confirmed = window.confirm('정말 카테고리를 삭제하시겠습니까?');
-    if (confirmed) {
-      setCategories(categories.filter(cat => cat !== editingCategory));
-      setItems(items.filter(item => item.category !== editingCategory));
-      setSelectedCategory(categories[0]);
-    }
-    setShowContextMenu(false);
-  };
-
-  const handleAddCategory = () => {
-    if (categories.length >= 4) {
-      window.alert('카테고리는 최대 4개까지 추가할 수 있습니다.');
-    } else {
-      const newCategory = `카테고리${categories.length + 1}`;
-      setCategories([...categories, newCategory]);
-      setSelectedCategory(newCategory);
-    }
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
   };
 
   const filteredItems = items.filter(item => item.category === selectedCategory);
@@ -227,30 +198,34 @@ const contextMenuRef = useRef(null); // Reference to the context menu
     <div className="my-autobiography-page">
       <aside className="sidebar">
         <div className="profile-section">
-          <img src={profileImage} alt="Profile" className="profile-image" />
-          <div className="profile-name">김이화</div>
+          <img src={profileImagePath} alt="Profile" className="profile-image" />
+          <div className="profile-name">{userName}</div>
         </div>
         <nav className="sidebar-nav">
           <ul>
-            <li>유북 홈</li>
+            <li onClick={() => navigate('/home')}>유북 홈</li>
             <li className="active">나의 자서전 목록</li>
-            <li>1:1 문의 내역</li>
-            <li>개인정보수정</li>
+            <li onClick={() => navigate('/inquiry')}>1:1 문의 내역</li>
+            <li onClick={() => navigate('/profile')}>개인정보수정</li>
             <li onClick={handleLogout}>로그아웃</li>
           </ul>
         </nav>
       </aside>
       <main className="page-content">
         <header className="header">
-        <h1>나의 자서전 <span className="highlighted-number">{filteredItems.length}</span></h1>
+          <h1>나의 자서전 <span className="highlighted-number">{filteredItems.length}</span></h1>
           <div className="search-bar">
-            <input type="text" placeholder="자서전 제목" />
+            <input 
+              type="text" 
+              placeholder="자서전 제목" 
+              value={searchQuery} 
+              onChange={handleSearch} 
+            />
             <img src={search} alt="Search" className="search-image" />
           </div>
         </header>
         <div className="categories-container">
           <div className="categories">
-          {categories.map((category) => (
             {categories.map((category) => (
               <button
                 key={category}
@@ -289,7 +264,12 @@ const contextMenuRef = useRef(null); // Reference to the context menu
                 onChange={() => handleCheckboxChange(item.id)}
               />
               <div className="item-content" onClick={() => handleItemClick(item.id)}>
-                {item.content}
+                <img 
+                  src={item.content} 
+                  alt={item.title} 
+                  className="item-image" 
+                  onError={(e) => e.target.src = defaultProfileImage} 
+                />
                 <div className="item-details">
                   <div className="item-title">{item.title}</div>
                   <div className="item-date">{item.date}</div>
@@ -299,7 +279,6 @@ const contextMenuRef = useRef(null); // Reference to the context menu
           ))}
         </div>
       </main>
-
       {/* Context menu for categories */}
       {showContextMenu && (
         <div
