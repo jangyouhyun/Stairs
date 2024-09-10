@@ -22,8 +22,8 @@
 }
 
 .profile-image {
-  width: 40%;
-  height: 40%;
+  width: 60%;
+  height: 60%;
   border-radius: 50%;
   margin-bottom: 20px;
   display : flex;
@@ -150,7 +150,7 @@
   background: none;
   cursor: pointer;
   border-bottom: 5px solid transparent;
-  margin-right: 30px;
+  margin-right: 20px;
   white-space: nowrap;
   overflow: hidden;
 }
@@ -166,7 +166,7 @@
   height: 2.5px;
   background-color: #00322A;
   position : absolute;
-  top : 0px;
+  top : 10px;
   justify-content: center;
 }
 
@@ -212,9 +212,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 60px;
-  width: 100%; /* 컨테이너의 전체 너비 사용 */
+  max-width: 2000px;
   margin-left: 60px;
-  box-sizing: border-box; 
+  box-sizing: border-box;
+  position : absolute;
 }
 
 
@@ -228,7 +229,7 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  padding: 10px;
+  margin-bottom : 50px;
 }
 
 .item-content {
@@ -240,7 +241,7 @@
 .item-details {
   position : relative;
   top : 180px;
-  left : -50px;
+  left : -40px;
   text-align: left;
   width: 120%;
 }
@@ -258,10 +259,10 @@
 
 
 .autobiography-item input[type="checkbox"] {
-  margin-bottom: 10px;
   position : relative;
-  top : -70px;
-  left : -130px;
+  top : -60px;
+  left : -120px;
+  
 }
 
 .autobiography-item.add-new .plus-icon {
@@ -271,4 +272,25 @@
 .autobiography-item.add-new{
   border: none;
   background-color:#ccc;
+}
+
+.context-menu {
+  position: absolute;
+  background-color: #f0f0f0; /* Light gray background */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+  z-index: 100;
+  border-radius: 4px;
+  padding: 5px 0;
+  max-width : 150px;
+}
+
+.context-menu-item {
+  padding: 10px 20px;
+  cursor: pointer;
+  color: #333; /* Text color */
+  
+}
+.context-menu-item:hover {
+  background-color: #e0e0e0;
+  font-weight: bold;
 }

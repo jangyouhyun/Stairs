@@ -1,31 +1,37 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Draggable from 'react-draggable';
 import './BookDesignPage.css';
 import bookCoverImage from '../assets/images/book-cover.png';
 import backArrowIcon from '../assets/images/arrow-back.png';
 import searchIcon from '../assets/images/search.png';
-import colorIcon from '../assets/images/color.png';
 import textIcon from '../assets/images/text.png';
 import imageIcon from '../assets/images/image.png';
+
+// ColorPicker 불러오기
+import { ColorPicker } from '@easylogic/colorpicker';
 
 function BookDesignPage() {
   const [imageElements, setImageElements] = useState([]);
   const [textElements, setTextElements] = useState([]);
   const [isToolsHidden, setIsToolsHidden] = useState(false);
-  const navigate = useNavigate(); // useNavigate 훅을 사용하여 페이지 이동 처리
+  const [isColorPickerVisible, setIsColorPickerVisible] = useState(false); // ColorPicker visibility
+  const [selectedColor, setSelectedColor] = useState("#000000");
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const colorPickerRef = useRef(null); // Reference for the ColorPicker container
 
+  // 뒤로 가기 네비게이션 핸들러
   const handleBackClick = () => {
-    navigate(-1);
+    navigate(-1); // 이전 페이지로 이동
   };
 
+  // 이미지 추가 핸들러
   const handleImageClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    fileInputRef.current.click(); // 파일 선택 창 열기
   };
 
+  // 이미지 파일 처리
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -43,68 +49,45 @@ function BookDesignPage() {
     }
   };
 
-  const handleRotate = (id, deltaY) => {
-    setImageElements((prevElements) =>
-      prevElements.map((el) =>
-        el.id === id ? { ...el, rotation: el.rotation + deltaY * 0.2 } : el
-      )
-    );
+  // ColorPicker 초기화
+  useEffect(() => {
+    if (isColorPickerVisible && colorPickerRef.current) {
+      const colorPicker = new ColorPicker({
+        type: 'sketch', // 스케치 스타일 ColorPicker
+        color: selectedColor,
+        onChange: (color) => {
+          setSelectedColor(color); // 선택된 색상 업데이트
+        },
+      });
+
+      colorPicker.render({
+        target: colorPickerRef.current, // ColorPicker를 렌더링할 타겟 요소 설정
+      });
+    }
+  }, [isColorPickerVisible]);
+
+  // ColorPicker 토글
+  const toggleColorPalette = () => {
+    setIsColorPickerVisible(!isColorPickerVisible); // ColorPicker 보이기/숨기기
   };
 
-  const handleResize = (id, deltaY) => {
-    setImageElements((prevElements) =>
-      prevElements.map((el) =>
-        el.id === id
-          ? { ...el, width: Math.max(20, el.width + deltaY * -0.5) }
-          : el
-      )
-    );
-  };
-
+  // 텍스트 추가 핸들러
   const handleTextClick = () => {
     const newTextElement = {
       id: Date.now(),
-      text: "Enter text",
+      text: "텍스트 입력",
       x: 50,
       y: 50,
       fontSize: 20,
       rotation: 0,
+      color: selectedColor, // 선택된 색상으로 텍스트 추가
     };
     setTextElements((prev) => [...prev, newTextElement]);
   };
 
-  const handleTextChange = (id, newText) => {
-    setTextElements((prevElements) =>
-      prevElements.map((el) =>
-        el.id === id ? { ...el, text: newText } : el
-      )
-    );
-  };
-
-  const handleTextResize = (id, deltaY) => {
-    setTextElements((prevElements) =>
-      prevElements.map((el) =>
-        el.id === id
-          ? { ...el, fontSize: Math.max(10, el.fontSize + deltaY * -0.2) }
-          : el
-      )
-    );
-  };
-
-  const handleTextRotate = (id, deltaY) => {
-    setTextElements((prevElements) =>
-      prevElements.map((el) =>
-        el.id === id ? { ...el, rotation: el.rotation + deltaY * 0.2 } : el
-      )
-    );
-  };
-
-  const toggleTools = () => {
-    setIsToolsHidden(!isToolsHidden);
-  };
-
+  // 작업 완료 버튼 클릭 시
   const handleCompleteClick = () => {
-    navigate('/my-autobiography'); // Complete 버튼 클릭 시 페이지 이동
+    navigate('/my-autobiography'); // 자서전 페이지로 이동
   };
 
   return (
@@ -127,13 +110,6 @@ function BookDesignPage() {
                 width: `${image.width}px`,
                 transform: `rotate(${image.rotation}deg)`,
               }}
-              onWheel={(event) => {
-                if (event.shiftKey) {
-                  handleRotate(image.id, event.deltaY);
-                } else {
-                  handleResize(image.id, event.deltaY);
-                }
-              }}
             />
           </Draggable>
         ))}
@@ -145,25 +121,19 @@ function BookDesignPage() {
                 position: "absolute",
                 fontSize: `${text.fontSize}px`,
                 transform: `rotate(${text.rotation}deg)`,
+                color: text.color,
                 cursor: "move",
-              }}
-              onWheel={(event) => {
-                if (event.shiftKey) {
-                  handleTextRotate(text.id, event.deltaY);
-                } else {
-                  handleTextResize(text.id, event.deltaY);
-                }
               }}
             >
               <input
                 type="text"
                 value={text.text}
-                onChange={(e) => handleTextChange(text.id, e.target.value)}
                 style={{
                   fontSize: "inherit",
                   border: "none",
                   background: "transparent",
                   textAlign: "center",
+                  color: "inherit",
                 }}
               />
             </div>
@@ -171,13 +141,21 @@ function BookDesignPage() {
         ))}
       </div>
 
-      <div className={`design-tools ${isToolsHidden ? 'hidden' : ''}`} onClick={toggleTools}>
+      {/* 도구 섹션 */}
+      <div className={`design-tools`} >
         <button className="tool-button">
           <img src={searchIcon} alt="Search" />
         </button>
-        <button className="tool-button">
-          <img src={colorIcon} alt="Color" />
-        </button>
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <button 
+            className="tool-button color-button" 
+            onClick={toggleColorPalette} 
+            style={{ backgroundColor: selectedColor }}
+          ></button>
+          {isColorPickerVisible && (
+            <div id="color-picker" ref={colorPickerRef} className="color-picker-popup"></div>
+          )}
+        </div>
         <button className="tool-button" onClick={handleTextClick}>
           <img src={textIcon} alt="Text" />
         </button>

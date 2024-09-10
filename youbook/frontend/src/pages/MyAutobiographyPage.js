@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MyAutobiographyPage.css';
 import defaultProfileImage from '../assets/images/signup-icon.png';
@@ -6,11 +6,14 @@ import search from '../assets/images/search.png';
 
 function MyAutobiographyPage() {
   const [selectedCategory, setSelectedCategory] = useState('카테고리1');
+  const [categories, setCategories] = useState(['카테고리1', '카테고리2']); // State for categories
   const [items, setItems] = useState([]); // 빈 배열로 초기화
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   const [searchQuery, setSearchQuery] = useState(''); // 검색어를 저장할 상태 변수
-
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+  const [editingCategory, setEditingCategory] = useState(null);
 
   const navigate = useNavigate();
 
@@ -65,7 +68,7 @@ const fetchBooks = () => {
     });
 };
 
-
+const contextMenuRef = useRef(null); // Reference to the context menu
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
@@ -141,7 +144,55 @@ const fetchBooks = () => {
     } catch (error) {
       console.error('Error:', error);
     }
-  };  
+  };
+
+  const handleContextMenu = (event, category) => {
+    event.preventDefault();
+    setShowContextMenu(true);
+    setContextMenuPosition({ x: event.pageX, y: event.pageY });
+    setEditingCategory(category);
+  };
+
+  const handleRenameCategory = (newName) => {
+    setCategories(categories.map(cat => (cat === editingCategory ? newName : cat)));
+    setSelectedCategory(newName === selectedCategory ? newName : selectedCategory);
+    setShowContextMenu(false);
+  };
+
+  const handleDeleteCategory = () => {
+    const confirmed = window.confirm('정말 카테고리를 삭제하시겠습니까?');
+    if (confirmed) {
+      setCategories(categories.filter(cat => cat !== editingCategory));
+      setItems(items.filter(item => item.category !== editingCategory));
+      setSelectedCategory(categories[0]);
+    }
+    setShowContextMenu(false);
+  };
+
+  const handleAddCategory = () => {
+    if (categories.length >= 4) {
+      window.alert('카테고리는 최대 4개까지 추가할 수 있습니다.');
+    } else {
+      const newCategory = `카테고리${categories.length + 1}`;
+      setCategories([...categories, newCategory]);
+      setSelectedCategory(newCategory);
+    }
+  };
+
+  // Event listener to close the context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
+        setShowContextMenu(false); // Hide context menu
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
 
   const handleAddNewItem = () => {
     const newItem = {
@@ -182,7 +233,7 @@ const fetchBooks = () => {
       </aside>
       <main className="page-content">
         <header className="header">
-          <h1>나의 자서전 <span className="highlighted-number">{filteredItems.length}</span></h1>
+        <h1>나의 자서전 <span className="highlighted-number">{filteredItems.length}</span></h1>
           <div className="search-bar">
             <input 
               type="text" 
@@ -195,8 +246,19 @@ const fetchBooks = () => {
         </header>
         <div className="categories-container">
           <div className="categories">
-            <button className={`category-button ${selectedCategory === '카테고리1' ? 'active' : ''}`} onClick={() => handleCategoryClick('카테고리1')}>카테고리1</button>
-            <button className={`category-button ${selectedCategory === '카테고리2' ? 'active' : ''}`} onClick={() => handleCategoryClick('카테고리2')}>카테고리2</button>
+          {categories.map((category) => (
+              <button
+                key={category}
+                className={`category-button ${selectedCategory === category ? 'active' : ''}`}
+                onClick={() => handleCategoryClick(category)}
+                onContextMenu={(event) => handleContextMenu(event, category)} // Right-click event
+              >
+                {category}
+              </button>
+            ))}
+            <div className="category-button add-category-button" onClick={handleAddCategory}>
+              +
+            </div>
           </div>
           <div className="category-line"></div>
         </div>
@@ -237,6 +299,18 @@ const fetchBooks = () => {
           ))}
         </div>
       </main>
+
+            {/* Context menu for categories */}
+            {showContextMenu && (
+        <div
+          className="context-menu"
+          ref={contextMenuRef} // Add reference for outside click detection
+          style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
+        >
+          <div className="context-menu-item" onClick={() => handleRenameCategory(prompt('카테고리 이름 수정'))}>이름 수정</div>
+          <div className="context-menu-item" onClick={handleDeleteCategory}>삭제</div>
+        </div>
+      )}
     </div>
   );
 }
