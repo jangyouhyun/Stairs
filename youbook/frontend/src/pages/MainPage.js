@@ -11,22 +11,22 @@ function MainPage() {
 
   const navigate = useNavigate();
 
-    // 유저 정보를 서버에서 가져옴
-    useEffect(() => {
-      fetch('/api/get_user_info')
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로를 상태에 저장
-          } else {
-            console.error(data.message);
-            navigate('/');
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching user info:', error);
-        });
-    }, [navigate]);
+  // 유저 정보를 서버에서 가져옴
+  useEffect(() => {
+    fetch('/api/get_user_info')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로를 상태에 저장
+        } else {
+          console.error(data.message);
+          navigate('/');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching user info:', error);
+      });
+  }, [navigate]);
 
   const handleProfileClick = () => {
     navigate('/my-autobiography');
@@ -41,15 +41,17 @@ function MainPage() {
       body: JSON.stringify({ content: text }),
     })
     .then(response => {
-      if (response.ok) {
-        alert('글이 성공적으로 저장되었습니다!');
-      } else {
-        alert('글 저장에 실패했습니다.');
-      }
+      navigate('/chatbot');
     })
     .catch(error => {
       console.error('Error:', error);
     });
+  };
+
+  // 자서전 바로 만들기 버튼 클릭 시 동작
+  const handleCreateBook = () => {
+    alert('글이 성공적으로 저장되었습니다!');
+    navigate('/book-reading');
   };
 
   return (
@@ -72,6 +74,13 @@ function MainPage() {
           value={text}
           onChange={(e) => setText(e.target.value)}
         ></textarea>
+
+        {/* 자서전 바로 만들기 버튼 추가 */}
+        <div className="button-container">
+          <button className="create-book-button" onClick={handleCreateBook}>
+            자서전 바로 만들기
+          </button>
+        </div>
       </div>
     </div>
   );

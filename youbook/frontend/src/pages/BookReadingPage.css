@@ -23,7 +23,7 @@ body, html {
   display: flex;
   flex-direction: row; /* Stack the input fields horizontally */
   position: absolute;
-  top: 120px;
+  top: 60px;
   width: 400px;
   text-align: center;
   justify-content: center; /* Center input groups */

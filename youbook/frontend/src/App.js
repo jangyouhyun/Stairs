@@ -3,9 +3,11 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import SignupPage from './pages/SignupPage';
 import MainPage from './pages/MainPage';
-import BookReadingPage from './pages/BookReadingPage';
+import BookPage from './pages/BookPage';
 import MyAutobiographyPage from './pages/MyAutobiographyPage';
-import BookDesignPage from './pages/BookDesignPage'; // BookDesignPage.js 추가
+import BookDesignPage from './pages/BookDesignPage'; 
+import BookReadingPage from './pages/BookReadingPage';
+import Chatbot from './pages/chatbot';
 import $ from 'jquery';
 import './assets/js/turn.js';
 
@@ -22,9 +24,11 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/main" element={<MainPage />} />
-        <Route path="/book" element={<BookReadingPage />} />
+        <Route path="/book" element={<BookPage />} />
         <Route path="/my-autobiography" element={<MyAutobiographyPage />} />
-        <Route path="/book-design" element={<BookDesignPage />} /> {/* BookDesignPage 경로 추가 */}
+        <Route path="/book-design" element={<BookDesignPage />} />
+        <Route path="/book-reading" element={<BookReadingPage />} />
+        <Route path="/chatbot" element={<Chatbot />} />
       </Routes>
     </Router>
   );
