@@ -25,7 +25,7 @@ app.use(morgan('dev'));
 
 // 세션설정
 const redisClient = new Redis({
-    host: '127.0.0.1',  // Redis 서버 호스트
+    host: 'localhost',  // Redis 서버 호스트
     port: 6379         // Redis 서버 포트
 });
 
@@ -81,6 +81,6 @@ app.use((req, res, next) => {
 
 // 포트 연결
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT,'0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
