@@ -1,0 +1,133 @@
+/* 기본 스타일 */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  font-family: 'MinSans-Regular', sans-serif;
+  background-color: #FFFFFF; /* 전체 배경색 */
+}
+
+.main-page {
+  height: 100vh;
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+  background-color: #FFFFFF; /* main-page 배경색 */
+}
+
+
+.title-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 110%; /* 화면의 가로 폭에서 좌우 간격을 뺀 너비 */
+  max-width: 1000px; /* 최대 너비 설정 */
+  margin: 20px auto; /* 상하 간격 설정 및 가운데 정렬 */
+}
+
+.main-title {
+  font-size: 1.8rem; /* 글꼴 크기 설정 */
+  text-align: left;
+  color: #363636; /* 문구 색상 */
+  flex-grow: 1;
+  margin-left: 20px;
+}
+
+.main-content {
+  background-color: white; /* main-content 배경색 */
+  padding: 40px; /* 패딩 설정 */
+  border-radius: 5px;
+  margin-top: 100px; /* 헤더 아래에 위치하도록 여백 추가 */
+  width: 100%;
+  max-width : 750px;
+  box-sizing: border-box;
+  position : absolute;
+  top : 50%;
+  left : 50%;
+  transform: translate(-50%, -50%);
+}
+
+.main-image {
+  width: 120px; /* 이미지 크기 조정 */
+  height: 120px; /* 이미지 높이 조정 */
+  margin-right: 20px; /* 이미지와 제목 사이의 여백 설정 */
+  object-fit: cover; /* 이미지가 주어진 공간에 맞게 조정 */
+}
+
+.question-button {
+  background-color: #00462a; /* 상단바 색상과 동일하게 설정 */
+  border: none;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 5px;
+  cursor: pointer;
+  align-self: flex-end; /* 오른쪽 정렬 */
+  margin-bottom: 20px;
+  position : relative;
+  left : 510px;
+}
+
+.main-textarea {
+  width: 100%;
+  height: 300px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  font-family: 'MinSans-Regular', sans-serif;
+}
+
+/* 반응형 디자인을 위한 미디어 쿼리 */
+@media (max-width: 768px) {
+  .main-container {
+    padding: 10px;
+  }
+  
+  .main-header {
+    flex-direction: row; /* 작은 화면에서도 동일한 위치 유지 */
+  }
+  
+  .main-title {
+    font-size: 1.5rem; /* 작은 화면에서는 글꼴 크기 조정 */
+    margin: 10px 0;
+  }
+  
+  .main-content {
+    padding: 20px; /* 작은 화면에서도 패딩을 크게 설정 */
+    width: calc(100% - 20px); /* 작은 화면에서 좌우 간격을 뺀 너비 */
+  }
+  
+  .main-image {
+    width: 100px; /* 작은 화면에서는 이미지 크기 조정 */
+    height: 100px; /* 작은 화면에서는 이미지 높이 조정 */
+  }
+  
+  .question-button {
+    padding: 15px;
+    font-size: 1.2rem;
+  }
+  
+  .main-textarea {
+    height: 150px;
+  }
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+  margin-top: 10px;
+}
+
+.create-book-button {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.create-book-button:hover {
+  background-color: #218838;
+}
