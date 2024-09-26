@@ -5,8 +5,8 @@ import defaultProfileImage from '../assets/images/signup-icon.png';
 import search from '../assets/images/search.png';
 
 function MyAutobiographyPage() {
-  const [selectedCategory, setSelectedCategory] = useState('카테고리1');
-  const [categories, setCategories] = useState(['카테고리1', '카테고리2']); // State for categories
+  const [categories, setCategories] = useState([]); // State for categories
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [items, setItems] = useState([]); // 빈 배열로 초기화
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
@@ -38,6 +38,7 @@ function MyAutobiographyPage() {
       });
   }, [navigate]);
 
+  
 // book_list 데이터를 가져오는 함수
 const fetchBooks = () => {
   fetch('/api/get_books')
@@ -45,20 +46,31 @@ const fetchBooks = () => {
     .then(data => {
       if (data.success) {
         const fetchedItems = data.books.map((book, index) => {
-          // 날짜를 포맷팅 (시간 제거)
+          // 날짜 포맷팅 -> 시간 제거
           const formattedDate = new Date(book.create_date).toISOString().slice(0, 10);
           
           return {
             id: index + 1,
-            category: '카테고리1', // 모든 항목의 카테고리를 '카테고리1'로 설정
+            category: book.category,
             book_id: book.book_id,
-            content: book.image_path || defaultProfileImage, // content 필드에 이미지 경로 설정
+            content: book.image_path || defaultProfileImage,
             title: book.title,
-            date: formattedDate, // 포맷된 날짜 설정
+            date: formattedDate,
             checked: false,
           };
         });
         setItems(fetchedItems);
+
+        const fetchedCategories = data.books.map(book => book.category);
+        fetchedCategories.sort((a, b) => a.localeCompare(b));
+        const uniqueCategories = [...new Set(fetchedCategories)];
+        
+        // 카테고리 배열이 비어 있지 않으면 첫 번째 카테고리로 selectedCategory 설정
+         if (uniqueCategories.length > 0) {
+          setSelectedCategory(uniqueCategories[0]);
+        }
+        setCategories(uniqueCategories);
+        
       } else {
         console.error(data.message);
       }
@@ -67,6 +79,11 @@ const fetchBooks = () => {
       console.error('Error fetching books:', error);
     });
 };
+
+// categories가 변경될 때마다 배열을 콘솔에 출력
+useEffect(() => {
+  console.log('Categories:', categories);
+}, [categories]);
 
 const contextMenuRef = useRef(null); // Reference to the context menu
 

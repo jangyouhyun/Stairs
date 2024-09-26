@@ -7,3 +7,4 @@ newyoubook/backend/node_modules/
 newyoubook/node_modules/
 dalle3/node_modules
 chatbot_system/node_modules
+.env
