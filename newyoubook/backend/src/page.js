@@ -13,6 +13,7 @@ const imageRouter = require('./api/upload_image.js');
 const getBookListRouter = require('./api/get_books.js');
 const deleteBookRouter = require('./api/delete_book.js');
 const logoutRouter = require('./api/auth/logout.js');
+const chatbotRouter = require('./api/chatbotapi.js');
 
 const app = express();
 
@@ -72,6 +73,7 @@ app.use('/api', getBookListRouter);
 app.use('/api', imageRouter);
 app.use('/api', deleteBookRouter);
 app.use('/api', logoutRouter);
+app.use('/api', chatbotRouter);
 
 
 
