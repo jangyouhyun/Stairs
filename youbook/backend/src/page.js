@@ -26,7 +26,7 @@ app.use(morgan('dev'));
 // 세션설정
 const redisClient = new Redis({
     host: 'localhost',  // Redis 서버 호스트
-    port: 6379         // Redis 서버 포트
+    port: 6380        // Redis 서버 포트
 });
 
 app.use(session({

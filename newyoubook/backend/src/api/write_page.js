@@ -13,7 +13,7 @@ function getFormatDate(date) {
     return year + '-' + month + '-' + day;
 }
 
-router.post('/write_process', function (request, response) {
+router.post('/write_process/chatbot', function (request, response) {
     var content = request.body.content;
     var date = getFormatDate(new Date());
     var user_id = request.session ? request.session.nickname : 'test_user'; // 세션이 없는 경우 test_user 사용
