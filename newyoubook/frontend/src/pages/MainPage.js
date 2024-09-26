@@ -33,12 +33,12 @@ function MainPage() {
   };
 
   const handleSubmit = () => {
-    fetch('/api/write_process', {
+    fetch('/api/write_process/chatbot', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text }),
+      body: JSON.stringify({ content: text })
     })
     .then(response => {
       navigate('/chatbot');
@@ -50,8 +50,19 @@ function MainPage() {
 
   // 자서전 바로 만들기 버튼 클릭 시 동작
   const handleCreateBook = () => {
-    alert('글이 성공적으로 저장되었습니다!');
-    navigate('/book-reading');
+    fetch('/api/write_process/nochatbot', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: text })
+    })
+    .then(response => {
+      navigate('/book-reading')}
+    )
+    .catch(error => {
+      console.error('Error:', error);
+    });
   };
 
   return (
