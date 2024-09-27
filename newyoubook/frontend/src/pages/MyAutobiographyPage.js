@@ -260,19 +260,6 @@ const contextMenuRef = useRef(null); // Reference to the context menu
 
   const filteredItems = items.filter(item => item.category === selectedCategory);
 
-  // Event listener to close the context menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
-        setShowContextMenu(false); // Hide context menu
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   return (
     <div className="my-autobiography-page">
@@ -362,12 +349,12 @@ const contextMenuRef = useRef(null); // Reference to the context menu
       {/* Context menu for categories */}
 	  {showContextMenu && (
 		<div className="context-menu" ref={contextMenuRef} // Add reference for outside click detection
-		style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
+		style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
+	  >
 			{categories.map((category, index) => (
 			<div key={index} className="context-menu-item-group">
 				<div
-				className="context-menu-item" ref={contextMenuRef} // Add reference for outside click detection
-				style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
+				className="context-menu-item"
 				onClick={() => {
 					const newName = prompt('카테고리 이름 수정', category); // Default to current category name
 					if (newName) { // Ensure newName is not null or empty
