@@ -38,6 +38,38 @@ function MyAutobiographyPage() {
       });
   }, [navigate]);
 
+// category 데이터를 가져오는 함수
+const fetchCategories = () => {
+	fetch('/api/get_category')
+	  .then(response => response.json())
+	  .then(data => {
+		if (data.success) {
+		  // Accessing 'name' from the array of category objects
+		  const sortedCategories = data.categorys
+			.map(category => category.name) // Correctly map the 'name' property from each object
+			.sort((a, b) => a.localeCompare(b));
+
+			console.log('Sorted Categories:', sortedCategories);
+  
+		  // Set the sorted categories to state
+		  setCategories(sortedCategories);
+  
+		  // Set the first category as the selected one
+		  if (sortedCategories.length > 0) {
+			setSelectedCategory(sortedCategories[0]);
+		  }
+		} else {
+		  console.error(data.message);
+		}
+	  })
+	  .catch(error => {
+		console.error('Error fetching categories:', error);
+	  });
+  };
+  
+  useEffect(() => {
+    fetchCategories();
+  }, []);
   
 // book_list 데이터를 가져오는 함수
 const fetchBooks = () => {
@@ -60,16 +92,6 @@ const fetchBooks = () => {
           };
         });
         setItems(fetchedItems);
-
-        const fetchedCategories = data.books.map(book => book.category);
-        fetchedCategories.sort((a, b) => a.localeCompare(b));
-        const uniqueCategories = [...new Set(fetchedCategories)];
-        
-        // 카테고리 배열이 비어 있지 않으면 첫 번째 카테고리로 selectedCategory 설정
-         if (uniqueCategories.length > 0) {
-          setSelectedCategory(uniqueCategories[0]);
-        }
-        setCategories(uniqueCategories);
         
       } else {
         console.error(data.message);
@@ -80,10 +102,67 @@ const fetchBooks = () => {
     });
 };
 
-// categories가 변경될 때마다 배열을 콘솔에 출력
-useEffect(() => {
-  console.log('Categories:', categories);
-}, [categories]);
+const handleRenameCategory = (newName, name) => {
+	if (!newName) {
+	  console.log('No new name provided, exiting rename function.');
+	  return; // Exit if no name is provided
+	}
+  
+	console.log('Attempting to rename category from', name, 'to', newName);
+  
+	fetch('/api/update_category', {
+	  method: 'POST',
+	  headers: { 
+		'Content-Type': 'application/json' // Ensure the Content-Type is correct
+	  },
+	  body: JSON.stringify({ name: name, new_name: newName }) // Check that this is properly formatted
+	})
+	  .then(response => {
+		console.log('Response:', response); // Log response to check if it’s a 200
+		return response.json();
+	  })
+	  .then(data => {
+		console.log('Response data:', data); // Log the data from the response
+		if (data.success) {
+		  console.log('Category renamed successfully:', data);
+		  fetchCategories(); // Refresh categories after renaming
+		} else {
+		  console.error('Failed to rename category:', data.message);
+		}
+	  })
+	  .catch(error => {
+		console.error('Error renaming category:', error);
+	  });
+  };
+  
+  const handleDeleteCategory = (name) => {
+	console.log('Attempting to delete category:', name);
+  
+	fetch('/api/delete_category', {
+	  method: 'POST',
+	  headers: { 
+		'Content-Type': 'application/json' // Ensure the Content-Type is correct
+	  },
+	  body: JSON.stringify({ name: name }) // Check that this is properly formatted
+	})
+	  .then(response => {
+		console.log('Response:', response); // Log response to check if it’s a 200
+		return response.json();
+	  })
+	  .then(data => {
+		console.log('Response data:', data); // Log the data from the response
+		if (data.success) {
+		  console.log('Category deleted successfully:', data);
+		  fetchCategories(); // Refresh categories after deletion
+		} else {
+		  console.error('Failed to delete category:', data.message);
+		}
+	  })
+	  .catch(error => {
+		console.error('Error deleting category:', error);
+	  });
+  };
+  
 
 const contextMenuRef = useRef(null); // Reference to the context menu
 
@@ -139,22 +218,6 @@ const contextMenuRef = useRef(null); // Reference to the context menu
     setEditingCategory(category);
   };
 
-  const handleRenameCategory = (newName) => {
-    setCategories(categories.map(cat => (cat === editingCategory ? newName : cat)));
-    setSelectedCategory(newName === selectedCategory ? newName : selectedCategory);
-    setShowContextMenu(false);
-  };
-
-  const handleDeleteCategory = () => {
-    const confirmed = window.confirm('정말 카테고리를 삭제하시겠습니까?');
-    if (confirmed) {
-      setCategories(categories.filter(cat => cat !== editingCategory));
-      setItems(items.filter(item => item.category !== editingCategory));
-      setSelectedCategory(categories[0]);
-    }
-    setShowContextMenu(false);
-  };
-
   const handleAddCategory = () => {
     if (categories.length >= 4) {
       window.alert('카테고리는 최대 4개까지 추가할 수 있습니다.');
@@ -197,19 +260,6 @@ const contextMenuRef = useRef(null); // Reference to the context menu
 
   const filteredItems = items.filter(item => item.category === selectedCategory);
 
-  // Event listener to close the context menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
-        setShowContextMenu(false); // Hide context menu
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   return (
     <div className="my-autobiography-page">
@@ -297,16 +347,41 @@ const contextMenuRef = useRef(null); // Reference to the context menu
         </div>
       </main>
       {/* Context menu for categories */}
-      {showContextMenu && (
-        <div
-          className="context-menu"
-          ref={contextMenuRef} // Add reference for outside click detection
-          style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
-        >
-          <div className="context-menu-item" onClick={() => handleRenameCategory(prompt('카테고리 이름 수정'))}>이름 수정</div>
-          <div className="context-menu-item" onClick={handleDeleteCategory}>삭제</div>
-        </div>
-      )}
+	  {showContextMenu && (
+		<div className="context-menu" ref={contextMenuRef} // Add reference for outside click detection
+		style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
+	  >
+			{categories.map((category, index) => (
+			<div key={index} className="context-menu-item-group">
+				<div
+				className="context-menu-item"
+				onClick={() => {
+					const newName = prompt('카테고리 이름 수정', category); // Default to current category name
+					if (newName) { // Ensure newName is not null or empty
+					console.log('New name entered:', newName); // Log for debugging
+					handleRenameCategory(newName, category);
+					} else {
+					console.log('No name provided or prompt was canceled');
+					}
+				}}
+				>
+				이름 수정
+				</div>
+				<div
+				className="context-menu-item"
+				onClick={() => {
+					if (window.confirm('정말 카테고리를 삭제하시겠습니까?')) {
+					console.log('Deleting category:', category); // Debug log
+					handleDeleteCategory(category);
+					}
+				}}
+				>
+				삭제
+				</div>
+			</div>
+			))}
+		</div>
+		)}
     </div>
   );
 }

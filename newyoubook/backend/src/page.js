@@ -14,6 +14,7 @@ const getBookListRouter = require('./api/get_books.js');
 const deleteBookRouter = require('./api/delete_book.js');
 const logoutRouter = require('./api/auth/logout.js');
 const chatbotRouter = require('./api/chatbotapi.js');
+const categoryRouter = require('./api/category.js')
 
 const app = express();
 
@@ -74,7 +75,7 @@ app.use('/api', imageRouter);
 app.use('/api', deleteBookRouter);
 app.use('/api', logoutRouter);
 app.use('/api', chatbotRouter);
-
+app.use('/api', categoryRouter);
 
 
 app.use((req, res, next) => {
