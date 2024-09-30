@@ -3,14 +3,38 @@ import { useNavigate } from 'react-router-dom';
 import './MainPage.css';
 import defaultProfileImage from '../assets/images/signup-icon.png';
 import chatbotImage from '../assets/images/chatbot1.png'; // 이미지 경로 수정
+import exit from '../assets/images/x.png';
 
 function MainPage() {
+  const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
+  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [text, setText] = useState('');
 
-  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); 
-
+  
   const navigate = useNavigate();
 
+  const handleMenuClick = () => {
+    setIsSidebarVisible(true);
+  };
+
+  const handleBookClick = () => {
+    navigate('/my-autobiography');
+  };
+
+  const handleExitClick = () => {
+    setIsSidebarVisible(false);
+  };
+
+  const handleInquiryClick = () => {
+    navigate('/inquiry');
+  };
+  const handleModifyClick = () => {
+    navigate('/modifyinfo');
+  };
+  const handleHomeClick = () => {
+    navigate('/');
+  };
   // 유저 정보를 서버에서 가져옴
   useEffect(() => {
     fetch('/api/get_user_info')
@@ -33,12 +57,12 @@ function MainPage() {
   };
 
   const handleSubmit = () => {
-    fetch('/api/write_process/chatbot', {
+    fetch('/api/write_process', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text })
+      body: JSON.stringify({ content: text }),
     })
     .then(response => {
       navigate('/chatbot');
@@ -50,29 +74,34 @@ function MainPage() {
 
   // 자서전 바로 만들기 버튼 클릭 시 동작
   const handleCreateBook = () => {
-    fetch('/api/write_process/nochatbot', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ content: text })
-    })
-    .then(response => {
-      navigate('/book-reading')}
-    )
-    .catch(error => {
-      console.error('Error:', error);
-    });
+    alert('글이 성공적으로 저장되었습니다!');
+    navigate('/book-reading');
   };
 
   return (
     <div className="main-page">
       <header className="main-header">
-        <button className="menu-button">☰</button>
+        <button className="menu-button" onClick={handleMenuClick}>☰</button>
+        
         <button className="profile-button" onClick={handleProfileClick}>
           <img src={profileImagePath} alt="Profile" className="profile-image" />
         </button>
       </header>
+
+      <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
+        <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
+        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
+        <div className="profile-name">{userName}</div>
+        <nav className="sidebar-nav">
+          <ul>
+            <li onClick={handleBookClick}>나의 자서전 목록</li>
+            <li onClick={handleInquiryClick}>문의하기</li>
+            <li onClick={handleModifyClick}>개인정보수정</li>
+            <li onClick={handleHomeClick}>로그아웃</li>
+          </ul>
+        </nav>
+      </aside>
+
       <div className="main-content">
         <div className="title-image-container">
           <img src={chatbotImage} alt="Chatbot" className="main-image" />
