@@ -64,8 +64,16 @@ function MainPage() {
       },
       body: JSON.stringify({ content: text }),
     })
-    .then(response => {
-      navigate('/chatbot');
+    .then(response => response.json())  // response를 JSON으로 파싱
+    .then(data => {
+      if (data.status === 200) {
+        const bookId = data.bookId;  // 여기에 bookId가 있는지 확인
+        if (bookId) {
+          navigate(`/chatbot/${bookId}`);  // bookId가 있을 때만 navigate
+        } else {
+          console.error('bookId is missing in the response:', data);
+        }
+      }
     })
     .catch(error => {
       console.error('Error:', error);

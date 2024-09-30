@@ -77,30 +77,38 @@ router.post('/write_process/chatbot', function (request, response) {
                     throw err;
                 }
                 // init_user_input에 삽입
-                connection.query('INSERT INTO init_user_input (user_id, book_id, input_count, content) VALUES (?, ?, ?, ?)', [user_id, book_id, 1, content], function (error, results) {
-                    if (error) {
-                        return connection.rollback(function () {
-                            connection.release();
-                            throw error;
-                        });
-                    }
-                    connection.commit(function (err) {
-                        if (err) {
+                connection.query(
+                    'INSERT INTO init_user_input (user_id, book_id, input_count, content) VALUES (?, ?, ?, ?)',
+                    [user_id, book_id, 1, content],
+                    function (error, results) {
+                        if (error) {
                             return connection.rollback(function () {
                                 connection.release();
-                                throw err;
+                                throw error;
                             });
                         }
-                        connection.release();
-                        response.status(200).send('Success');
-                    });
-                });
+                        connection.commit(function (err) {
+                            if (err) {
+                                return connection.rollback(function () {
+                                    connection.release();
+                                    throw err;
+                                });
+                            }
+                            connection.release();
+                            console.log("User ID:", user_id);
+
+                            // 여기서 response로 변경
+                            response.status(200).json({ status: 200, bookId: book_id });
+                        });
+                    }
+                );
             });
         });
     } else {
         response.status(400).send('내용이 기입되지 않았습니다!');
     }
 });
+
 
 // 라우터: /book-reading
 router.post('/write_process/book_reading', async function (req, res) {

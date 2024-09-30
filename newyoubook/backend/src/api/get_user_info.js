@@ -32,6 +32,30 @@ router.get('/get_user_info', (req, res) => {
 	  }
 	);
   });
+
+  router.get('/get-initial-input/:bookId/:userId', function (req, res) {
+    const { bookId, userId } = req.params;
+
+    // 데이터베이스에서 bookId와 userId에 맞는 데이터를 조회
+    const query = 'SELECT content FROM init_user_input WHERE book_id = ? AND user_id = ?';
+
+    db.query(query, [bookId, userId], function (error, results) {
+        if (error) {
+            console.error('Database query error:', error);
+            return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+        }
+
+        if (results.length > 0) {
+            // 데이터가 존재하면 content 반환
+            const initialInput = results[0].content;
+            res.json({ success: true, content: initialInput });
+        } else {
+            // 데이터가 없을 경우
+            res.status(404).json({ success: false, message: '해당 초기 입력을 찾을 수 없습니다.' });
+        }
+    });
+});
+
   
 
 module.exports = router;

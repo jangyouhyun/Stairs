@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import $ from 'jquery';
 import './chatbot.css';
 
 function Chatbot() {
@@ -7,22 +9,58 @@ function Chatbot() {
   ]);
 
   const [inputValue, setInputValue] = useState('');
-  const [userId, setUserId] = useState('USER_ID'); // 실제 사용자 ID로 변경하세요
-  const [initialInput, setInitialInput] = useState('나는 대한민국 서울에서 1999년 태어났어...'); // 실제 초기 데이터
+  const { bookId } = useParams();  // URL 파라미터에서 bookId 추출
+  const [initialInput, setInitialInput] = useState(''); // 실제 초기 데이터
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
   const [error, setError] = useState(null); // 에러 상태 추가
 
-  // 서버와 초기 대화를 시작하는 함수
   useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await fetch('/api/get_user_info'); // 서버로부터 유저 정보를 가져옴
+        if (!response.ok) {
+          throw new Error('사용자 정보를 가져오는 중 오류가 발생했습니다.');
+        }
+        const data = await response.json();
+        if (data.success) {
+          return data.id; // 사용자 ID 반환
+        } else {
+          throw new Error('사용자 정보를 찾을 수 없습니다.');
+        }
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+        return null; // 오류 시 null 반환
+      }
+    };
+  
+    const fetchInitialInput = async (userId) => {
+      try {
+        const response = await fetch(`/api/get-initial-input/${bookId}/${userId}`);
+        if (!response.ok) {
+          throw new Error('초기 입력을 불러오는 중 오류가 발생했습니다.');
+        }
+        const data = await response.json();
+        return data.content;  // 서버에서 가져온 초기 content 값
+      } catch (error) {
+        console.error('Error fetching initial input:', error);
+        return '';  // 오류 발생 시 기본 값
+      }
+    };
+  
     const initiateChat = async () => {
       setIsLoading(true); // 로딩 상태 시작
       try {
-        const response = await fetch('/api/chatbot/initiate', {
+        const userId = await fetchUserInfo(); // 사용자 ID를 가져옴
+        if (!userId) {
+          throw new Error('사용자 정보를 가져오는 중 오류가 발생했습니다.');
+        }
+        const initialInputContent = await fetchInitialInput(userId); // 초기 입력 값을 가져옴
+        const response = await fetch(`/api/chatbot/initiate/${bookId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ userId, initialInput }),
+          body: JSON.stringify({ initialInput: initialInputContent }),
         });
         if (!response.ok) {
           throw new Error('서버에서 초기 질문을 가져오는 데 오류가 발생했습니다.');
@@ -42,8 +80,11 @@ function Chatbot() {
         setIsLoading(false); // 로딩 상태 종료
       }
     };
+  
     initiateChat();
-  }, [userId, initialInput]);
+  }, [bookId]);
+  
+  
 
   // 사용자가 답변을 제출할 때 처리하는 함수
   const handleSend = async () => {
@@ -52,12 +93,12 @@ function Chatbot() {
       setMessages([...messages, { type: 'user', text: inputValue }]);
       setIsLoading(true); // 로딩 상태 시작
       try {
-        const response = await fetch('/api/chatbot/ask', {
+        const response = await fetch(`/api/chatbot/ask/${bookId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ userId, userInput: inputValue, previousQuestion }),
+          body: JSON.stringify({ userInput: inputValue, previousQuestion }),
         });
         if (!response.ok) {
           throw new Error('서버에서 질문을 생성하는 데 오류가 발생했습니다.');
