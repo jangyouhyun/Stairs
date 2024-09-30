@@ -220,14 +220,14 @@ const contextMenuRef = useRef(null); // Reference to the context menu
 
       <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
         <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
-        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
+        <img src={profileImagePath} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
           <ul>
             <li className="active">나의 자서전 목록</li>
             <li onClick={handleInquiryClick}>문의하기</li>
             <li onClick={handleModifyClick}>개인정보수정</li>
-            <li onClick={handleHomeClick}>로그아웃</li>
+            <li onClick={handleLogout}>로그아웃</li>
           </ul>
         </nav>
       </aside>

@@ -27,6 +27,34 @@ async function getModelResponse(userInput) {
     return response.choices[0].message.content.trim();
 }
 
+// 라우터: /book-content/:book_id
+router.get('/book-content/:book_id', async function (req, res) {
+    const book_id = req.params.book_id;
+
+    try {
+        db.getConnection(function (err, connection) {
+            if (err) throw err;
+
+            connection.query('SELECT content FROM middle_user_output WHERE book_id = ?', [book_id], function (error, results) {
+                connection.release();
+                if (error) {
+                    return res.status(500).json({ status: 500, error: 'Error retrieving book content' });
+                }
+
+                if (results.length > 0) {
+                    res.status(200).json({ status: 200, content: results[0].content });
+                } else {
+                    res.status(404).json({ status: 404, error: 'No content found for this book' });
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Error retrieving book content:', error);
+        res.status(500).json({ status: 500, error: 'Error retrieving book content' });
+    }
+});
+
+
 function getFormatDate(date) {
     var year = date.getFullYear();
     var month = (1 + date.getMonth()).toString().padStart(2, '0');
@@ -117,7 +145,8 @@ router.post('/write_process/book_reading', async function (req, res) {
                                 }
 
                                 connection.release();
-                                res.status(200).json({ status: 200 });
+                                // const bookId = results.insertId;  // 생성된 book의 ID
+                                res.status(200).json({ status: 200, bookId: book_id });
                             });
                         });
                     });
