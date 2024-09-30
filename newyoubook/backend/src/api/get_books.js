@@ -17,19 +17,4 @@ router.get('/get_books', (req, res) => {
 	});
   });
 
-// 사용자 책 카테고리 가져오기
-router.get('/get_category', (req, res) => {
-	const userId = req.session.nickname;
-	if (!userId) {
-	  return res.status(401).json({ success: false, message: 'User not logged in' });
-	}
-	db.query('SELECT name FROM category WHERE user_id = ?', [userId], (error, results) => {
-	  if (error) {
-		console.error('Database query error:', error);
-		return res.status(500).json({ success: false, message: 'Internal server error' });
-	  }
-	  res.json({ success: true, categorys: results });
-	});
-  });
-
 module.exports = router;
