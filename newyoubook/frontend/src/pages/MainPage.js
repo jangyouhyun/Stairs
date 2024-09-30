@@ -100,7 +100,6 @@ function MainPage() {
     <div className="main-page">
       <header className="main-header">
         <button className="menu-button" onClick={handleMenuClick}>☰</button>
-        
         <button className="profile-button" onClick={handleProfileClick}>
           <img src={profileImagePath} alt="Profile" className="profile-image" />
         </button>

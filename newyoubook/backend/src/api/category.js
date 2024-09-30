@@ -22,9 +22,6 @@ router.post('/update_category', (req, res) => {
 	const { name, new_name } = req.body;
 	const userId = req.session.nickname;
   
-	console.log('User session nickname:', userId);
-	console.log('Request body:', req.body);
-  
 	if (!name || !new_name) {
 	  return res.status(400).json({ success: false, message: 'Invalid request' });
 	}
@@ -50,9 +47,6 @@ router.post('/update_category', (req, res) => {
 router.post('/delete_category', (req, res) => {
 	const { name } = req.body;
 	const userId = req.session.nickname;
-  
-	console.log('User session nickname:', userId);
-	console.log('Request body:', req.body);
   
 	if (!name) {
 	  return res.status(400).json({ success: false, message: 'Invalid request' });

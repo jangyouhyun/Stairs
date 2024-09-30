@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';  // useParams 추가
 import $ from 'jquery';
 import '../assets/js/turn.js'; 
 import './BookReadingPage.css';
+import defaultProfileImage from '../assets/images/signup-icon.png';
 import signupIcon from '../assets/images/signup-icon.png';
 import leftArrow from '../assets/images/left.png';
 import rightArrow from '../assets/images/right.png';
@@ -15,6 +16,7 @@ function BookReadingPage() {
   const [bookName, setBookName] = useState(''); // Book name state
   const [category, setCategory] = useState(''); // Book category state
   const [bookContent, setBookContent] = useState(''); // DB에서 가져온 내용 저장
+  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   // Navigate to the autobiography page
   const handleProfileClick = () => {
     navigate('/my-autobiography');
@@ -29,6 +31,24 @@ function BookReadingPage() {
   const handleSaveClick = () => {
     alert('임시 저장되었습니다'); // Show popup when "임시 저장" is clicked
   };
+
+  // 유저 정보를 서버에서 가져옴
+  useEffect(() => {
+    fetch('/api/get_user_info')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로를 상태에 저장
+          
+        } else {
+          console.error(data.message);
+          navigate('/');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching user info:', error);
+      });
+  }, [navigate]);
 
   useEffect(() => {
     fetch(`/api/book-content/${bookId}`)  // 백틱을 사용하여 동적으로 bookId를 가져옴
@@ -86,7 +106,7 @@ function BookReadingPage() {
       <header className="main-header">
         <button className="menu-button">☰</button>
         <button className="profile-button" onClick={handleProfileClick}>
-          <img src={signupIcon} alt="Profile" className="profile-image" />
+          <img src={profileImagePath} alt="Profile" className="profile-image" />
         </button>
       </header>
 
