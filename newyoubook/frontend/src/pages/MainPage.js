@@ -94,6 +94,25 @@ function MainPage() {
       alert('저장 중 오류가 발생했습니다.');
     });
   };  
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        navigate('/');  // 로그아웃 성공 후 메인 페이지로 이동
+      } else {
+        console.error('Failed to log out');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
   
 
   return (
@@ -114,7 +133,7 @@ function MainPage() {
             <li onClick={handleBookClick}>나의 자서전 목록</li>
             <li onClick={handleInquiryClick}>문의하기</li>
             <li onClick={handleModifyClick}>개인정보수정</li>
-            <li onClick={handleHomeClick}>로그아웃</li>
+            <li onClick={handleLogout}>로그아웃</li>
           </ul>
         </nav>
       </aside>

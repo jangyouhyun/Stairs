@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../components/SignupForm.css';
 import signupIcon from '../assets/images/signup-icon.png';
@@ -24,6 +24,36 @@ const [profileImage, setProfileImage] = useState(null);
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
+  useEffect(() => {
+    fetch('/api/get_user_info')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          setUserName(data.nickname); // 닉네임 저장
+          setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로 저장
+  
+          // 유저 정보를 formData에 저장
+          setFormData({
+            id: data.id || '',  // 백엔드에서 받은 유저 ID
+            pw: '', // 비밀번호는 보안 상 초기값 유지
+            pw2: '', // 비밀번호 확인도 초기값 유지
+            username: data.nickname || '', // 닉네임 저장
+            email: data.email || '', // 이메일 저장
+            phone_num: data.phone_number || '', // 전화번호 저장
+            birth: data.birth || '', // 생년월일 저장
+            gender: data.gender || '' // 성별 저장
+          });
+        } else {
+          console.error(data.message);
+          navigate('/');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching user info:', error);
+      });
+  }, [navigate]);
+  
+  
   const handleMenuClick = () => {
     setIsSidebarVisible(true);
   };
@@ -82,10 +112,6 @@ const [profileImage, setProfileImage] = useState(null);
     fetch('/auth/register_process', {
       method: 'POST',
       body: data
-      // headers: {
-      //   'Content-Type': 'application/json',
-      // },
-      //body: JSON.stringify(formData),
     })
     .then(response => response.json())
     .then(data => {
@@ -101,26 +127,25 @@ const [profileImage, setProfileImage] = useState(null);
     });
   };
 
-  const checkIdAvailability = async () => {
-    if (!formData.id) {
-      alert('아이디를 입력하세요');
-      return;
-    }
+  const handleLogout = async () => {
     try {
-      const response = await fetch('/auth/check_id', {
+      const response = await fetch('/api/logout', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: formData.id })
       });
-
-      const data = await response.json();
-      alert(data.message);
+  
+      if (response.ok) {
+        navigate('/');  // 로그아웃 성공 후 메인 페이지로 이동
+      } else {
+        console.error('Failed to log out');
+      }
     } catch (error) {
       console.error('Error:', error);
     }
   };
+
 
   return (
     <div className="signup-container">
@@ -132,19 +157,19 @@ const [profileImage, setProfileImage] = useState(null);
 
       <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
         <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
-        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
+        <img src={profileImagePath} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
           <ul>
             <li onClick={handleBookClick}>나의 자서전 목록</li>
             <li onClick={handleInquiryClick}>문의하기</li>
             <li className="active">개인정보수정</li>
-            <li onClick={handleHomeClick}>로그아웃</li>
+            <li onClick={handleLogout}>로그아웃</li>
           </ul>
         </nav>
       </aside>
       <label htmlFor="profile-image-input">
-        <img src={profileImage ? URL.createObjectURL(profileImage) : signupIcon} alt="Signup Icon" className="signup-icon" />
+        <img src={profileImage ? URL.createObjectURL(profileImage) : profileImagePath} alt="Signup Icon" className="signup-icon" />
       </label>
       <input
         type="file"
@@ -155,15 +180,15 @@ const [profileImage, setProfileImage] = useState(null);
       />
       <form className="signup-form" onSubmit={handleSubmit}>
         <div className="input-group">
-          <input 
-            type="text" 
-            placeholder="아이디" 
-            name="id" 
-            value={formData.id}
-            onChange={handleChange}
-            className="input-field" 
-          />
-          <button type="button" className="check-button" onClick={checkIdAvailability}>중복확인</button>
+        <input 
+          type="text" 
+          placeholder="아이디"
+          name="id" 
+          value={formData.id}
+          onChange={handleChange}
+          className="input-field" 
+          disabled // 수정 불가능하게 설정
+        />
         </div>
         <input 
           type="password" 
@@ -225,7 +250,7 @@ const [profileImage, setProfileImage] = useState(null);
           type="text" 
           placeholder="휴대폰 번호" 
           name="phone_num"
-          value={formData.phone_num}
+          value={formData.phone_num} // 올바른 필드 참조
           onChange={handleChange}
           className="input-field" 
         />
