@@ -1,29 +1,100 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './chatbot.css';
 
 function Chatbot() {
   const [messages, setMessages] = useState([
     { type: 'bot', text: '안녕하세요! 작성해주신 내용을 바탕으로 몇 가지 질문드리겠습니다.' },
-    { type: 'bot', text: '어린시절에 겪은 학업의 어려움에 대해서 조금더 자세히 묘사해주실 수 있나요? (예 : 과목정보)' },
-    { type: 'user', text: '초등학교 2학년때 구구단을 외우는데, 너무너무 어려웠어. 그때부터 수학이 어려웠던 것 같아.' },
-    { type: 'bot', text: '2024 봄에 결혼을 하셨다고 하셨는데, 정확한 일자와 더불어 조금더 묘사해주실 수 있을까요?' },
-    { type: 'user', text: '내가 결혼을 한 정확한 일자는 2024년 4월 3일이야 화창한 봄날이었고 야외에서 결혼식을 했지. 정말 완벽한 날이었어.' },
-    { type: 'bot', text: '2030년 승진을 하셨는데, 승진을 하기 위해 한 노력에 대해 조금 더 여쭐볼 수 있을까요?' }
   ]);
 
   const [inputValue, setInputValue] = useState('');
+  const [userId, setUserId] = useState('USER_ID'); // 실제 사용자 ID로 변경하세요
+  const [initialInput, setInitialInput] = useState('나는 대한민국 서울에서 1999년 태어났어...'); // 실제 초기 데이터
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
+  const [error, setError] = useState(null); // 에러 상태 추가
 
-  const handleSend = () => {
+  // 서버와 초기 대화를 시작하는 함수
+  useEffect(() => {
+    const initiateChat = async () => {
+      setIsLoading(true); // 로딩 상태 시작
+      try {
+        const response = await fetch('/api/chatbot/initiate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId, initialInput }),
+        });
+        if (!response.ok) {
+          throw new Error('서버에서 초기 질문을 가져오는 데 오류가 발생했습니다.');
+        }
+        const data = await response.json();
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { type: 'bot', text: data.question }
+        ]);
+      } catch (error) {
+        console.error('Error:', error);
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { type: 'bot', text: '초기 질문을 가져오는 중 오류가 발생했습니다.' }
+        ]);
+      } finally {
+        setIsLoading(false); // 로딩 상태 종료
+      }
+    };
+    initiateChat();
+  }, [userId, initialInput]);
+
+  // 사용자가 답변을 제출할 때 처리하는 함수
+  const handleSend = async () => {
     if (inputValue.trim()) {
+      const previousQuestion = messages[messages.length - 1].text;
       setMessages([...messages, { type: 'user', text: inputValue }]);
-      setInputValue('');
+      setIsLoading(true); // 로딩 상태 시작
+      try {
+        const response = await fetch('/api/chatbot/ask', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId, userInput: inputValue, previousQuestion }),
+        });
+        if (!response.ok) {
+          throw new Error('서버에서 질문을 생성하는 데 오류가 발생했습니다.');
+        }
+        const data = await response.json();
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { type: 'bot', text: data.question }
+        ]);
+      } catch (error) {
+        console.error('Error:', error);
+        setError('질문 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { type: 'bot', text: '질문 생성 중 오류가 발생했습니다.' }
+        ]);
+      } finally {
+        setIsLoading(false); // 로딩 상태 종료
+      }
+
+      setInputValue(''); // 입력 필드를 비움
+    }
+  };
+
+  // Enter 키를 눌렀을 때도 메시지를 전송할 수 있도록
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSend();
     }
   };
 
   return (
     <div className="chatbot-container">
       <div className="chatbot-header">
-        
+        <div className="progress-bar">
+          <span>인터뷰 진행중 ...</span>
+        </div>
       </div>
       <div className="chatbot-body">
         {messages.map((msg, index) => (
@@ -31,15 +102,19 @@ function Chatbot() {
             {msg.text}
           </div>
         ))}
+        {isLoading && <div className="loading-indicator">로딩 중...</div>}
+        {error && <div className="error-message">{error}</div>}
       </div>
       <div className="chatbot-footer">
         <input
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          onKeyPress={handleKeyPress} // Enter 키 이벤트
           placeholder="답변을 입력하세요 ..."
+          disabled={isLoading} // 로딩 중에는 입력 불가
         />
-        <button onClick={handleSend}>전송</button>
+        <button onClick={handleSend} disabled={isLoading || !inputValue.trim()}>전송</button> {/* 로딩 중이거나 빈 입력일 때 버튼 비활성화 */}
       </div>
     </div>
   );

@@ -57,7 +57,7 @@ function MainPage() {
   };
 
   const handleSubmit = () => {
-    fetch('/api/write_process', {
+    fetch('/api/write_process/chatbot', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
