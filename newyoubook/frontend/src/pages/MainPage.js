@@ -10,7 +10,6 @@ function MainPage() {
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [text, setText] = useState('');
-
   
   const navigate = useNavigate();
 
@@ -35,6 +34,7 @@ function MainPage() {
   const handleHomeClick = () => {
     navigate('/');
   };
+
   // 유저 정보를 서버에서 가져옴
   useEffect(() => {
     fetch('/api/get_user_info')
@@ -72,7 +72,6 @@ function MainPage() {
     });
   };
 
-  // 자서전 바로 만들기
   const handleCreateBook = () => {
     fetch('/api/write_process/book_reading', {
       method: 'POST',
@@ -81,20 +80,20 @@ function MainPage() {
       },
       body: JSON.stringify({ content: text }),  // 'text' 변수에 담긴 내용을 'content'로 전송
     })
-    .then(response => {
-      if (response.ok) {
-        alert('글이 성공적으로 저장되었습니다!');
-        navigate('/book-reading');  // 성공적으로 요청이 완료되면 'book-reading' 페이지로 이동
-      } else {
-        console.error('Failed to save content.');
-        alert('저장 중 오류가 발생했습니다.');
+    .then(response => response.json())
+    .then(data => {
+      console.log('API response:', data);  // 서버 응답 확인
+      if (data.status === 200) {
+        const bookId = data.bookId;
+        navigate(`/book-reading/${bookId}`);
       }
     })
+    
     .catch(error => {
       console.error('Error:', error);
       alert('저장 중 오류가 발생했습니다.');
     });
-  };
+  };  
   
 
   return (
@@ -109,7 +108,7 @@ function MainPage() {
 
       <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
         <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
-        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
+        <img src={profileImagePath} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
           <ul>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';  // useParams 추가
 import $ from 'jquery';
-import '../assets/js/turn.js'; // Ensure this path is correct for your project
+import '../assets/js/turn.js'; 
 import './BookReadingPage.css';
 import signupIcon from '../assets/images/signup-icon.png';
 import leftArrow from '../assets/images/left.png';
@@ -9,11 +9,12 @@ import rightArrow from '../assets/images/right.png';
 
 function BookReadingPage() {
   const navigate = useNavigate();
+  const { bookId } = useParams();  // URL 파라미터에서 bookId 추출
   const [currentPage, setCurrentPage] = useState(0); // Current page state
   const [totalPages, setTotalPages] = useState(0); // Total page count
   const [bookName, setBookName] = useState(''); // Book name state
   const [category, setCategory] = useState(''); // Book category state
-
+  const [bookContent, setBookContent] = useState(''); // DB에서 가져온 내용 저장
   // Navigate to the autobiography page
   const handleProfileClick = () => {
     navigate('/my-autobiography');
@@ -30,9 +31,21 @@ function BookReadingPage() {
   };
 
   useEffect(() => {
-    // Ensure the DOM is loaded before calling turn.js
+    fetch(`/api/book-content/${bookId}`)  // 백틱을 사용하여 동적으로 bookId를 가져옴
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 200) {
+          setBookContent(data.content); // 데이터 설정
+        } else {
+          console.error('Failed to fetch book content');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  
     const $book = $('#book');
-
+  
     // Ensure book element exists before initializing turn.js
     if ($book.length) {
       $book.turn({
@@ -50,11 +63,12 @@ function BookReadingPage() {
           },
         },
       });
-
+  
       // Set total pages count
       setTotalPages(Math.ceil($book.turn('pages') / 2));
     }
-  }, []);
+  }, [bookId]);  // bookId가 변경될 때마다 호출되도록 의존성 배열에 추가
+  
 
   // Handle previous button click to flip the page backward
   const handlePrevious = () => {
@@ -116,7 +130,7 @@ function BookReadingPage() {
         <div className="page">
           <div className="page-content">
             <h2>Chapter 1: The Journey to Presidency</h2>
-            <p>Since childhood, I grew up in a humble environment with my family...</p>
+            <p>{bookContent || 'Loading content...'}</p> {/* DB에서 가져온 content 렌더링 */}
           </div>
         </div>
         <div className="page">

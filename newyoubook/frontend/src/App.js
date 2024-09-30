@@ -37,6 +37,7 @@ function App() {
         <Route path="/customerinquiry" element={<CustomerInquiryPage />} />
         <Route path="/inquirychatbot" element={<InquiryChatbot />} />
         <Route path="/modifyinfo" element={<ModifyInfo />} />
+        <Route path="/book-reading/:bookId" element={<BookReadingPage />} />
       </Routes>
     </Router>
   );
