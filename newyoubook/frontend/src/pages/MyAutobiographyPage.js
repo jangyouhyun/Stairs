@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import './MyAutobiographyPage.css';
 import defaultProfileImage from '../assets/images/signup-icon.png';
 import search from '../assets/images/search.png';
+import exit from '../assets/images/x.png';
 
 function MyAutobiographyPage() {
-  const [categories, setCategories] = useState([]); // State for categories
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('카테고리1');
+  const [categories, setCategories] = useState(['카테고리1', '카테고리2']); // State for categories
   const [items, setItems] = useState([]); // 빈 배열로 초기화
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
@@ -14,9 +15,26 @@ function MyAutobiographyPage() {
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [editingCategory, setEditingCategory] = useState(null);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
   const navigate = useNavigate();
+  const handleMenuClick = () => {
+    setIsSidebarVisible(true);
+  };
 
+  const handleExitClick = () => {
+    setIsSidebarVisible(false);
+  };
+
+  const handleInquiryClick = () => {
+    navigate('/inquiry');
+  };
+  const handleModifyClick = () => {
+    navigate('/modifyinfo');
+  };
+  const handleHomeClick = () => {
+    navigate('/');
+  };
   // 유저 정보를 서버에서 가져옴
   useEffect(() => {
     fetch('/api/get_user_info')
@@ -38,39 +56,6 @@ function MyAutobiographyPage() {
       });
   }, [navigate]);
 
-// category 데이터를 가져오는 함수
-const fetchCategories = () => {
-	fetch('/api/get_category')
-	  .then(response => response.json())
-	  .then(data => {
-		if (data.success) {
-		  // Accessing 'name' from the array of category objects
-		  const sortedCategories = data.categorys
-			.map(category => category.name) // Correctly map the 'name' property from each object
-			.sort((a, b) => a.localeCompare(b));
-
-			console.log('Sorted Categories:', sortedCategories);
-  
-		  // Set the sorted categories to state
-		  setCategories(sortedCategories);
-  
-		  // Set the first category as the selected one
-		  if (sortedCategories.length > 0) {
-			setSelectedCategory(sortedCategories[0]);
-		  }
-		} else {
-		  console.error(data.message);
-		}
-	  })
-	  .catch(error => {
-		console.error('Error fetching categories:', error);
-	  });
-  };
-  
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-  
 // book_list 데이터를 가져오는 함수
 const fetchBooks = () => {
   fetch('/api/get_books')
@@ -78,21 +63,20 @@ const fetchBooks = () => {
     .then(data => {
       if (data.success) {
         const fetchedItems = data.books.map((book, index) => {
-          // 날짜 포맷팅 -> 시간 제거
+          // 날짜를 포맷팅 (시간 제거)
           const formattedDate = new Date(book.create_date).toISOString().slice(0, 10);
           
           return {
             id: index + 1,
-            category: book.category,
+            category: '카테고리1', // 모든 항목의 카테고리를 '카테고리1'로 설정
             book_id: book.book_id,
-            content: book.image_path || defaultProfileImage,
+            content: book.image_path || defaultProfileImage, // content 필드에 이미지 경로 설정
             title: book.title,
-            date: formattedDate,
+            date: formattedDate, // 포맷된 날짜 설정
             checked: false,
           };
         });
         setItems(fetchedItems);
-        
       } else {
         console.error(data.message);
       }
@@ -101,68 +85,6 @@ const fetchBooks = () => {
       console.error('Error fetching books:', error);
     });
 };
-
-const handleRenameCategory = (newName, name) => {
-	if (!newName) {
-	  console.log('No new name provided, exiting rename function.');
-	  return; // Exit if no name is provided
-	}
-  
-	console.log('Attempting to rename category from', name, 'to', newName);
-  
-	fetch('/api/update_category', {
-	  method: 'POST',
-	  headers: { 
-		'Content-Type': 'application/json' // Ensure the Content-Type is correct
-	  },
-	  body: JSON.stringify({ name: name, new_name: newName }) // Check that this is properly formatted
-	})
-	  .then(response => {
-		console.log('Response:', response); // Log response to check if it’s a 200
-		return response.json();
-	  })
-	  .then(data => {
-		console.log('Response data:', data); // Log the data from the response
-		if (data.success) {
-		  console.log('Category renamed successfully:', data);
-		  fetchCategories(); // Refresh categories after renaming
-		} else {
-		  console.error('Failed to rename category:', data.message);
-		}
-	  })
-	  .catch(error => {
-		console.error('Error renaming category:', error);
-	  });
-  };
-  
-  const handleDeleteCategory = (name) => {
-	console.log('Attempting to delete category:', name);
-  
-	fetch('/api/delete_category', {
-	  method: 'POST',
-	  headers: { 
-		'Content-Type': 'application/json' // Ensure the Content-Type is correct
-	  },
-	  body: JSON.stringify({ name: name }) // Check that this is properly formatted
-	})
-	  .then(response => {
-		console.log('Response:', response); // Log response to check if it’s a 200
-		return response.json();
-	  })
-	  .then(data => {
-		console.log('Response data:', data); // Log the data from the response
-		if (data.success) {
-		  console.log('Category deleted successfully:', data);
-		  fetchCategories(); // Refresh categories after deletion
-		} else {
-		  console.error('Failed to delete category:', data.message);
-		}
-	  })
-	  .catch(error => {
-		console.error('Error deleting category:', error);
-	  });
-  };
-  
 
 const contextMenuRef = useRef(null); // Reference to the context menu
 
@@ -218,6 +140,22 @@ const contextMenuRef = useRef(null); // Reference to the context menu
     setEditingCategory(category);
   };
 
+  const handleRenameCategory = (newName) => {
+    setCategories(categories.map(cat => (cat === editingCategory ? newName : cat)));
+    setSelectedCategory(newName === selectedCategory ? newName : selectedCategory);
+    setShowContextMenu(false);
+  };
+
+  const handleDeleteCategory = () => {
+    const confirmed = window.confirm('정말 카테고리를 삭제하시겠습니까?');
+    if (confirmed) {
+      setCategories(categories.filter(cat => cat !== editingCategory));
+      setItems(items.filter(item => item.category !== editingCategory));
+      setSelectedCategory(categories[0]);
+    }
+    setShowContextMenu(false);
+  };
+
   const handleAddCategory = () => {
     if (categories.length >= 4) {
       window.alert('카테고리는 최대 4개까지 추가할 수 있습니다.');
@@ -260,21 +198,36 @@ const contextMenuRef = useRef(null); // Reference to the context menu
 
   const filteredItems = items.filter(item => item.category === selectedCategory);
 
+  // Event listener to close the context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
+        setShowContextMenu(false); // Hide context menu
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="my-autobiography-page">
-      <aside className="sidebar">
-        <div className="profile-section">
-          <img src={profileImagePath} alt="Profile" className="profile-image" />
-          <div className="profile-name">{userName}</div>
-        </div>
+      <div className="profile-container">
+        <div className="menu" onClick={handleMenuClick}>☰</div>
+      </div>
+
+      <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
+        <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
+        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
+        <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
           <ul>
-            <li onClick={() => navigate('/home')}>유북 홈</li>
             <li className="active">나의 자서전 목록</li>
-            <li onClick={() => navigate('/inquiry')}>1:1 문의 내역</li>
-            <li onClick={() => navigate('/profile')}>개인정보수정</li>
-            <li onClick={handleLogout}>로그아웃</li>
+            <li onClick={handleInquiryClick}>문의하기</li>
+            <li onClick={handleModifyClick}>개인정보수정</li>
+            <li onClick={handleHomeClick}>로그아웃</li>
           </ul>
         </nav>
       </aside>
@@ -347,41 +300,16 @@ const contextMenuRef = useRef(null); // Reference to the context menu
         </div>
       </main>
       {/* Context menu for categories */}
-	  {showContextMenu && (
-		<div className="context-menu" ref={contextMenuRef} // Add reference for outside click detection
-		style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
-	  >
-			{categories.map((category, index) => (
-			<div key={index} className="context-menu-item-group">
-				<div
-				className="context-menu-item"
-				onClick={() => {
-					const newName = prompt('카테고리 이름 수정', category); // Default to current category name
-					if (newName) { // Ensure newName is not null or empty
-					console.log('New name entered:', newName); // Log for debugging
-					handleRenameCategory(newName, category);
-					} else {
-					console.log('No name provided or prompt was canceled');
-					}
-				}}
-				>
-				이름 수정
-				</div>
-				<div
-				className="context-menu-item"
-				onClick={() => {
-					if (window.confirm('정말 카테고리를 삭제하시겠습니까?')) {
-					console.log('Deleting category:', category); // Debug log
-					handleDeleteCategory(category);
-					}
-				}}
-				>
-				삭제
-				</div>
-			</div>
-			))}
-		</div>
-		)}
+      {showContextMenu && (
+        <div
+          className="context-menu"
+          ref={contextMenuRef} // Add reference for outside click detection
+          style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
+        >
+          <div className="context-menu-item" onClick={() => handleRenameCategory(prompt('카테고리 이름 수정'))}>이름 수정</div>
+          <div className="context-menu-item" onClick={handleDeleteCategory}>삭제</div>
+        </div>
+      )}
     </div>
   );
 }

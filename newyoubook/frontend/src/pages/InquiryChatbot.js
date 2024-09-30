@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import './chatbot.css';
+import './InquiryChatbot.css';
 
-function Chatbot() {
+function InquiryChatbot() {
   const [messages, setMessages] = useState([
     { type: 'bot', text: '안녕하세요! 작성해주신 내용을 바탕으로 몇 가지 질문드리겠습니다.' },
     { type: 'bot', text: '어린시절에 겪은 학업의 어려움에 대해서 조금더 자세히 묘사해주실 수 있나요? (예 : 과목정보)' },
@@ -45,4 +45,4 @@ function Chatbot() {
   );
 }
 
-export default Chatbot;
+export default InquiryChatbot;
