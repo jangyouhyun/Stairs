@@ -72,11 +72,30 @@ function MainPage() {
     });
   };
 
-  // 자서전 바로 만들기 버튼 클릭 시 동작
+  // 자서전 바로 만들기
   const handleCreateBook = () => {
-    alert('글이 성공적으로 저장되었습니다!');
-    navigate('/book-reading');
+    fetch('/api/write_process/book_reading', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: text }),  // 'text' 변수에 담긴 내용을 'content'로 전송
+    })
+    .then(response => {
+      if (response.ok) {
+        alert('글이 성공적으로 저장되었습니다!');
+        navigate('/book-reading');  // 성공적으로 요청이 완료되면 'book-reading' 페이지로 이동
+      } else {
+        console.error('Failed to save content.');
+        alert('저장 중 오류가 발생했습니다.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('저장 중 오류가 발생했습니다.');
+    });
   };
+  
 
   return (
     <div className="main-page">
