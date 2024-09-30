@@ -224,15 +224,38 @@ const handleDeleteCategory = (name) => {
     });
 };
 
-  const handleAddCategory = () => {
-    if (categories.length >= 4) {
-      window.alert('카테고리는 최대 4개까지 추가할 수 있습니다.');
-    } else {
-      const newCategory = `카테고리${categories.length + 1}`;
-      setCategories([...categories, newCategory]);
-      setSelectedCategory(newCategory);
+const handleAddCategory = () => {
+  if (categories.length >= 4) {
+    window.alert('카테고리는 최대 4개까지 추가할 수 있습니다.');
+  } else {
+    const newCategory = prompt('새 카테고리 이름을 입력하세요'); // 사용자로부터 입력 받음
+    if (!newCategory) {
+      return; // 입력이 없으면 함수 종료
     }
-  };
+    
+    // 서버로 카테고리 추가 요청
+    fetch('/api/add_category', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: newCategory }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // 카테고리 추가 성공 시, 카테고리 목록 갱신
+          fetchCategories();
+        } else {
+          window.alert('중복된 이름입니다');
+        }
+      })
+      .catch(error => {
+        console.error('Error adding category:', error);
+      });
+  }
+};
+
 
   // Event listener to close the context menu when clicking outside
   useEffect(() => {

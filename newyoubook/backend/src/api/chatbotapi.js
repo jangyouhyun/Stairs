@@ -17,23 +17,47 @@ const openaiInstance = new OpenAI({
 
 // 데이터베이스에 질문과 응답을 저장하는 함수
 const saveChatbotData = (userId, bookId, question, response) => {
-    const query = `
-        INSERT INTO chatbot_data (user_id, book_id, input_count, question, response)
-        VALUES (?, ?, ?, ?, ?);
+    // 첫 번째 쿼리: 현재 bookId와 userId에 해당하는 quest_num의 최대값을 가져옵니다.
+    const getMaxQuestNumQuery = `
+        SELECT MAX(quest_num) AS max_quest_num 
+        FROM chatbot_data 
+        WHERE user_id = ? AND book_id = ?;
     `;
-    db.query(query, [userId, bookId, 1, question, response], (error, results) => {
+    
+    db.query(getMaxQuestNumQuery, [userId, bookId], (error, results) => {
         if (error) {
-            console.error('Error saving chatbot data:', error);
-        } else {
-            console.log('Chatbot data saved successfully.');
+            console.error('Error fetching max quest_num:', error);
+            return;
         }
+        
+        // 최대 quest_num을 가져옵니다.
+        const maxQuestNum = results[0].max_quest_num;
+
+        // 새로운 quest_num을 결정합니다.
+        const newQuestNum = maxQuestNum ? maxQuestNum + 1 : 1;
+
+        // 두 번째 쿼리: 새로운 질문과 응답을 데이터베이스에 저장합니다.
+        const insertQuery = `
+            INSERT INTO chatbot_data (user_id, book_id, input_count, quest_num, question, response) 
+            VALUES (?, ?, ?, ?, ?, ?); 
+        `;
+        
+        db.query(insertQuery, [userId, bookId, 1, newQuestNum, question, response], (error, results) => { 
+            if (error) {
+                console.error('Error saving chatbot data:', error);
+            } else {
+                console.log('Chatbot data saved successfully.');
+            }
+        });
+
+        console.log('Saving chatbot data:', { bookId, question, response, quest_num: newQuestNum });
     });
-    console.log('Saving chatbot data:', { bookId, question, response });
 };
 
 // 초기 사용자 입력을 받아서 첫 질문 생성하는 라우트
-router.post('/chatbot/initiate', async (req, res) => {
-    const { userId, initialInput } = req.body;
+router.post('/chatbot/initiate/:book_id', async (req, res) => {
+    const userId = req.session.nickname;
+    const { initialInput } = req.body;
 
     try {
         // 사용자 데이터를 초기화
@@ -56,8 +80,10 @@ router.post('/chatbot/initiate', async (req, res) => {
 });
 
 // 사용자의 응답을 받아서 다음 질문을 생성하는 라우트
-router.post('/chatbot/ask', async (req, res) => {
-    const { userId, userInput, previousQuestion } = req.body;
+router.post('/chatbot/ask/:book_id', async (req, res) => {
+    const userId = req.session.nickname;  // 세션에서 userId 가져옴
+    const { userInput, previousQuestion } = req.body;  // 클라이언트에서 받은 요청
+    const { book_id: bookId } = req.params;  // URL에서 book_id 추출
 
     const exitKeywords = ['종료', '끝', '그만'];
     if (exitKeywords.includes(userInput.trim().toLowerCase())) {
@@ -66,10 +92,13 @@ router.post('/chatbot/ask', async (req, res) => {
 
     try {
         // 기존 사용자 데이터에 새로운 질문과 응답을 누적
+        if (!userData[userId]) {
+            userData[userId] = '';  // 사용자가 처음 대화하는 경우 빈 문자열로 초기화
+        }
         userData[userId] += ` ${previousQuestion}: ${userInput}`;
 
         // 이전 질문과 사용자의 응답을 데이터베이스에 저장
-        saveChatbotData(userId, 'some_book_id', previousQuestion, userInput);
+        saveChatbotData(userId, bookId, previousQuestion, userInput);  // bookId를 매개변수로 전달
 
         // 새로운 질문을 생성
         const questionPrompt = `${userData[userId]}.`;
@@ -87,6 +116,7 @@ router.post('/chatbot/ask', async (req, res) => {
         res.status(500).json({ error: 'Error generating next question' });
     }
 });
+
 
 // 사용자의 최종 데이터를 확인하는 라우트
 router.get('/get-final-data', (req, res) => {

@@ -31,8 +31,7 @@ function App() {
         <Route path="/book" element={<BookPage />} />
         <Route path="/my-autobiography" element={<MyAutobiographyPage />} />
         <Route path="/book-design" element={<BookDesignPage />} />
-        <Route path="/book-reading" element={<BookReadingPage />} />
-        <Route path="/chatbot" element={<Chatbot />} />
+        <Route path="/chatbot/:bookId" element={<Chatbot />} />
         <Route path="/inquiry" element={<Inquiry />} />
         <Route path="/customerinquiry" element={<CustomerInquiryPage />} />
         <Route path="/inquirychatbot" element={<InquiryChatbot />} />

@@ -51,7 +51,7 @@ function BookReadingPage() {
   }, [navigate]);
 
   useEffect(() => {
-    fetch(`/api/book-content/${bookId}`)  // 백틱을 사용하여 동적으로 bookId를 가져옴
+    fetch(`/api/book-content/${bookId}`)
       .then(response => response.json())
       .then(data => {
         if (data.status === 200) {
