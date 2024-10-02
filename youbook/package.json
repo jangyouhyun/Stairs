@@ -7,7 +7,7 @@
     "start": "concurrently \"npm run start-redis\" \"npm run start-backend\" \"npm run start-frontend\"",
     "start-backend": "node backend/src/page.js",
     "start-frontend": "npm start --prefix frontend",
-    "start-redis": "redis-server",
+    "start-redis": "../../redis-stable/src/redis-server",
     "install-all": "npm install && npm install --prefix frontend && npm install --prefix backend"
   },
   "keywords": [],
@@ -16,6 +16,7 @@
   "dependencies": {
     "concurrently": "^8.2.2",
     "mysql2": "^3.11.3",
+    "openai": "^4.64.0",
     "react-router-dom": "^6.25.1",
     "react-scripts": "^5.0.1"
   },

@@ -13,6 +13,8 @@ const imageRouter = require('./api/upload_image.js');
 const getBookListRouter = require('./api/get_books.js');
 const deleteBookRouter = require('./api/delete_book.js');
 const logoutRouter = require('./api/auth/logout.js');
+const chatbotRouter = require('./api/chatbotapi.js');
+const categoryRouter = require('./api/category.js')
 
 const app = express();
 
@@ -26,14 +28,14 @@ app.use(morgan('dev'));
 // 세션설정
 const redisClient = new Redis({
     host: 'localhost',  // Redis 서버 호스트
-    port: 6380        // Redis 서버 포트
+    port: 6379       // Redis 서버 포트
 });
 
 app.use(session({
     store: new RedisStore({ client: redisClient }),
     secret: 'your-secret-key',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true
 }));
 
 // 기본루트 get 
@@ -72,7 +74,8 @@ app.use('/api', getBookListRouter);
 app.use('/api', imageRouter);
 app.use('/api', deleteBookRouter);
 app.use('/api', logoutRouter);
-
+app.use('/api', chatbotRouter);
+app.use('/api', categoryRouter);
 
 
 app.use((req, res, next) => {
