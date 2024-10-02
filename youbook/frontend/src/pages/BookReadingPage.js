@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';  // useParams 추가
 import $ from 'jquery';
-import '../assets/js/turn.js'; // Ensure this path is correct for your project
+import '../assets/js/turn.js'; 
 import './BookReadingPage.css';
+import defaultProfileImage from '../assets/images/signup-icon.png';
 import signupIcon from '../assets/images/signup-icon.png';
 import leftArrow from '../assets/images/left.png';
 import rightArrow from '../assets/images/right.png';
 
 function BookReadingPage() {
   const navigate = useNavigate();
+  const { bookId } = useParams();  // URL 파라미터에서 bookId 추출
   const [currentPage, setCurrentPage] = useState(0); // Current page state
   const [totalPages, setTotalPages] = useState(0); // Total page count
   const [bookName, setBookName] = useState(''); // Book name state
   const [category, setCategory] = useState(''); // Book category state
-
+  const [bookContent, setBookContent] = useState(''); // DB에서 가져온 내용 저장
+  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   // Navigate to the autobiography page
   const handleProfileClick = () => {
     navigate('/my-autobiography');
@@ -29,10 +32,40 @@ function BookReadingPage() {
     alert('임시 저장되었습니다'); // Show popup when "임시 저장" is clicked
   };
 
+  // 유저 정보를 서버에서 가져옴
   useEffect(() => {
-    // Ensure the DOM is loaded before calling turn.js
-    const $book = $('#book');
+    fetch('/api/get_user_info')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로를 상태에 저장
+          
+        } else {
+          console.error(data.message);
+          navigate('/');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching user info:', error);
+      });
+  }, [navigate]);
 
+  useEffect(() => {
+    fetch(`/api/book-content/${bookId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 200) {
+          setBookContent(data.content); // 데이터 설정
+        } else {
+          console.error('Failed to fetch book content');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  
+    const $book = $('#book');
+  
     // Ensure book element exists before initializing turn.js
     if ($book.length) {
       $book.turn({
@@ -50,11 +83,12 @@ function BookReadingPage() {
           },
         },
       });
-
+  
       // Set total pages count
       setTotalPages(Math.ceil($book.turn('pages') / 2));
     }
-  }, []);
+  }, [bookId]);  // bookId가 변경될 때마다 호출되도록 의존성 배열에 추가
+  
 
   // Handle previous button click to flip the page backward
   const handlePrevious = () => {
@@ -72,7 +106,7 @@ function BookReadingPage() {
       <header className="main-header">
         <button className="menu-button">☰</button>
         <button className="profile-button" onClick={handleProfileClick}>
-          <img src={signupIcon} alt="Profile" className="profile-image" />
+          <img src={profileImagePath} alt="Profile" className="profile-image" />
         </button>
       </header>
 
@@ -116,7 +150,7 @@ function BookReadingPage() {
         <div className="page">
           <div className="page-content">
             <h2>Chapter 1: The Journey to Presidency</h2>
-            <p>Since childhood, I grew up in a humble environment with my family...</p>
+            <p>{bookContent || 'Loading content...'}</p> {/* DB에서 가져온 content 렌더링 */}
           </div>
         </div>
         <div className="page">
