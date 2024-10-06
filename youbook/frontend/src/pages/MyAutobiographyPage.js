@@ -4,6 +4,13 @@ import './MyAutobiographyPage.css';
 import defaultProfileImage from '../assets/images/signup-icon.png';
 import search from '../assets/images/search.png';
 import exit from '../assets/images/x.png';
+import book from '../assets/images/book.png';
+import book2 from '../assets/images/book2.png'; // 활성화 상태일 때의 이미지
+import edit from '../assets/images/edit.png';
+import edit2 from '../assets/images/edit2.png'; // 활성화 상태일 때의 이미지
+import logout from '../assets/images/log-out.png';
+import logout2 from '../assets/images/log-out2.png';
+import askicon from '../assets/images/askicon.png';
 
 function MyAutobiographyPage() {
   const [categories, setCategories] = useState([]); // State for categories
@@ -16,7 +23,8 @@ function MyAutobiographyPage() {
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [editingCategory, setEditingCategory] = useState(null);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-
+  const [isRectangleVisible, setIsRectangleVisible] = useState(false); // 직사각형 보임 상태
+ 
   const navigate = useNavigate();
   const handleMenuClick = () => {
     setIsSidebarVisible(true);
@@ -297,24 +305,29 @@ const handleAddCategory = () => {
 
   return (
     <div className="my-autobiography-page">
-      <div className="profile-container">
-        <div className="menu" onClick={handleMenuClick}>☰</div>
-      </div>
-
       <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
-        <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
-        <img src={profileImagePath} alt="Profile" className="profile-image2" />
+        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
-          <ul>
-            <li className="active">나의 자서전 목록</li>
-            <li onClick={handleInquiryClick}>문의하기</li>
-            <li onClick={handleModifyClick}>개인정보수정</li>
-            <li onClick={handleLogout}>로그아웃</li>
-          </ul>
+        <ul>
+          <li>
+            <img src={book} alt="Book" className="icon book-icon active" />
+          </li>
+          <li>
+            <img src={edit} alt="Edit" className="icon edit-icon" onClick={handleModifyClick}/>
+          </li>
+          <li>
+            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleLogout}/>
+          </li>
+        </ul>
         </nav>
+        <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
       </aside>
       <main className="page-content">
+        <div className="menu-container">
+          <div className="menu" onClick={handleMenuClick}style={{ fontSize: '4.0rem', color: '#CEAB93' }}>
+            ☰</div>
+        </div>
         <header className="header">
           <h1>나의 자서전 <span className="highlighted-number">{filteredItems.length}</span></h1>
           <div className="search-bar">
@@ -366,7 +379,14 @@ const handleAddCategory = () => {
                 checked={item.checked}
                 onChange={() => handleCheckboxChange(item.id)}
               />
+              {/* item content 규격(css참고) 맞춰서 이미지 요소로 수정 부탁드려요!*/}
               <div className="item-content" onClick={() => handleItemClick(item.id)}>
+                <div className="item-details">
+                  <div className="item-title">{item.title}</div>
+                  <div className="item-date">{item.date}</div>
+                </div>
+              </div>
+              {/* <div className="item-content" onClick={() => handleItemClick(item.id)}>
                 <img 
                   src={item.content} 
                   alt={item.title} 
@@ -377,11 +397,20 @@ const handleAddCategory = () => {
                   <div className="item-title">{item.title}</div>
                   <div className="item-date">{item.date}</div>
                 </div>
-              </div>
+              </div> */}
             </div>
           ))}
         </div>
       </main>
+      {isRectangleVisible && (
+        <div className="vertical-rectangle">
+          <ul>
+            <li onClick={() => window.location.href = 'https://open.kakao.com/o/s9YXw5Sg'}>
+              채팅 상담</li>
+            <li onClick={() => navigate('/customerinquiry')}>1:1 문의</li>
+          </ul>
+        </div>
+      )}
       {/* Context menu for categories */}
       {showContextMenu && editingCategory && (
       <div

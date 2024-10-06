@@ -5,123 +5,59 @@
   font-family: 'MinSans-Regular', sans-serif;
 }
 
-.sidebar {
-  width: 250px;
-  height: 100vh;
-  background-color: #f5f5f5;
-  position: fixed;
-  top: 0;
-  left: -300px;
-  transition: opacity 0.5s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.sidebar.visible {
-  left : 0px;
-  opacity : 1;
-}
-
-.menu {
-  font-size: 3.0rem;
-  color: #777;
-  margin : 50px;
-}
-
-.exit{
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  margin: 10px;
-  cursor: pointer;
+.menu-container{
+  position : absolute;
+  top : 0px;
+  left : 80px;
+  margin : 0px;
   
 }
-
-.profile-image2 {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  margin: 20px 0;
-  margin-top : 0px;
-  
-}
-
-.profile-name {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-  display: block;
-  visibility: visible;
-}
-
-.sidebar-nav ul {
-  list-style: none;
-  font-size: 1.2rem;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-}
-
-.sidebar-nav li {
-  margin: 20px 0;
-  cursor: pointer;
-}
-
-.sidebar-nav .active {
-  color: #014034;
-  font-weight: bold;
-}
-
-.sidebar-nav li:hover {
-  color: #014034;
-  font-weight: bold;
+.menu{
+  font-size: 5.0rem;
+  color: #CEAB93;
 }
 
 .page-content {
   width: 1200px;
   padding-left : 30px;
   margin : 0;
+  position : relative;
+  justify-content: center;
 }
 
 .header {
-  position : sticky;
   width: 100%;
   padding: 40px;
+  margin-top : 0px;
   margin-bottom: 100px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   white-space: nowrap;
+  position : absolute;
+  top : 50px;
+  left : 200px;
 }
 
 .header h1 {
+  margin: 0px;
   font-size: 4.0rem;
   font-weight: bold;
-  margin-right : 30px;
-  position: absolute;
-  left: 100px;
   white-space: nowrap;
-  overflow: hidden;
+  color : #5C401C;
 }
 
 .highlighted-number {
-  color: #014034;
+  color:  #914F1E;
   
 }
 
 .search-bar {
-  margin-left : 650px;
+  position : absolute;
+  left : 700px;
   display: flex;
   align-items: center;
-  border: 1px solid #ccc;
+  border: 1px solid #CEAB93;
   padding: 5px;
   border-radius: 5px;
   width: 100%;
@@ -135,6 +71,8 @@
   border: none;
   outline: none;
   font-size: 16px;
+  color : #DFB188;
+
 }
 
 .search-bar .search-image {
@@ -147,18 +85,21 @@
 
 
 .categories-container {
-  width: 100%;
+  position: absolute;
+  top : 220px;
+  left : 140px;
+  width: 1200px;
   display: flex;
-  justify-content: flex-start;
-  position : sticky;
+  justify-content: center;
+
 }
 
 .categories {
   width: 100%;
   display: flex;
   margin-bottom: 5px;
-  position : relative;
-  top : -60px;
+  position : absolute;
+  top : 0px;
 }
 
 .category-button {
@@ -173,10 +114,11 @@
   margin-right: 20px;
   white-space: nowrap;
   overflow: hidden;
+  color : #5C401C;
 }
 
 .category-button.active {
-  border-color: #014034;
+  border-color:  #AD8B73;
   font-weight: bold;
 }
 
@@ -184,9 +126,9 @@
   display : block;
   width: 95%;
   height: 2.5px;
-  background-color: #00322A;
+  background-color:  #AD8B73;
   position : absolute;
-  top : 10px;
+  top : 70px;
   justify-content: center;
 }
 
@@ -195,57 +137,45 @@
   align-items: center;
   justify-content: flex-end;
   margin-bottom: 20px;
-  position : relative;
-  left : 350px;
-  top : -50px;
-
+  position : absolute;
+  top : 320px;
+  width: 1200px;
 }
 
-.selection-left {
-  display: flex;
-  align-items: flex-start;
-}
-
-.selection-left input {
-  margin-right: 5px;
-}
-
-.selection-right {
-  display: flex;
-  align-items: flex-end;
-}
 
 .selection-right .delete-button, .selection-right .download-button {
   margin-left: 20px;
   padding: 10px 20px;
-  border: 1px solid #ccc;
-  background-color: white;
+  border: 1px solid  #AD8B73;
+  background-color:  #AD8B73;
   cursor: pointer;
+  color: white;
 }
 
 .selection-right .download-button {
-  background-color: #014034;
+  background-color:  #AD8B73;
   color: white;
-  border: 1px solid #014034;
+  border: 1px solid  #AD8B73;
 }
 
 .autobiography-list {
   display: flex;
   flex-wrap: wrap;
   gap: 60px;
-  max-width: 2000px;
-  margin-left: 60px;
+  min-width: 1200px;
+  margin-right: 50px;
   box-sizing: border-box;
-  position : relative;
-  left : -450px;
+  position : absolute;
+  top : 400px;
+  left : 250px;
 }
 
 
 .autobiography-item {
   width: 200px;
   height: 270px;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
+  background-color: #AD8B73;
+  border: 1px solid #AD8B73;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -261,27 +191,28 @@
 }
 
 .item-details {
-  margin-top : 100px;
-  margin-left : 50px;
+  position : relative;
+  top : 190px;
+  left : -50px;
   text-align: left;
-  width: 120%;
+  width: 100%;
 }
 
 .item-title {
   font-size: 1.2rem;
-  color: #014034;
+  color: #5C401C;
 }
 
 .item-date {
   font-size: 1.0rem;
-  color: #777;
+  color: #DFB188;
   margin-bottom : 50px;
 }
 
-/* 자서전 이미지에 따라 이상..*/
 .autobiography-item input[type="checkbox"] {
-  margin-left : -250px;
-  margin-top : 80px;
+  position : relative;
+  top : -60px;
+  left : -120px;
   
 }
 
@@ -291,7 +222,8 @@
 
 .autobiography-item.add-new{
   border: none;
-  background-color:#ccc;
+  background-color:  #E3CAA5;
+  color : #914F1E;
 }
 
 .context-menu {
@@ -307,10 +239,155 @@
 .context-menu-item {
   padding: 10px 20px;
   cursor: pointer;
-  color: #333; /* Text color */
+  color : #5C401C;
   
 }
 .context-menu-item:hover {
   background-color: #e0e0e0;
+  font-weight: bold;
+}
+
+.sidebar {
+  width: 150px !important;
+  height: 100vh;
+  background-color: #FFFBE9 !important;
+  position: fixed;
+  top: 0;
+  left: -300px;
+  transition: opacity 0.5s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.sidebar.visible {
+  left : 0px;
+  opacity : 1;
+}
+
+.exit{
+  position: absolute;
+  top: 750px!important;
+  left: 80px!important;
+  width: 50px!important;
+  height: 50px!important;
+  border-radius: 50%;
+  margin: 10px;
+  cursor: pointer;
+  
+}
+
+.profile-image2 {
+  width: 80px!important;
+  height: 80px!important;
+  border-radius: 50%;
+  margin: 20px 0;
+  margin-top : 100px!important;
+  
+}
+
+.profile-name {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  display: block;
+  visibility: visible;
+  margin : 20px;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebar-nav img{
+  width : 50px;
+  height : 50px;
+  margin-bottom : 60px;
+}
+/* Book icon hover 상태 */
+.book-icon:hover {
+  content: url('../assets/images/book2.png'); /* Hover 시 이미지 변경 */
+}
+
+
+
+/* Edit icon hover 상태 */
+.edit-icon:hover {
+  content: url('../assets/images/edit2.png'); /* Hover 시 이미지 변경 */
+}
+
+/* Logout icon hover 상태 */
+.logout-icon:hover {
+  content: url('../assets/images/log-out2.png'); /* Hover 시 이미지 변경 */
+}
+
+.active {
+  content: url('../assets/images/book2.png');
+}
+
+.fixed-inquiry-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.fixed-inquiry-icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.vertical-rectangle {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  width: 100px;
+  height: 180px;
+  background-color: #FFFBE9; /* 배경 색상 */
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.vertical-rectangle ul {
+  list-style: none;
+  font-size: 1.0rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  width: 100%
+
+}
+
+.vertical-rectangle li {
+  margin-top : 20px;
+  cursor: pointer;
+  font-weight: bold;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #CEAB93;
+}
+.vertical-rectangle li:last-child {
+  border-bottom: none; /* 마지막 li에는 선을 없앰 */
+}
+.vertical-rectangle li:hover {
+  color: #014034;
   font-weight: bold;
 }
