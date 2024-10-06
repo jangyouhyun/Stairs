@@ -35,7 +35,7 @@ function MyAutobiographyPage() {
   };
 
   const handleInquiryClick = () => {
-    navigate('/inquiry');
+    setIsRectangleVisible(!isRectangleVisible); // 클릭할 때마다 보임/숨김 토글
   };
   const handleModifyClick = () => {
     navigate('/modifyinfo');
@@ -306,7 +306,7 @@ const handleAddCategory = () => {
   return (
     <div className="my-autobiography-page">
       <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
-        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
+        <img src={profileImagePath} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
         <ul>
@@ -402,6 +402,9 @@ const handleAddCategory = () => {
           ))}
         </div>
       </main>
+      <div className="fixed-inquiry-icon" onClick={handleInquiryClick}>
+        <img src={askicon} alt="문의하기 아이콘" />
+      </div>
       {isRectangleVisible && (
         <div className="vertical-rectangle">
           <ul>
