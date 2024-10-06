@@ -8,9 +8,7 @@ import MyAutobiographyPage from './pages/MyAutobiographyPage';
 import BookDesignPage from './pages/BookDesignPage'; 
 import BookReadingPage from './pages/BookReadingPage';
 import Chatbot from './pages/chatbot';
-import Inquiry from './pages/inquiryPage';
 import CustomerInquiryPage from './pages/CustomerInquiryPage';
-import InquiryChatbot from './pages/InquiryChatbot';
 import ModifyInfo from './pages/ModifyInfo';
 import $ from 'jquery';
 import './assets/js/turn.js';
@@ -31,12 +29,10 @@ function App() {
         <Route path="/book" element={<BookPage />} />
         <Route path="/my-autobiography" element={<MyAutobiographyPage />} />
         <Route path="/book-design" element={<BookDesignPage />} />
-        <Route path="/chatbot/:bookId" element={<Chatbot />} />
-        <Route path="/inquiry" element={<Inquiry />} />
+        <Route path="/book-reading" element={<BookReadingPage />} />
+        <Route path="/chatbot" element={<Chatbot />} />
         <Route path="/customerinquiry" element={<CustomerInquiryPage />} />
-        <Route path="/inquirychatbot" element={<InquiryChatbot />} />
         <Route path="/modifyinfo" element={<ModifyInfo />} />
-        <Route path="/book-reading/:bookId" element={<BookReadingPage />} />
       </Routes>
     </Router>
   );
