@@ -13,8 +13,8 @@ import logout2 from '../assets/images/log-out2.png';
 import askicon from '../assets/images/askicon.png';
 
 function MyAutobiographyPage() {
-  const [selectedCategory, setSelectedCategory] = useState('카테고리1');
-  const [categories, setCategories] = useState(['카테고리1', '카테고리2']); // State for categories
+  const [categories, setCategories] = useState([]); // State for categories
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [items, setItems] = useState([]); // 빈 배열로 초기화
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
@@ -24,7 +24,7 @@ function MyAutobiographyPage() {
   const [editingCategory, setEditingCategory] = useState(null);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [isRectangleVisible, setIsRectangleVisible] = useState(false); // 직사각형 보임 상태
-
+ 
   const navigate = useNavigate();
   const handleMenuClick = () => {
     setIsSidebarVisible(true);
@@ -34,7 +34,6 @@ function MyAutobiographyPage() {
     setIsSidebarVisible(false);
   };
 
-  
   const handleInquiryClick = () => {
     setIsRectangleVisible(!isRectangleVisible); // 클릭할 때마다 보임/숨김 토글
   };
@@ -77,7 +76,7 @@ const fetchBooks = () => {
           
           return {
             id: index + 1,
-            category: '카테고리1', // 모든 항목의 카테고리를 '카테고리1'로 설정
+            category: book.category, // 모든 항목의 카테고리를 '카테고리1'로 설정
             book_id: book.book_id,
             content: book.image_path || defaultProfileImage, // content 필드에 이미지 경로 설정
             title: book.title,
@@ -94,6 +93,38 @@ const fetchBooks = () => {
       console.error('Error fetching books:', error);
     });
 };
+
+// category 데이터를 가져오는 함수
+const fetchCategories = () => {
+	fetch('/api/get_category')
+	  .then(response => response.json())
+	  .then(data => {
+		if (data.success) {
+		  // Accessing 'name' from the array of category objects
+		  const sortedCategories = data.categorys
+			.map(category => category.name) // Correctly map the 'name' property from each object
+			.sort((a, b) => a.localeCompare(b));
+			console.log('Sorted Categories:', sortedCategories);
+  
+		  // Set the sorted categories to state
+		  setCategories(sortedCategories);
+  
+		  // Set the first category as the selected one
+		  if (sortedCategories.length > 0) {
+			setSelectedCategory(sortedCategories[0]);
+		  }
+		} else {
+		  console.error(data.message);
+		}
+	  })
+	  .catch(error => {
+		console.error('Error fetching categories:', error);
+	  });
+  };
+  
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
 const contextMenuRef = useRef(null); // Reference to the context menu
 
@@ -146,34 +177,93 @@ const contextMenuRef = useRef(null); // Reference to the context menu
     event.preventDefault();
     setShowContextMenu(true);
     setContextMenuPosition({ x: event.pageX, y: event.pageY });
-    setEditingCategory(category);
+    setEditingCategory(category); 
   };
+  
 
-  const handleRenameCategory = (newName) => {
-    setCategories(categories.map(cat => (cat === editingCategory ? newName : cat)));
-    setSelectedCategory(newName === selectedCategory ? newName : selectedCategory);
-    setShowContextMenu(false);
-  };
-
-  const handleDeleteCategory = () => {
-    const confirmed = window.confirm('정말 카테고리를 삭제하시겠습니까?');
-    if (confirmed) {
-      setCategories(categories.filter(cat => cat !== editingCategory));
-      setItems(items.filter(item => item.category !== editingCategory));
-      setSelectedCategory(categories[0]);
+  const handleRenameCategory = (newName, name) => {
+    if (!newName) {
+        console.log('No new name provided, exiting rename function.');
+        return; // Exit if no name is provided
     }
-    setShowContextMenu(false);
-  };
 
-  const handleAddCategory = () => {
-    if (categories.length >= 4) {
-      window.alert('카테고리는 최대 4개까지 추가할 수 있습니다.');
-    } else {
-      const newCategory = `카테고리${categories.length + 1}`;
-      setCategories([...categories, newCategory]);
-      setSelectedCategory(newCategory);
+    fetch('/api/update_category', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: name, new_name: newName })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Category renamed successfully:', data);
+            fetchCategories(); // Refresh categories after renaming
+            fetchBooks(); // 새롭게 업데이트된 카테고리와 관련된 북 리스트도 다시 불러오기
+        } else {
+            console.error('Failed to rename category:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error renaming category:', error);
+    });
+};
+
+const handleDeleteCategory = (name) => {
+    fetch('/api/delete_category', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: name })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Category deleted successfully:', data);
+            fetchCategories(); // 카테고리 삭제 후 카테고리 갱신
+            fetchBooks(); // 삭제된 카테고리와 관련된 북 리스트도 다시 불러오기
+        } else {
+            console.error('Failed to delete category:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting category:', error);
+    });
+};
+
+const handleAddCategory = () => {
+  if (categories.length >= 4) {
+    window.alert('카테고리는 최대 4개까지 추가할 수 있습니다.');
+  } else {
+    const newCategory = prompt('새 카테고리 이름을 입력하세요'); // 사용자로부터 입력 받음
+    if (!newCategory) {
+      return; // 입력이 없으면 함수 종료
     }
-  };
+    
+    // 서버로 카테고리 추가 요청
+    fetch('/api/add_category', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: newCategory }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // 카테고리 추가 성공 시, 카테고리 목록 갱신
+          fetchCategories();
+        } else {
+          window.alert('중복된 이름입니다');
+        }
+      })
+      .catch(error => {
+        console.error('Error adding category:', error);
+      });
+  }
+};
+
 
   // Event listener to close the context menu when clicking outside
   useEffect(() => {
@@ -190,16 +280,8 @@ const contextMenuRef = useRef(null); // Reference to the context menu
   }, []);
 
   const handleAddNewItem = () => {
-    const newItem = {
-      id: items.length + 1,
-      category: selectedCategory,
-      content: `New Item ${items.length + 1}`,
-      title: `제목 ${items.length + 1}`,
-      date: new Date().toISOString().slice(0, 10),
-      checked: false,
-    };
-    setItems([...items, newItem]);
-  };
+    navigate('/main', { state: { selectedCategory } });
+  }
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
@@ -224,7 +306,7 @@ const contextMenuRef = useRef(null); // Reference to the context menu
   return (
     <div className="my-autobiography-page">
       <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
-        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
+        <img src={profileImagePath} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
         <ul>
@@ -235,7 +317,7 @@ const contextMenuRef = useRef(null); // Reference to the context menu
             <img src={edit} alt="Edit" className="icon edit-icon" onClick={handleModifyClick}/>
           </li>
           <li>
-            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleHomeClick}/>
+            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleLogout}/>
           </li>
         </ul>
         </nav>
@@ -304,6 +386,18 @@ const contextMenuRef = useRef(null); // Reference to the context menu
                   <div className="item-date">{item.date}</div>
                 </div>
               </div>
+              {/* <div className="item-content" onClick={() => handleItemClick(item.id)}>
+                <img 
+                  src={item.content} 
+                  alt={item.title} 
+                  className="item-image" 
+                  onError={(e) => e.target.src = defaultProfileImage} 
+                />
+                <div className="item-details">
+                  <div className="item-title">{item.title}</div>
+                  <div className="item-date">{item.date}</div>
+                </div>
+              </div> */}
             </div>
           ))}
         </div>
@@ -320,16 +414,36 @@ const contextMenuRef = useRef(null); // Reference to the context menu
           </ul>
         </div>
       )}
-      {showContextMenu && (
+      {/* Context menu for categories */}
+      {showContextMenu && editingCategory && (
+      <div
+        className="context-menu"
+        ref={contextMenuRef}
+        style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
+      >
         <div
-          className="context-menu"
-          ref={contextMenuRef} // Add reference for outside click detection
-          style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
+          className="context-menu-item"
+          onClick={() => {
+            const newName = prompt('카테고리 이름 수정', editingCategory); // Use editingCategory for the prompt
+            if (newName) {
+              handleRenameCategory(newName, editingCategory); // Rename only the editingCategory
+            }
+          }}
         >
-          <div className="context-menu-item" onClick={() => handleRenameCategory(prompt('카테고리 이름 수정'))}>이름 수정</div>
-          <div className="context-menu-item" onClick={handleDeleteCategory}>삭제</div>
+          이름 수정
         </div>
-      )}
+        <div
+          className="context-menu-item"
+          onClick={() => {
+            if (window.confirm('정말 카테고리를 삭제하시겠습니까?')) {
+              handleDeleteCategory(editingCategory); // Delete only the editingCategory
+            }
+          }}
+        >
+          삭제
+        </div>
+      </div>
+    )}
     </div>
   );
 }
