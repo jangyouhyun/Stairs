@@ -1,42 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
 import './MainPage.css';
 import defaultProfileImage from '../assets/images/signup-icon.png';
 import chatbotImage from '../assets/images/chatbot1.png'; // 이미지 경로 수정
-import exit from '../assets/images/x.png';
 
 function MainPage() {
-  const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
-  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
-  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [text, setText] = useState('');
-  const location = useLocation();
-  const selectedCategory = location.state?.selectedCategory;
-  
+
+  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); 
+
   const navigate = useNavigate();
-
-  const handleMenuClick = () => {
-    setIsSidebarVisible(true);
-  };
-
-  const handleBookClick = () => {
-    navigate('/my-autobiography');
-  };
-
-  const handleExitClick = () => {
-    setIsSidebarVisible(false);
-  };
-
-  const handleInquiryClick = () => {
-    navigate('/inquiry');
-  };
-  const handleModifyClick = () => {
-    navigate('/modifyinfo');
-  };
-  const handleHomeClick = () => {
-    navigate('/');
-  };
 
   // 유저 정보를 서버에서 가져옴
   useEffect(() => {
@@ -60,95 +33,35 @@ function MainPage() {
   };
 
   const handleSubmit = () => {
-    fetch('/api/write_process/chatbot', {
+    fetch('/api/write_process', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ content: text }),
     })
-    .then(response => response.json())  // response를 JSON으로 파싱
-    .then(data => {
-      if (data.status === 200) {
-        const bookId = data.bookId;  // 여기에 bookId가 있는지 확인
-        if (bookId) {
-          navigate(`/chatbot/${bookId}`);  // bookId가 있을 때만 navigate
-        } else {
-          console.error('bookId is missing in the response:', data);
-        }
-      }
+    .then(response => {
+      navigate('/chatbot');
     })
     .catch(error => {
       console.error('Error:', error);
     });
   };
 
+  // 자서전 바로 만들기 버튼 클릭 시 동작
   const handleCreateBook = () => {
-    fetch('/api/write_process/book_reading', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ content: text , category : selectedCategory}),  // 'text' 변수에 담긴 내용을 'content'로 전송
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('API response:', data);  // 서버 응답 확인
-      if (data.status === 200) {
-        const bookId = data.bookId;
-        navigate(`/book-reading/${bookId}`);
-      }
-    })
-    
-    .catch(error => {
-      console.error('Error:', error);
-      alert('저장 중 오류가 발생했습니다.');
-    });
-  };  
-
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('/api/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      if (response.ok) {
-        navigate('/');  // 로그아웃 성공 후 메인 페이지로 이동
-      } else {
-        console.error('Failed to log out');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
+    alert('글이 성공적으로 저장되었습니다!');
+    navigate('/book-reading');
   };
-  
 
   return (
     <div className="main-page">
       <header className="main-header">
-        <button className="menu-button" onClick={handleMenuClick}>☰</button>
+        <button className="menu-button">☰</button>
         <button className="profile-button" onClick={handleProfileClick}>
           <img src={profileImagePath} alt="Profile" className="profile-image" />
         </button>
       </header>
-
-      <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
-        <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
-        <img src={profileImagePath} alt="Profile" className="profile-image2" />
-        <div className="profile-name">{userName}</div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li onClick={handleBookClick}>나의 자서전 목록</li>
-            <li onClick={handleInquiryClick}>문의하기</li>
-            <li onClick={handleModifyClick}>개인정보수정</li>
-            <li onClick={handleLogout}>로그아웃</li>
-          </ul>
-        </nav>
-      </aside>
-
       <div className="main-content">
         <div className="title-image-container">
           <img src={chatbotImage} alt="Chatbot" className="main-image" />
