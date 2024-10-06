@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import './MainPage.css';
 import defaultProfileImage from '../assets/images/signup-icon.png';
 import chatbotImage from '../assets/images/chatbot1.png'; // 이미지 경로 수정
@@ -10,6 +11,8 @@ function MainPage() {
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [text, setText] = useState('');
+  const location = useLocation();
+  const selectedCategory = location.state?.selectedCategory;
   
   const navigate = useNavigate();
 
@@ -86,7 +89,7 @@ function MainPage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text, bookId: null}),  // 'text' 변수에 담긴 내용을 'content'로 전송
+      body: JSON.stringify({ content: text , category : selectedCategory}),  // 'text' 변수에 담긴 내용을 'content'로 전송
     })
     .then(response => response.json())
     .then(data => {

@@ -4,6 +4,8 @@ var db = require('../../db.js');
 const multer = require('multer');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const authCheck = require('./authCheck');
+
 
 router.use(express.json());
 
@@ -107,6 +109,14 @@ router.post('/register_process', upload.single('profileImage'), function (reques
     } else {
         response.status(400).json({ success: false, message: '입력되지 않은 정보가 있습니다.' });
     }
+});
+
+router.get('/check_login', (req, res) => {
+  if (authCheck.isOwner(req, res)) {
+    res.json({ loggedIn: true });
+  } else {
+    res.json({ loggedIn: false });
+  }
 });
 
 module.exports = router;

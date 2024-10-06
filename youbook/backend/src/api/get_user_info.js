@@ -37,7 +37,7 @@ router.get('/get_user_info', (req, res) => {
     const { bookId, userId } = req.params;
 
     // 데이터베이스에서 bookId와 userId에 맞는 데이터를 조회
-    const query = 'SELECT content FROM init_user_input WHERE book_id = ? AND user_id = ?';
+    const query = 'SELECT content FROM init_input WHERE book_id = ? AND user_id = ?';
 
     db.query(query, [bookId, userId], function (error, results) {
         if (error) {

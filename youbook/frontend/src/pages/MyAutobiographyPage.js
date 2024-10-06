@@ -272,16 +272,8 @@ const handleAddCategory = () => {
   }, []);
 
   const handleAddNewItem = () => {
-    const newItem = {
-      id: items.length + 1,
-      category: selectedCategory,
-      content: `New Item ${items.length + 1}`,
-      title: `제목 ${items.length + 1}`,
-      date: new Date().toISOString().slice(0, 10),
-      checked: false,
-    };
-    setItems([...items, newItem]);
-  };
+    navigate('/main', { state: { selectedCategory } });
+  }
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);

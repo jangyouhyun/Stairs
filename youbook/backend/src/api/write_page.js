@@ -35,7 +35,7 @@ router.get('/book-content/:book_id', async function (req, res) {
         db.getConnection(function (err, connection) {
             if (err) throw err;
 
-            connection.query('SELECT content FROM middle_user_output WHERE book_id = ?', [book_id], function (error, results) {
+            connection.query('SELECT content FROM purified_input WHERE book_id = ?', [book_id], function (error, results) {
                 connection.release();
                 if (error) {
                     return res.status(500).json({ status: 500, error: 'Error retrieving book content' });
@@ -76,9 +76,9 @@ router.post('/write_process/chatbot', function (request, response) {
                     connection.release();
                     throw err;
                 }
-                // init_user_input에 삽입
+                // init_input에 삽입
                 connection.query(
-                    'INSERT INTO init_user_input (user_id, book_id, input_count, content) VALUES (?, ?, ?, ?)',
+                    'INSERT INTO init_input (user_id, book_id, input_count, content) VALUES (?, ?, ?, ?)',
                     [user_id, book_id, 1, content],
                     function (error, results) {
                         if (error) {
@@ -116,6 +116,7 @@ router.post('/write_process/book_reading', async function (req, res) {
     const content = req.body.content;
     const book_id = req.body.bookId ? req.body.bookId : uuidv4();
     const user_id = req.body.userId ? req.body.userId : req.session.nickname;
+    const category = req.body.category;
 
     if (content) {
         try {
@@ -129,7 +130,7 @@ router.post('/write_process/book_reading', async function (req, res) {
                         throw err;
                     }
                     
-                    connection.query('INSERT INTO init_user_input (user_id, book_id, input_count, content) VALUES (?, ?, ?, ?)', [user_id, book_id, 1, content], function (error, results) {
+                    connection.query('INSERT INTO init_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?)', [user_id, book_id, 1, content, category], function (error, results) {
                         if (error) {
                             return connection.rollback(function () {
                                 connection.release();
@@ -137,7 +138,7 @@ router.post('/write_process/book_reading', async function (req, res) {
                             });
                         }
 
-                        connection.query('INSERT INTO middle_user_output (user_id, book_id, input_count, content) VALUES (?, ?, ?, ?)', [user_id, book_id, 1, modelResponse], function (error, results) {
+                        connection.query('INSERT INTO purified_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?)', [user_id, book_id, 1, modelResponse, category], function (error, results) {
                             if (error) {
                                 return connection.rollback(function () {
                                     connection.release();
@@ -166,7 +167,7 @@ router.post('/write_process/book_reading', async function (req, res) {
             res.status(500).json({ status: 500, error: 'Error processing the request' });
         }
     } else {
-        res.status(400).json({ status: 400, error: '내용이 기입되지 않았습니다!' });
+        res.status(405).json({ status: 400, error: '내용이 기입되지 않았습니다!' });
     }
 });
 
