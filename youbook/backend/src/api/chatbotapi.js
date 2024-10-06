@@ -58,6 +58,7 @@ const saveChatbotData = (userId, bookId, question, response) => {
 router.post('/chatbot/initiate/:book_id', async (req, res) => {
     const userId = req.session.nickname;
     const { initialInput } = req.body;
+    const { book_id: bookId } = req.params;
 
     try {
         // 사용자 데이터를 초기화
@@ -71,6 +72,10 @@ router.post('/chatbot/initiate/:book_id', async (req, res) => {
         });
 
         const firstQuestion = response.choices[0].message.content;
+
+        // 첫 질문과 응답을 데이터베이스에 저장
+        saveChatbotData(userId, bookId, initialInput, firstQuestion);
+
         res.json({ question: firstQuestion });
 
     } catch (error) {
@@ -88,33 +93,7 @@ router.post('/chatbot/ask/:book_id', async (req, res) => {
     const exitKeywords = ['종료', '끝', '그만'];
     if (exitKeywords.includes(userInput.trim().toLowerCase())) {
         try {
-            console.log('3라우터 진입 시 세션 상태:', req.session); 
-            // 종료 시점에 누적된 데이터를 /write_process/book_reading으로 전달
-            const response = await fetch('http://localhost:3277/api/write_process/book_reading', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    content: userData[userId],  // userData[userId]를 보냄
-                    userId: req.session.nickname // 세션 닉네임을 명시적으로 전달
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('데이터를 저장하는 중 오류가 발생했습니다.');
-            }
-
-            // 세션 데이터를 명시적으로 저장
-            req.session.save((err) => {
-                if (err) {
-                    console.error('Error saving session:', err);
-                    return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
-                }
-                
-                // 세션 저장 후 응답
-                return res.json({ message: '대화가 종료되었습니다. 감사합니다!', bookId });
-            });
+            return res.json({ message: '대화가 종료되었습니다. 감사합니다!', bookId });
         } catch (error) {
             console.error('Error during data saving:', error);
             return res.status(500).json({ error: '데이터 저장 중 오류가 발생했습니다.' });
@@ -138,13 +117,16 @@ router.post('/chatbot/ask/:book_id', async (req, res) => {
         });
 
         const nextQuestion = response.choices[0].message.content;
+
+        // 질문과 응답을 데이터베이스에 저장
+        saveChatbotData(userId, bookId, userInput, nextQuestion);
+
         res.json({ question: nextQuestion });
     } catch (error) {
         console.error('Error generating question:', error);
         res.status(500).json({ error: 'Error generating next question' });
     }
 });
-
 
 // 사용자의 최종 데이터를 확인하는 라우트
 router.get('/get-final-data', (req, res) => {

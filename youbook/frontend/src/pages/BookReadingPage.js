@@ -1,45 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';  // useParams 추가
+import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import $ from 'jquery';
-import '../assets/js/turn.js'; 
+import '../assets/js/turn.js';
 import './BookReadingPage.css';
 import defaultProfileImage from '../assets/images/signup-icon.png';
-import signupIcon from '../assets/images/signup-icon.png';
 import leftArrow from '../assets/images/left.png';
 import rightArrow from '../assets/images/right.png';
 
 function BookReadingPage() {
   const navigate = useNavigate();
-  const { bookId } = useParams();  // URL 파라미터에서 bookId 추출
-  const [currentPage, setCurrentPage] = useState(0); // Current page state
-  const [totalPages, setTotalPages] = useState(0); // Total page count
-  const [bookName, setBookName] = useState(''); // Book name state
-  const [category, setCategory] = useState(''); // Book category state
-  const [bookContent, setBookContent] = useState(''); // DB에서 가져온 내용 저장
-  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
-  // Navigate to the autobiography page
+  const { bookId } = useParams();
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [bookName, setBookName] = useState('');
+  const [category, setCategory] = useState('');
+  const [bookContent, setBookContent] = useState([]);
+  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage);
+  const bookRef = useRef(null);
+
   const handleProfileClick = () => {
     navigate('/my-autobiography');
   };
 
-  // Navigate to the book design page
   const handleEditClick = () => {
     navigate('/book-design');
   };
 
-  // Handle "임시 저장" click event to show a popup
   const handleSaveClick = () => {
-    alert('임시 저장되었습니다'); // Show popup when "임시 저장" is clicked
+    alert('임시 저장되었습니다');
   };
 
-  // 유저 정보를 서버에서 가져옴
   useEffect(() => {
     fetch('/api/get_user_info')
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로를 상태에 저장
-          
+          setProfileImagePath(data.imagePath || defaultProfileImage);
         } else {
           console.error(data.message);
           navigate('/');
@@ -55,7 +51,8 @@ function BookReadingPage() {
       .then(response => response.json())
       .then(data => {
         if (data.status === 200) {
-          setBookContent(data.content); // 데이터 설정
+          const paragraphs = data.content.split('\n');
+          distributeContentToPages(paragraphs);
         } else {
           console.error('Failed to fetch book content');
         }
@@ -63,46 +60,114 @@ function BookReadingPage() {
       .catch(error => {
         console.error('Error:', error);
       });
-  
+  }, [bookId]);
+
+  const distributeContentToPages = (paragraphs) => {
+    const pages = [];
+    let currentPageContent = '';
+    const pageHeight = 500; // 페이지 높이 설정
+    const lineHeight = 24; // 각 줄의 높이 설정
+
+    paragraphs.forEach(paragraph => {
+      const paragraphHeight = Math.ceil(paragraph.length / 50) * lineHeight;
+      if (paragraphHeight + currentPageContent.length * lineHeight <= pageHeight) {
+        currentPageContent += `${paragraph}\n`;
+      } else {
+        pages.push(currentPageContent.trim());
+        currentPageContent = paragraph;
+      }
+    });
+    if (currentPageContent) {
+      pages.push(currentPageContent.trim());
+    }
+    setBookContent(pages);
+    setTotalPages(pages.length);
+  };
+
+  useEffect(() => {
     const $book = $('#book');
   
-    // Ensure book element exists before initializing turn.js
-    if ($book.length) {
+    // 내용이 있을 경우에만 실행
+    if (bookContent.length && $book.length) {
+      // 기존 인스턴스가 존재하면 제거
+      if ($book.data('turn')) {
+        $book.turn('destroy'); // 페이지를 삭제
+      }
+  
+      // 페이지 초기화
+      $book.empty(); // 페이지 내용 비우기
+  
+      // 커버 페이지 추가
+      $book.append(`
+        <div class="hard">
+          <div class="page-content">
+            <h2>Cover Page</h2>
+          </div>
+        </div>
+      `);
+  
+      // 내지 커버 추가
+      $book.append(`
+        <div class="hard">
+          <div class="page-content">
+            <h2>Inner Cover</h2>
+          </div>
+        </div>
+      `);
+  
+      // 책 내용 페이지 추가
+      bookContent.forEach((content, index) => {
+        const pageContent = `
+          <div class="page">
+            <div class="page-content">
+              ${content.split('\n').map(paragraph => `<p>${paragraph}</p>`).join('')}
+              <div class="page-number ${index % 2 === 1 ? 'left' : 'right'}"> ${index + 1}</div> <!-- Adjusting for Cover Pages -->
+            </div>
+          </div>
+        `;
+        $book.append(pageContent);
+      });
+  
+      // 백커버 추가
+      $book.append(`
+        <div class="hard">
+          <div class="page-content">
+            <h2>Back Cover</h2>
+          </div>
+        </div>
+      `);
+  
+      // 페이지 초기화
       $book.turn({
         width: 800,
         height: 500,
-        autoCenter: true, // Center the book
+        autoCenter: true,
         elevation: 50,
         gradients: true,
         duration: 1000,
-        pages: 6, // Set total pages
+        pages: bookContent.length + 2, // Cover pages 포함
         when: {
           turned: function (event, page) {
-            const actualPage = Math.floor((page - 2) / 2) + 1; // Calculate actual page number
-            setCurrentPage(actualPage >= 0 ? actualPage : 0); // Set current page state
+            const actualPage = Math.floor((page - 2) / 2) + 1;
+            setCurrentPage(actualPage >= 0 ? actualPage : 0);
           },
         },
       });
-  
-      // Set total pages count
-      setTotalPages(Math.ceil($book.turn('pages') / 2));
     }
-  }, [bookId]);  // bookId가 변경될 때마다 호출되도록 의존성 배열에 추가
+  }, [bookContent]);
+  
   
 
-  // Handle previous button click to flip the page backward
   const handlePrevious = () => {
     $('#book').turn('previous');
   };
 
-  // Handle next button click to flip the page forward
   const handleNext = () => {
     $('#book').turn('next');
   };
 
   return (
     <div className="book-reading-page">
-      {/* Header */}
       <header className="main-header">
         <button className="menu-button">☰</button>
         <button className="profile-button" onClick={handleProfileClick}>
@@ -110,9 +175,8 @@ function BookReadingPage() {
         </button>
       </header>
 
-      {/* Book name input and category selection */}
       <div className="book-details">
-      <div className="input-group">
+        <div className="input-group">
           <select
             id="category"
             value={category}
@@ -135,8 +199,7 @@ function BookReadingPage() {
         </div>
       </div>
 
-      {/* Book content */}
-      <div id="book" className="book-content">
+      <div id="book" className="book-content" ref={bookRef}>
         <div className="hard">
           <div className="page-content">
             <h2>Cover Page</h2>
@@ -147,17 +210,18 @@ function BookReadingPage() {
             <h2>Inner Cover</h2>
           </div>
         </div>
-        <div className="page">
-          <div className="page-content">
-            <h2>Chapter 1: The Journey to Presidency</h2>
-            <p>{bookContent || 'Loading content...'}</p> {/* DB에서 가져온 content 렌더링 */}
+        {bookContent.map((content, index) => (
+          <div key={index} className="page">
+            <div className="page-content">
+              {content.split('\n').map((paragraph, idx) => (
+                <p key={idx}>{paragraph}</p>
+              ))}
+              <div className="page-number"> {/* 페이지 번호 추가 */}
+                {index + 1}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="page">
-          <div className="page-content">
-            <p>The path to presidency was far from easy...</p>
-          </div>
-        </div>
+        ))}
         <div className="hard">
           <div className="page-content">
             <h2>Back Cover</h2>
@@ -165,7 +229,6 @@ function BookReadingPage() {
         </div>
       </div>
 
-      {/* Page navigation (left and right arrows) */}
       <div className="page-move">
         <span className="left-button" onClick={handlePrevious}>
           <img src={leftArrow} alt="Previous" />
@@ -176,11 +239,10 @@ function BookReadingPage() {
         </span>
       </div>
 
-      {/* Footer buttons */}
       <div className="book-footer">
         <button className="footer-button" onClick={handleEditClick}>직접 수정</button>
         <button className="footer-button">그대로 완성</button>
-        <button className="footer-button save-button" onClick={handleSaveClick}>임시 저장</button> {/* 임시 저장 button */}
+        <button className="footer-button save-button" onClick={handleSaveClick}>임시 저장</button>
       </div>
     </div>
   );

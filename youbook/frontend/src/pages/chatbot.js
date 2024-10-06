@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import './chatbot.css';
 
 function Chatbot() {
@@ -105,12 +105,36 @@ const handleSend = async () => {
 
       const data = await response.json();
 
-      // 종료 키워드가 있는 경우 메시지를 보여주고 종료
+      // 종료 키워드가 있는 경우 메시지를 보여주고 종료 처리
       if (data.message === '대화가 종료되었습니다. 감사합니다!') {
         setMessages(prevMessages => [
           ...prevMessages,
           { type: 'bot', text: data.message }
         ]);
+
+        // 종료 전에 /api/write_process/book_reading API 호출
+        try {
+          const writeResponse = await fetch('/api/write_process/book_reading', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              content : "",
+              bookId: data.bookId, // 서버에서 반환된 bookId 사용
+            }),
+          });
+          if (!writeResponse.ok) {
+            throw new Error('book 데이터를 처리하는 데 오류가 발생했습니다.');
+          }
+
+          // 성공적으로 처리되면 페이지 이동
+          Navigate('/book-reading');
+        } catch (error) {
+          console.error('Error:', error);
+          setError('book_reading 데이터를 처리하는 중 오류가 발생했습니다.');
+        }
+        
         return;  // 종료 시 이후 로직을 실행하지 않음
       }
 
@@ -130,16 +154,9 @@ const handleSend = async () => {
     } finally {
       setIsLoading(false); // 로딩 상태 종료
     }
-
-    setInputValue(''); // 입력 필드를 비움
-
-    // 커서를 입력 필드로 자동으로 이동시키기
-    const inputField = document.getElementById('chat-input');  // 입력 필드의 id가 'chat-input'일 때
-    if (inputField) {
-      inputField.focus();
-    }
   }
 };
+
 
   // Enter 키를 눌렀을 때도 메시지를 전송할 수 있도록
   const handleKeyPress = (e) => {
