@@ -19,6 +19,7 @@ function App() {
   useEffect(() => {
     console.log(typeof $.fn.turn); // "function"이 출력되어야 함
   }, []);
+  
 
   return (
     <Router>
