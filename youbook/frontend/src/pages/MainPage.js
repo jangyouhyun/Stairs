@@ -152,7 +152,7 @@ function MainPage() {
             <img src={edit} alt="Edit" className="icon edit-icon" onClick={handleModifyClick}/>
           </li>
           <li>
-            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleHomeClick}/>
+            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleLogout}/>
           </li>
         </ul>
         </nav>
