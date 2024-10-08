@@ -392,7 +392,7 @@ const handleAddCategory = () => {
                   src={item.content} 
                   alt={item.title} 
                   className="item-image" 
-                  onError={(e) => e.target.src = defaultProfileImage} 
+                  onError={(e) => e.target.src = profileImagePath} 
                 />
                 <div className="item-details">
                   <div className="item-title">{item.title}</div>
