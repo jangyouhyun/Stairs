@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../components/SignupForm.css';
+import './SignupPage.css';
 import signupIcon from '../assets/images/signup-icon.png';
 
 function SignupPage() {

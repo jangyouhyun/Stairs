@@ -30,13 +30,13 @@ function HomePage() {
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch('/auth/login_process', {
+      const response = await fetch('/auth/login_process', { // 경로 수정
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ id, pw }),
-        credentials: 'include',
+        credentials: 'include' // 세션 정보를 포함하여 요청
       });
 
       const data = await response.json();
