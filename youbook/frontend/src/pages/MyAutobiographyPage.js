@@ -23,8 +23,9 @@ function MyAutobiographyPage() {
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [editingCategory, setEditingCategory] = useState(null);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-  const [isRectangleVisible, setIsRectangleVisible] = useState(false); // 직사각형 보임 상태
- 
+
+  const [isRectangleVisible, setIsRectangleVisible] = useState(false); 
+
   const navigate = useNavigate();
   const handleMenuClick = () => {
     setIsSidebarVisible(true);
@@ -369,7 +370,7 @@ const handleAddCategory = () => {
           </div>
         </div>
         <div className="autobiography-list">
-          <div className="autobiography-item add-new" onClick={handleAddNewItem}>
+          <div className="autobiography-item add-new" onClick={() => navigate('/main')}>
             <span className="plus-icon">+</span>
           </div>
           {filteredItems.map(item => (

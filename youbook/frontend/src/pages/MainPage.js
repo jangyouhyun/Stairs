@@ -3,42 +3,46 @@ import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import './MainPage.css';
 import defaultProfileImage from '../assets/images/signup-icon.png';
-import chatbotImage from '../assets/images/chatbot1.png'; // 이미지 경로 수정
+import chatbotImage from '../assets/images/chatbot1.png';
+import message from '../assets/images/message.png';
+import askicon from '../assets/images/askicon.png';
 import exit from '../assets/images/x.png';
+import book from '../assets/images/book.png';
+import book2 from '../assets/images/book2.png'; // 활성화 상태일 때의 이미지
+import edit from '../assets/images/edit.png';
+import edit2 from '../assets/images/edit2.png'; // 활성화 상태일 때의 이미지
+import logout from '../assets/images/log-out.png';
+import logout2 from '../assets/images/log-out2.png';
+
 
 function MainPage() {
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [text, setText] = useState('');
-  const location = useLocation();
-  const selectedCategory = location.state?.selectedCategory;
+  const [items, setItems] = useState([]); // 빈 배열로 초기화
+  const [isRectangleVisible, setIsRectangleVisible] = useState(false); 
+  const handleInquiryClick = () => {
+    setIsRectangleVisible(!isRectangleVisible);
+  };
   
   const navigate = useNavigate();
-
   const handleMenuClick = () => {
     setIsSidebarVisible(true);
   };
-
-  const handleBookClick = () => {
-    navigate('/my-autobiography');
-  };
-
   const handleExitClick = () => {
     setIsSidebarVisible(false);
   };
+  const handleHomeClick = () => {
+    navigate('/');
 
-  const handleInquiryClick = () => {
-    navigate('/inquiry');
   };
   const handleModifyClick = () => {
     navigate('/modifyinfo');
   };
-  const handleHomeClick = () => {
-    navigate('/');
-  };
 
-  // 유저 정보를 서버에서 가져옴
+
   useEffect(() => {
     fetch('/api/get_user_info')
       .then(response => response.json())
@@ -131,45 +135,65 @@ function MainPage() {
       <header className="main-header">
         <button className="menu-button" onClick={handleMenuClick}>☰</button>
         <button className="profile-button" onClick={handleProfileClick}>
-          <img src={profileImagePath} alt="Profile" className="profile-image" />
+          <img src={profileImagePath} alt="Profile" className="profile-image"
+           />
         </button>
       </header>
 
       <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
-        <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
-        <img src={profileImagePath} alt="Profile" className="profile-image2" />
+        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
-          <ul>
-            <li onClick={handleBookClick}>나의 자서전 목록</li>
-            <li onClick={handleInquiryClick}>문의하기</li>
-            <li onClick={handleModifyClick}>개인정보수정</li>
-            <li onClick={handleLogout}>로그아웃</li>
-          </ul>
+        <ul>
+          <li>
+            <img src={book} alt="Book" className="icon book-icon" onClick={handleProfileClick} />
+          </li>
+          <li>
+            <img src={edit} alt="Edit" className="icon edit-icon" onClick={handleModifyClick}/>
+          </li>
+          <li>
+            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleHomeClick}/>
+          </li>
+        </ul>
         </nav>
+        <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
       </aside>
 
       <div className="main-content">
         <div className="title-image-container">
-          <img src={chatbotImage} alt="Chatbot" className="main-image" />
+        <img src={message} alt="message" className="message" />
           <h1 className="main-title">자서전에 들어갔으면 하는 내용을 적어주세요!</h1>
+          <img src={chatbotImage} alt="Chatbot" className="main-image" />
         </div>
-        <button className="question-button" onClick={handleSubmit}>입력내용으로 질문받기</button>
+        <div className="text-container">
         <textarea
           className="main-textarea"
           placeholder="내 인생의 사건에 대해서 적어주세요..."
           value={text}
           onChange={(e) => setText(e.target.value)}
         ></textarea>
-
-        {/* 자서전 바로 만들기 버튼 추가 */}
+        </div>
         <div className="button-container">
+        <button className="question-button" onClick={handleSubmit}>입력내용으로 질문받기</button>
           <button className="create-book-button" onClick={handleCreateBook}>
             자서전 바로 만들기
           </button>
         </div>
       </div>
+      <div className="fixed-inquiry-icon" onClick={handleInquiryClick}>
+        <img src={askicon} alt="문의하기 아이콘" />
+      </div>
+      {isRectangleVisible && (
+        <div className="vertical-rectangle">
+          <ul>
+            <li onClick={() => window.location.href = 'https://open.kakao.com/o/s9YXw5Sg'}>
+              채팅 상담</li>
+            <li onClick={() => navigate('/customerinquiry')}>1:1 문의</li>
+          </ul>
+        </div>
+      )}
     </div>
+    
   );
 }
 

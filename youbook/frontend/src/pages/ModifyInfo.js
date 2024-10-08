@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../components/SignupForm.css';
+import './ModifyInfo.css';
 import signupIcon from '../assets/images/signup-icon.png';
 import defaultProfileImage from '../assets/images/signup-icon.png';
 import search from '../assets/images/search.png';

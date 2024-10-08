@@ -1,7 +1,7 @@
 .my-autobiography-page {
   display: flex;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   font-family: 'MinSans-Regular', sans-serif;
 }
 
@@ -18,10 +18,11 @@
 }
 
 .page-content {
-  width: 1200px;
-  padding-left : 30px;
-  margin : 0;
-  position : relative;
+  width: calc(100vw - 150px);
+  margin : 0px;
+  position : absolute;
+  top : 0;
+  left : 0;
   justify-content: center;
 }
 
@@ -162,7 +163,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 60px;
-  min-width: 1200px;
+  width: 1200px;
   margin-right: 50px;
   box-sizing: border-box;
   position : absolute;
@@ -228,7 +229,7 @@
 
 .context-menu {
   position: absolute;
-  background-color: #f0f0f0; /* Light gray background */
+  background-color: #FFFBE9; /* Light gray background */
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
   z-index: 100;
   border-radius: 4px;
@@ -243,151 +244,11 @@
   
 }
 .context-menu-item:hover {
-  background-color: #e0e0e0;
+  background-color: #E3CAA5;
   font-weight: bold;
-}
-
-.sidebar {
-  width: 150px !important;
-  height: 100vh;
-  background-color: #FFFBE9 !important;
-  position: fixed;
-  top: 0;
-  left: -300px;
-  transition: opacity 0.5s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.sidebar.visible {
-  left : 0px;
-  opacity : 1;
-}
-
-.exit{
-  position: absolute;
-  top: 750px!important;
-  left: 80px!important;
-  width: 50px!important;
-  height: 50px!important;
-  border-radius: 50%;
-  margin: 10px;
-  cursor: pointer;
-  
-}
-
-.profile-image2 {
-  width: 80px!important;
-  height: 80px!important;
-  border-radius: 50%;
-  margin: 20px 0;
-  margin-top : 100px!important;
-  
-}
-
-.profile-name {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-  display: block;
-  visibility: visible;
-  margin : 20px;
-}
-
-.sidebar-nav ul {
-  list-style: none;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.sidebar-nav img{
-  width : 50px;
-  height : 50px;
-  margin-bottom : 60px;
-}
-/* Book icon hover 상태 */
-.book-icon:hover {
-  content: url('../assets/images/book2.png'); /* Hover 시 이미지 변경 */
-}
-
-
-
-/* Edit icon hover 상태 */
-.edit-icon:hover {
-  content: url('../assets/images/edit2.png'); /* Hover 시 이미지 변경 */
-}
-
-/* Logout icon hover 상태 */
-.logout-icon:hover {
-  content: url('../assets/images/log-out2.png'); /* Hover 시 이미지 변경 */
 }
 
 .active {
   content: url('../assets/images/book2.png');
 }
 
-.fixed-inquiry-icon {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 60px;
-  height: 60px;
-  cursor: pointer;
-  border-radius: 50%;
-}
-
-.fixed-inquiry-icon img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-}
-
-.vertical-rectangle {
-  position: fixed;
-  bottom: 100px;
-  right: 20px;
-  width: 100px;
-  height: 180px;
-  background-color: #FFFBE9; /* 배경 색상 */
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-
-.vertical-rectangle ul {
-  list-style: none;
-  font-size: 1.0rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0;
-  margin: 0;
-  width: 100%
-
-}
-
-.vertical-rectangle li {
-  margin-top : 20px;
-  cursor: pointer;
-  font-weight: bold;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #CEAB93;
-}
-.vertical-rectangle li:last-child {
-  border-bottom: none; /* 마지막 li에는 선을 없앰 */
-}
-.vertical-rectangle li:hover {
-  color: #014034;
-  font-weight: bold;
-}
