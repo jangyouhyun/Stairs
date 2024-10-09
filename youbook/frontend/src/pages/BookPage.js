@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import $ from 'jquery';
 import '../assets/js/turn.js'; // Ensure this path is correct for your project
 import './BookPage.css';
@@ -16,6 +16,7 @@ import signupIcon from '../assets/images/signup-icon.png';
 import leftArrow from '../assets/images/left.png';
 import rightArrow from '../assets/images/right.png';
 import askicon from '../assets/images/askicon.png';
+import { useLocation } from 'react-router-dom';
 
 function BookPage() {
   const navigate = useNavigate();
@@ -32,6 +33,11 @@ function BookPage() {
   const [submenuVisible, setSubmenuVisible] = useState(false);
   const [submenuPosition, setSubmenuPosition] = useState({ x: 0, y: 0 });
   const [isActive, setIsActive] = useState(false);
+  const [bookContent, setBookContent] = useState([]);
+  const { bookId } = useParams();
+  const bookRef = useRef(null);
+  const location = useLocation();
+  const selectedCategory = location.state?.selectedCategory;
 
   // Function to handle paragraph click
   const handleParagraphClick = () => {
@@ -127,6 +133,32 @@ function BookPage() {
     return () => {
       document.removeEventListener('click', handleOutsideClick);
     };
+  }, []);
+
+  {/* 책 내용 끌고오기 */}  
+  useEffect(() => {
+    // Fetch book content from the API
+    const fetchBookContent = async () => {
+      try {
+        const response = await fetch('/api/print', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            book_id: bookId, // Replace with actual book_id
+            input_count: 1, // Replace with actual input_count
+            category:selectedCategory
+          }),
+        });
+        const data = await response.json();
+        setBookContent(data); // Assuming data is an array of content strings
+      } catch (error) {
+        console.error('Failed to fetch book content:', error);
+      }
+    };
+
+    fetchBookContent();
   }, []);
 
   // Handle previous button click to flip the page backward

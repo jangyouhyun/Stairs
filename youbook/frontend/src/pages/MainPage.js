@@ -145,7 +145,7 @@ function MainPage() {
       console.log('API response:', data);  // 서버 응답 확인
       if (data.status === 200) {
         const bookId = data.bookId;
-        navigate(`/book-reading/${bookId}`);
+        navigate(`/book-reading/${bookId}`, { state: { selectedCategory } });
       }
     })
     
