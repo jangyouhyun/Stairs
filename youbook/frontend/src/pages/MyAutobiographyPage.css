@@ -3,6 +3,7 @@
   height: 100%;
   width: 100%;
   font-family: 'MinSans-Regular', sans-serif;
+  background-color: white;
 }
 
 .menu-container{
@@ -12,6 +13,7 @@
   margin : 0px;
   
 }
+
 .menu{
   font-size: 5.0rem;
   color: #CEAB93;

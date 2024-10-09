@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom'; // useNavigate로 수정
 import './chatbot.css';
+import chatbotImage from '../assets/images/chatbot1.png';
+import back from '../assets/images/exit.png';
 
-function Chatbot() {
+
+function Chatbot({ onClose }) {
   const [messages, setMessages] = useState([
-    { type: 'bot', text: '안녕하세요! 작성해주신 내용을 바탕으로 몇 가지 질문드리겠습니다.' },
+    { type: 'bot', text: '안녕하세요! 유북 챗봇입니다. 작성해주신 내용을 바탕으로 몇 가지 질문드리겠습니다. 대화를 마치고 싶다면 종료라고 말씀해주세요!' },
   ]);
 
   const [inputValue, setInputValue] = useState('');
   const { bookId } = useParams();  // URL 파라미터에서 bookId 추출
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
   const [error, setError] = useState(null); // 에러 상태 추가
+  const [isConversationEnded, setIsConversationEnded] = useState(false); // 대화 종료 상태 추가
   const navigate = useNavigate(); // 페이지 이동을 위한 hook
 
   useEffect(() => {
@@ -111,6 +115,9 @@ function Chatbot() {
             { type: 'bot', text: data.message }
           ]);
 
+          // 종료 상태 설정
+          setIsConversationEnded(true);
+
           // 여기서 요약 API 호출 및 데이터 처리
           try {
             // 요약된 content를 가져오는 API 호출
@@ -173,6 +180,15 @@ function Chatbot() {
       }
     }
   };
+  
+  // 대화 종료 후 '자서전 만들기' 및 '내용 새로 추가' 처리 함수
+  const handleCreateBook = () => {
+    navigate(`/book-reading/${bookId}`); // 자서전 페이지로 이동
+  };
+
+  const handleAddContent = () => {
+    navigate(`/main/${bookId}`); // 자서전 내용 추가 페이지로 이동
+    };
 
   // Enter 키를 눌렀을 때도 메시지를 전송할 수 있도록
   const handleKeyPress = (e) => {
@@ -184,30 +200,45 @@ function Chatbot() {
   return (
     <div className="chatbot-container">
       <div className="chatbot-header">
-        <div className="progress-bar">
-          <span>인터뷰 진행중 ...</span>
-        </div>
+        <img src={back} alt="back" className="back-icon" onClick={onClose} />
+        <div className="progress-bar"></div>
       </div>
       <div className="chatbot-body">
         {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.type}`}>
-            {msg.text}
-          </div>
+           <div key={index} className={`message-container ${msg.type}`}>
+            {msg.type === 'bot' && (
+              <img src={chatbotImage} alt="Chatbot" className="chatbot-profile" />
+            )}
+            <div className={`message ${msg.type}`}>
+              {msg.text}
+            </div>
+         </div>
         ))}
         {isLoading && <div className="loading-indicator">로딩 중...</div>}
         {error && <div className="error-message">{error}</div>}
       </div>
-      <div className="chatbot-footer">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={handleKeyPress} // Enter 키 이벤트
-          placeholder="답변을 입력하세요 ..."
-          disabled={isLoading} // 로딩 중에는 입력 불가
-        />
-        <button onClick={handleSend} disabled={isLoading || !inputValue.trim()}>전송</button> {/* 로딩 중이거나 빈 입력일 때 버튼 비활성화 */}
-      </div>
+      {/* 대화 종료 시 버튼을 표시 */}
+      {isConversationEnded && (
+        <div className="conversation-end-buttons">
+          <button onClick={handleCreateBook}>대화 내용 바탕으로 자서전 만들기</button>
+          <button onClick={handleAddContent}>자서전 내용 새로 추가하기</button>
+        </div>
+      )}
+      {!isConversationEnded && (
+        <div className="chatbot-footer">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={handleKeyPress} // Enter 키 이벤트
+            placeholder="답변을 입력하세요 ..."
+            disabled={isLoading} // 로딩 중에는 입력 불가
+          />
+          <button onClick={handleSend} disabled={isLoading || !inputValue.trim()}>
+            전송
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './CustomerInquiryPage.css';
 
-function CustomerInquiryPage() {
+const CustomerInquiryPage = () => {
+    
   const [formData, setFormData] = useState({
     category: '배송문의',
     subject: '',
@@ -34,7 +35,8 @@ function CustomerInquiryPage() {
   };
   
   return (
-    <div className="inquiry-container">
+    <div className = "inquiry-page">
+      <div className="inquiry-container">
       <h1>ASK</h1>
       <p>
         문의하신 내용에 대한 답변은 이메일 혹은 ACCOUNT 페이지의 내 게시물에서 확인해주세요.
@@ -110,6 +112,7 @@ function CustomerInquiryPage() {
 
         <button type="submit" className="submit-button">등록</button>
       </form>
+    </div>
     </div>
   );
 }

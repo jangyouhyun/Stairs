@@ -6,7 +6,7 @@ import MainPage from './pages/MainPage';
 import BookPage from './pages/BookPage';
 import MyAutobiographyPage from './pages/MyAutobiographyPage';
 import BookDesignPage from './pages/BookDesignPage'; 
-import BookReadingPage from './pages/BookReadingPage';
+// import BookReadingPage from './pages/BookReadingPage';
 import Chatbot from './pages/chatbot';
 import ModifyInfo from './pages/ModifyInfo';
 import CustomerInquiryPage from './pages/CustomerInquiryPage';
@@ -32,7 +32,8 @@ function App() {
         <Route path="/book-design" element={<BookDesignPage />} />
         <Route path="/chatbot/:bookId" element={<Chatbot />} />
         <Route path="/modifyinfo" element={<ModifyInfo />} />
-        <Route path="/book-reading/:bookId" element={<BookReadingPage />} />
+        {/* <Route path="/book-reading/:bookId" element={<BookReadingPage />} /> */}
+        <Route path="/book-reading2" element={<BookPage />} />
         <Route path="/customerinquiry" element={<CustomerInquiryPage />} />
       </Routes>
     </Router>
