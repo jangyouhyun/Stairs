@@ -39,6 +39,7 @@ async function getModelResponse(user_input) {
 
 // The API endpoint to handle chatbot summary
 router.post('/chatbot/summary', function (request, response) {
+    console.log('55라우터 진입 시 세션 상태:', request.session);
     var user_id = request.session.nickname;
     var book_id = request.body.bookId; // Assuming it's in the request body
     var input_count = request.body.inputCount; // Also assuming it's in the request body
@@ -105,7 +106,7 @@ router.post('/chatbot/summary', function (request, response) {
                                     response.status(200).json({
                                         status: 200,
                                         message: 'Summary successfully saved!',
-                                        content: summary // 요약된 내용도 클라이언트로 반환
+                                        content: summary// 요약된 내용도 클라이언트로 반환
                                     });
                                 });
                             }

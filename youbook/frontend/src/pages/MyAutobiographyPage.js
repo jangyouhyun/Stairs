@@ -370,7 +370,7 @@ const handleAddCategory = () => {
           </div>
         </div>
         <div className="autobiography-list">
-          <div className="autobiography-item add-new" onClick={() => navigate('/main')}>
+          <div className="autobiography-item add-new" onClick={handleAddNewItem}>
             <span className="plus-icon">+</span>
           </div>
           {filteredItems.map(item => (

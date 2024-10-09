@@ -72,7 +72,7 @@ function MainPage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text }),
+      body: JSON.stringify({ content: text, category : selectedCategory }),
     })
     .then(response => response.json())  // response를 JSON으로 파싱
     .then(data => {

@@ -121,7 +121,7 @@ function Chatbot() {
               },
               body: JSON.stringify({
                 bookId: bookId,
-                inputCount: 1, // 메시지 수를 inputCount로 사용
+                inputCount: 1
               }),
             });
             if (!summaryResponse.ok) {
@@ -146,7 +146,7 @@ function Chatbot() {
             }
 
             // 성공적으로 처리되면 페이지 이동
-            navigate('/book-reading');
+            navigate(`/book-reading/${bookId}`);
           } catch (error) {
             console.error('Error:', error);
             setError('book_reading 데이터를 처리하는 중 오류가 발생했습니다.');

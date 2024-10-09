@@ -12,7 +12,7 @@ const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
-const fineTunedModelId = 'ft:gpt-4o-mini-2024-07-18:personal:autobigraphy:A3locWYR';
+const fineTunedModelId = 'ft:gpt-4o-mini-2024-07-18:personal:autobiography:AG1hlRpE';
 
 // OpenAI 모델 응답을 받는 함수
 async function getModelResponse(userInput) {
@@ -67,6 +67,8 @@ router.post('/write_process/chatbot', function (request, response) {
     var date = getFormatDate(new Date());
     var user_id = request.session ? request.session.nickname : 'test_user'; // 세션이 없는 경우 test_user 사용
     var book_id = uuidv4(); // UUID 생성
+    const category = request.body.category;
+    console.log("카테고리: ", category);
 
     if (content) {
         db.getConnection(function (err, connection) {
@@ -78,8 +80,8 @@ router.post('/write_process/chatbot', function (request, response) {
                 }
                 // init_input에 삽입
                 connection.query(
-                    'INSERT INTO init_input (user_id, book_id, input_count, content) VALUES (?, ?, ?, ?)',
-                    [user_id, book_id, 1, content],
+                    'INSERT INTO init_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?)',
+                    [user_id, book_id, 1, content, category],
                     function (error, results) {
                         if (error) {
                             return connection.rollback(function () {
@@ -95,8 +97,6 @@ router.post('/write_process/chatbot', function (request, response) {
                                 });
                             }
                             connection.release();
-                            console.log("User ID:", user_id);
-
                             // 여기서 response로 변경
                             response.status(200).json({ status: 200, bookId: book_id });
                         });
@@ -110,65 +110,149 @@ router.post('/write_process/chatbot', function (request, response) {
 });
 
 
-// 라우터: /book-reading
-router.post('/write_process/book_reading', async function (req, res) {
+router.post('/write_process/book_reading', function (req, res) {
     console.log('1라우터 진입 시 세션 상태:', req.session); 
     const content = req.body.content;
     const book_id = req.body.bookId ? req.body.bookId : uuidv4();
     const user_id = req.body.userId ? req.body.userId : req.session.nickname;
     const category = req.body.category;
 
-    if (content) {
-        try {
-            const modelResponse = await getModelResponse(content);
+    if (!content) {
+        return res.status(400).json({ status: 400, error: '내용이 기입되지 않았습니다!' });
+    }
 
-            db.getConnection(function (err, connection) {
-                if (err) throw err;
-                connection.beginTransaction(function (err) {
-                    if (err) {
-                        connection.release();
-                        throw err;
-                    }
-                    
-                    connection.query('INSERT INTO init_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?)', [user_id, book_id, 1, content, category], function (error, results) {
+    getModelResponse(content).then(modelResponse => {
+        db.getConnection(function (err, connection) {
+            if (err) {
+                console.error('DB connection error:', err);
+                return res.status(500).json({ status: 500, error: 'DB connection error' });
+            }
+
+            connection.beginTransaction(function (err) {
+                if (err) {
+                    connection.release();
+                    console.error('Transaction error:', err);
+                    return res.status(500).json({ status: 500, error: 'Transaction error' });
+                }
+
+                // 1. init_input 데이터 존재 여부 확인
+                connection.query(
+                    'SELECT * FROM init_input WHERE user_id = ? AND book_id = ? AND input_count = ?',
+                    [user_id, book_id, 1],
+                    function (error, initInputResult) {
                         if (error) {
                             return connection.rollback(function () {
                                 connection.release();
-                                throw error;
+                                console.error('Query error:', error);
+                                return res.status(500).json({ status: 500, error: 'Query error' });
                             });
                         }
 
-                        connection.query('INSERT INTO purified_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?)', [user_id, book_id, 1, modelResponse, category], function (error, results) {
-                            if (error) {
-                                return connection.rollback(function () {
-                                    connection.release();
-                                    throw error;
-                                });
-                            }
+                        if (initInputResult.length > 0) {
+                            // 이미 존재하면 업데이트
+                            connection.query(
+                                'UPDATE init_input SET content = ?, category = ? WHERE user_id = ? AND book_id = ? AND input_count = ?',
+                                [content, category, user_id, book_id, 1],
+                                function (error) {
+                                    if (error) {
+                                        return connection.rollback(function () {
+                                            connection.release();
+                                            console.error('Update error:', error);
+                                            return res.status(500).json({ status: 500, error: 'Update error' });
+                                        });
+                                    }
+                                    else {
+                                        console.log("Sucess");
+                                    }
+                                }
+                            );
+                        } else {
+                            // 존재하지 않으면 삽입
+                            connection.query(
+                                'INSERT INTO init_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?)',
+                                [user_id, book_id, 1, content, category],
+                                function (error) {
+                                    if (error) {
+                                        return connection.rollback(function () {
+                                            connection.release();
+                                            console.error('Insert error:', error);
+                                            return res.status(500).json({ status: 500, error: 'Insert error' });
+                                        });
+                                    }
+                                }
+                            );
+                        }
 
-                            connection.commit(function (err) {
-                                if (err) {
+                        // 2. purified_input 데이터 존재 여부 확인
+                        connection.query(
+                            'SELECT * FROM purified_input WHERE user_id = ? AND book_id = ? AND input_count = ?',
+                            [user_id, book_id, 1],
+                            function (error, purifiedInputResult) {
+                                if (error) {
                                     return connection.rollback(function () {
                                         connection.release();
-                                        throw err;
+                                        console.error('Query error:', error);
+                                        return res.status(500).json({ status: 500, error: 'Query error' });
                                     });
                                 }
 
-                                connection.release();
-                                // const bookId = results.insertId;  // 생성된 book의 ID
-                                res.status(200).json({ status: 200, bookId: book_id });
-                            });
-                        });
-                    });
-                });
+                                if (purifiedInputResult.length > 0) {
+                                    // 이미 존재하면 업데이트
+                                    connection.query(
+                                        'UPDATE purified_input SET content = ?, category = ? WHERE user_id = ? AND book_id = ? AND input_count = ?',
+                                        [modelResponse, category, user_id, book_id, 1],
+                                        function (error) {
+                                            if (error) {
+                                                return connection.rollback(function () {
+                                                    connection.release();
+                                                    console.error('Update error:', error);
+                                                    return res.status(500).json({ status: 500, error: 'Update error' });
+                                                });
+                                            }
+                                        }
+                                    );
+                                } else {
+                                    // 존재하지 않으면 삽입
+                                    connection.query(
+                                        'INSERT INTO purified_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?)',
+                                        [user_id, book_id, 1, modelResponse, category],
+                                        function (error) {
+                                            if (error) {
+                                                return connection.rollback(function () {
+                                                    connection.release();
+                                                    console.error('Insert error:', error);
+                                                    return res.status(500).json({ status: 500, error: 'Insert error' });
+                                                });
+                                            }
+                                        }
+                                    );
+                                }
+
+                                // 트랜잭션 커밋
+                                connection.commit(function (err) {
+                                    if (err) {
+                                        return connection.rollback(function () {
+                                            connection.release();
+                                            console.error('Commit error:', err);
+                                            return res.status(500).json({ status: 500, error: 'Commit error' });
+                                        });
+                                    }
+
+                                    connection.release();
+                                    return res.status(200).json({ status: 200, bookId: book_id });
+                                });
+                            }
+                        );
+                    }
+                );
             });
-        } catch (error) {
-            console.error('Error processing the request:', error);
-            res.status(500).json({ status: 500, error: 'Error processing the request' });
-        }
-    } else {
-        res.status(405).json({ status: 400, error: '내용이 기입되지 않았습니다!' });
-    }
+        });
+    }).catch(error => {
+        console.error('Model response error:', error);
+        return res.status(500).json({ status: 500, error: 'Model response error' });
+    });
 });
+
+
 
 module.exports = router;
