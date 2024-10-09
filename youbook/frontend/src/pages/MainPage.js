@@ -17,7 +17,6 @@ import logout2 from '../assets/images/log-out2.png';
 
 function MainPage() {
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
-  //const [selectedCategory, setSelectedCategory] = useState('');
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [text, setText] = useState('');
@@ -73,7 +72,7 @@ function MainPage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text }),
+      body: JSON.stringify({ content: text, category : selectedCategory }),
     })
     .then(response => response.json())  // response를 JSON으로 파싱
     .then(data => {
@@ -145,7 +144,7 @@ function MainPage() {
       </header>
 
       <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
-        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
+        <img src={profileImagePath} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
         <ul>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import './chatbot.css';
 
 function Chatbot() {
@@ -11,6 +11,7 @@ function Chatbot() {
   const { bookId } = useParams();  // URL 파라미터에서 bookId 추출
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
   const [error, setError] = useState(null); // 에러 상태 추가
+  const navigate = useNavigate(); // 페이지 이동을 위한 hook
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -81,82 +82,97 @@ function Chatbot() {
   
     initiateChat();
   }, [bookId]);
-  
-  
 
-// 사용자가 답변을 제출할 때 처리하는 함수
-const handleSend = async () => {
-  if (inputValue.trim()) {
-    const previousQuestion = messages[messages.length - 1].text;
-    setMessages([...messages, { type: 'user', text: inputValue }]);
-    setIsLoading(true); // 로딩 상태 시작
+  // 사용자가 답변을 제출할 때 처리하는 함수
+  const handleSend = async () => {
+    if (inputValue.trim()) {
+      const previousQuestion = messages[messages.length - 1].text;
+      setMessages([...messages, { type: 'user', text: inputValue }]);
+      setIsLoading(true); // 로딩 상태 시작
 
-    try {
-      const response = await fetch(`/api/chatbot/ask/${bookId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userInput: inputValue, previousQuestion }),
-      });
-      if (!response.ok) {
-        throw new Error('서버에서 질문을 생성하는 데 오류가 발생했습니다.');
-      }
+      try {
+        const response = await fetch(`/api/chatbot/ask/${bookId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userInput: inputValue, previousQuestion }),
+        });
+        if (!response.ok) {
+          throw new Error('서버에서 질문을 생성하는 데 오류가 발생했습니다.');
+        }
 
-      const data = await response.json();
+        const data = await response.json();
 
-      // 종료 키워드가 있는 경우 메시지를 보여주고 종료 처리
-      if (data.message === '대화가 종료되었습니다. 감사합니다!') {
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { type: 'bot', text: data.message }
-        ]);
+        // 종료 키워드가 있는 경우 메시지를 보여주고 종료 처리
+        if (data.message === '대화가 종료되었습니다. 감사합니다!') {
+          setMessages(prevMessages => [
+            ...prevMessages,
+            { type: 'bot', text: data.message }
+          ]);
 
-        // 종료 전에 /api/write_process/book_reading API 호출
-        try {
-          const writeResponse = await fetch('/api/write_process/book_reading', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              content : "",
-              bookId: data.bookId, // 서버에서 반환된 bookId 사용
-            }),
-          });
-          if (!writeResponse.ok) {
-            throw new Error('book 데이터를 처리하는 데 오류가 발생했습니다.');
+          // 여기서 요약 API 호출 및 데이터 처리
+          try {
+            // 요약된 content를 가져오는 API 호출
+            const summaryResponse = await fetch(`/api/chatbot/summary`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                bookId: bookId,
+                inputCount: 1
+              }),
+            });
+            if (!summaryResponse.ok) {
+              throw new Error('요약 데이터를 가져오는 데 오류가 발생했습니다.');
+            }
+
+            const summaryData = await summaryResponse.json();
+
+            // 요약된 데이터를 들고 book_reading API로 전송
+            const writeResponse = await fetch('/api/write_process/book_reading', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                content: summaryData.content, // 요약된 content 사용
+                bookId: data.bookId, // 서버에서 반환된 bookId 사용
+              }),
+            });
+            if (!writeResponse.ok) {
+              throw new Error('book 데이터를 처리하는 데 오류가 발생했습니다.');
+            }
+
+            // 성공적으로 처리되면 페이지 이동
+            navigate(`/book-reading/${bookId}`);
+          } catch (error) {
+            console.error('Error:', error);
+            setError('book_reading 데이터를 처리하는 중 오류가 발생했습니다.');
           }
 
-          // 성공적으로 처리되면 페이지 이동
-          Navigate('/book-reading');
-        } catch (error) {
-          console.error('Error:', error);
-          setError('book_reading 데이터를 처리하는 중 오류가 발생했습니다.');
+          return;  // 종료 시 이후 로직을 실행하지 않음
         }
-        
-        return;  // 종료 시 이후 로직을 실행하지 않음
+
+        // 새로운 질문을 받았을 때
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { type: 'bot', text: data.question }
+        ]);
+
+      } catch (error) {
+        console.error('Error:', error);
+        setError('질문 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { type: 'bot', text: '질문 생성 중 오류가 발생했습니다.' }
+        ]);
+      } finally {
+        setIsLoading(false); // 로딩 상태 종료
       }
-
-      // 새로운 질문을 받았을 때
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { type: 'bot', text: data.question }
-      ]);
-
-    } catch (error) {
-      console.error('Error:', error);
-      setError('질문 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { type: 'bot', text: '질문 생성 중 오류가 발생했습니다.' }
-      ]);
-    } finally {
-      setIsLoading(false); // 로딩 상태 종료
     }
-  }
-};
-
+  };
 
   // Enter 키를 눌렀을 때도 메시지를 전송할 수 있도록
   const handleKeyPress = (e) => {
