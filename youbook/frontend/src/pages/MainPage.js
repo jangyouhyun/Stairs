@@ -13,20 +13,61 @@ import edit from '../assets/images/edit.png';
 import edit2 from '../assets/images/edit2.png'; // 활성화 상태일 때의 이미지
 import logout from '../assets/images/log-out.png';
 import logout2 from '../assets/images/log-out2.png';
-
+import Chatbot from './chatbot';
 
 function MainPage() {
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
-  //const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [text, setText] = useState('');
   const [items, setItems] = useState([]); // 빈 배열로 초기화
   const [isRectangleVisible, setIsRectangleVisible] = useState(false); 
-  const location = useLocation();
-  const selectedCategory = location.state?.selectedCategory;
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false); // 챗봇 팝업 상태
+  const [isWarningVisible, setIsWarningVisible] = useState(false);
 
+  const handleOpenChatbot = () => {
+    // 입력된 text를 서버로 보내는 fetch 요청
+    fetch('/api/write_process/chatbot', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: text }),
+    })
+    .then(response => response.json())  // response를 JSON으로 파싱
+    .then(data => {
+      if (data.status === 200) {
+        const bookId = data.bookId;  // bookId가 있는지 확인
+        if (bookId) {
+          // API 요청이 성공하면 팝업을 열고 데이터와 함께 전달
+          setIsChatbotOpen(true);  // 챗봇 팝업 열기
+          navigate(`/chatbot/${bookId}`);  // bookId가 있을 때 navigate
+        } else {
+          console.error('bookId is missing in the response:', data);
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  };
+  const handleOpenChatbot2 = () => {
+    setIsChatbotOpen(true); // 챗봇 팝업 열기
+  };
+  const handleCloseChatbot = () => {
+    setIsWarningVisible(true); // 경고 메시지 보이기
+  };
 
+  const handleConfirmClose = () => {
+    setIsChatbotOpen(false); // 챗봇 팝업 닫기
+    setIsWarningVisible(false); // 경고 메시지 숨기기
+  };
+
+  const handleCancelClose = () => {
+    setIsWarningVisible(false); // 경고 메시지 숨기기
+  };
+  
   const handleInquiryClick = () => {
     setIsRectangleVisible(!isRectangleVisible);
   };
@@ -156,7 +197,7 @@ function MainPage() {
             <img src={edit} alt="Edit" className="icon edit-icon" onClick={handleModifyClick}/>
           </li>
           <li>
-            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleLogout}/>
+            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleHomeClick}/>
           </li>
         </ul>
         </nav>
@@ -178,9 +219,12 @@ function MainPage() {
         ></textarea>
         </div>
         <div className="button-container">
-        <button className="question-button" onClick={handleSubmit}>입력내용으로 질문받기</button>
+        <button className="question-button" onClick={handleOpenChatbot2}>입력내용으로 질문받기</button>
           <button className="create-book-button" onClick={handleCreateBook}>
             자서전 바로 만들기
+          </button>
+          <button className="button" onClick={() => navigate('/book-reading2')}>
+            자서전 제작 페이지
           </button>
         </div>
       </div>
@@ -195,7 +239,25 @@ function MainPage() {
             <li onClick={() => navigate('/customerinquiry')}>1:1 문의</li>
           </ul>
         </div>
+        
       )}
+    {/* 챗봇 팝업 창을 조건부로 렌더링 */}
+    {isChatbotOpen && (
+        <div className="chatbot-popup">
+          <Chatbot onClose={handleCloseChatbot} /> {/* onClose prop 전달 */}
+        </div>
+      )}
+    {/* 경고 메시지 창 */}
+    {isWarningVisible && (
+        <div className="warning-popup">
+          <p>창을 닫으면 대화 내용이 사라질 수 있습니다.<br/>그래도 닫겠습니까?</p>
+          <div className="button-container">
+            <button onClick={handleConfirmClose}>Yes</button>
+            <button onClick={handleCancelClose}>No</button>
+          </div>
+        </div>
+      )}
+    
     </div>
     
   );
