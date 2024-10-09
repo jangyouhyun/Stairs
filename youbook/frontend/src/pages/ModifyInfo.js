@@ -149,25 +149,6 @@ const [profileImage, setProfileImage] = useState(null);
 
   return (
     <div className="signup-container">
-        <div className="profile-container">
-        <div className="menu" onClick={handleMenuClick}>
-          메뉴
-        </div>
-      </div>
-
-      <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
-        <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
-        <img src={profileImagePath} alt="Profile" className="profile-image2" />
-        <div className="profile-name">{userName}</div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li onClick={handleBookClick}>나의 자서전 목록</li>
-            <li onClick={handleInquiryClick}>문의하기</li>
-            <li className="active">개인정보수정</li>
-            <li onClick={handleLogout}>로그아웃</li>
-          </ul>
-        </nav>
-      </aside>
       <label htmlFor="profile-image-input">
         <img src={profileImage ? URL.createObjectURL(profileImage) : profileImagePath} alt="Signup Icon" className="signup-icon" />
       </label>
