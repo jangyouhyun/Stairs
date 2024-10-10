@@ -43,7 +43,7 @@ function BookPage() {
     title : '',
     subtitleerror : '',
     imageUrl: '',
-    paragraph: 'Since childhood, I grew up in a humble environment with my family... Since childhood, I grew up in a humble environment with my family...'
+    paragraph: ''
   });
   const [isEditable, setIsEditable] = useState(false); 
   
@@ -262,6 +262,19 @@ function BookPage() {
     };
   }, []);
 
+  const convertBookContentToContent = () => {
+    const newContent = bookContent.map(paragraph => ({
+      title: null,
+      subtitle: null,
+      imageUrl: null,
+      paragraph: paragraph
+    }));
+  
+    console.log('Converted bookContent to content:', newContent);
+    setContent(newContent);
+  };
+  
+  
   useEffect(() => {
     // Fetch book content from the API
     const fetchBookContent = async () => {
@@ -274,19 +287,29 @@ function BookPage() {
           body: JSON.stringify({
             book_id: bookId,
             input_count: 1,
-            category:selectedCategory
+            category: selectedCategory
           }),
         });
+  
         const data = await response.json();
-        setBookContent(data); // Assuming data is an array of content strings
+        setBookContent(data.contentArray); // 상태 업데이트
+  
       } catch (error) {
         console.error('Failed to fetch book content:', error);
       }
     };
-
+  
     fetchBookContent();
-  }, []);
-
+  }, []);  // 초기화 시 한 번만 실행
+  
+  // bookContent가 업데이트되었을 때 convertBookContentToContent 실행
+  useEffect(() => {
+    if (bookContent.length > 0) { // bookContent가 업데이트된 후 실행
+      console.log(bookContent); // 업데이트된 bookContent 출력
+      convertBookContentToContent(); // bookContent 기반으로 content 생성
+    }
+  }, [bookContent]);
+  
   // Handle previous button click to flip the page backward
   const handlePrevious = () => {
     $('#book').turn('previous');
@@ -359,26 +382,29 @@ function BookPage() {
           <div className="page-content">
           </div>
         </div>
-        <div className="page">
+    <div className="book-page">
+      {bookContent.map((content, index) => (
+        <div className="page" key={index}>
           {/* text 마우스 왼쪽 버튼으로 클릭시 수정 아이콘 */}
           <div className="page-content">
-             {/* Editable paragraph */}
+            {/* Editable paragraph */}
             <h1
               contentEditable={isEditable}
               onBlur={handleSaveClick}
               suppressContentEditableWarning={true}
               onContextMenu={handleTitleRightClick}
-              >
-                {content.title}
+            >
+              {content.title}
             </h1>
             <h4
               contentEditable={isEditable}
               onBlur={handleSaveClick}
               suppressContentEditableWarning={true}
               onContextMenu={handleSubtitleRightClick}
-              >
-                {content.subtitleerror}
+            >
+              {content.subtitleerror}
             </h4>
+
             {/* 업로드된 이미지가 있으면 화면에 표시 */}
             {content.imageUrl && (
               <img src={content.imageUrl} alt="Uploaded" style={{ width: '80%', height: 'auto' }} />
@@ -391,15 +417,17 @@ function BookPage() {
               style={{ display: 'none' }} // 화면에 표시되지 않도록 숨김
               onChange={handleImageUpload} // 파일 선택 시 핸들러 호출
             />
+
             <p
-                contentEditable={isEditable}
-                suppressContentEditableWarning={true}
-                onContextMenu={handleParagraphRightClick}
-                onBlur={handleSaveClick}
-              >
-                {content.paragraph}
-              </p>
-              {/* main Submenu container */}
+              contentEditable={isEditable}
+              suppressContentEditableWarning={true}
+              onContextMenu={handleParagraphRightClick}
+              onBlur={handleSaveClick}
+            >
+              {content.paragraph}
+            </p>
+
+            {/* main Submenu container */}
             {submenuVisible && (
               <div
                 className="submenu"
@@ -414,7 +442,8 @@ function BookPage() {
                 <button onClick={handleEditClick}>Edit</button>
                 <button onClick={handleDeleteClick}>Delete</button>
               </div>
-              )}
+            )}
+
             {/* Title Submenu container */}
             {submenuVisible3 && (
               <div
@@ -425,12 +454,13 @@ function BookPage() {
                   left: `${submenuPosition.x}px`,
                 }}
               >
-                <button >AI 추천 받기</button>
+                <button>AI 추천 받기</button>
                 <button onClick={handleTitleEditClick}>Edit</button>
                 <button onClick={handleTitleDeleteClick}>Delete</button>
               </div>
-              )}
-              {/* subtitle Submenu container */}
+            )}
+
+            {/* subtitle Submenu container */}
             {submenuVisible4 && (
               <div
                 className="submenu"
@@ -439,34 +469,40 @@ function BookPage() {
                   top: `${submenuPosition.y}px`,
                   left: `${submenuPosition.x}px`,
                 }}
-              > 
-                <button >AI 추천 받기</button>
+              >
+                <button>AI 추천 받기</button>
                 <button onClick={handleTitleEditClick}>Edit</button>
                 <button onClick={handleSubtitleDeleteClick}>Delete</button>
               </div>
-              )}
+            )}
+
             {/* Add Menu Popup */}
             {addMenuVisible && (
-              <div className="add-popup"
-              style={{
-                position: 'absolute',
-                top: `${submenuPosition.y}px`,
-                left: `${submenuPosition.x}px`,
-              }}>
+              <div
+                className="add-popup"
+                style={{
+                  position: 'absolute',
+                  top: `${submenuPosition.y}px`,
+                  left: `${submenuPosition.x}px`,
+                }}
+              >
                 <button onClick={handleTitleAdd}>Title</button>
                 <button onClick={handleSubtitleAdd}>Subtitle</button>
                 <button onClick={handleImageClick}>Image</button>
                 <button onClick={handleBackClick}>Back</button>
               </div>
             )}
+
             {/* Add Image Popup */}
             {addMenuVisible2 && (
-              <div className="add-popup"
-              style={{
-                position: 'absolute',
-                top: `${submenuPosition.y}px`,
-                left: `${submenuPosition.x}px`,
-              }}>
+              <div
+                className="add-popup"
+                style={{
+                  position: 'absolute',
+                  top: `${submenuPosition.y}px`,
+                  left: `${submenuPosition.x}px`,
+                }}
+              >
                 <button>AI 추천 받기</button>
                 <button onClick={ImageAdd}>직접 삽입</button>
                 <button onClick={handleBackClick2}>Back</button>
@@ -474,6 +510,8 @@ function BookPage() {
             )}
           </div>
         </div>
+      ))}
+    </div>
         <div className="page">
           <div className="page-content">
             

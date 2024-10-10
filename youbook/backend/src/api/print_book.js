@@ -66,10 +66,11 @@ router.post('/print', function (req, res) {
                             bookId: book_id,
                             userId: user_id,
                             contentCount: contentArray.length,
-                            contentArray // contentArray 반환
+                            contentArray:contentArray // contentArray 반환
                         });
                     }
                 });
+
         });
     });
 });
