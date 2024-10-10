@@ -15,9 +15,9 @@ import logout from '../assets/images/log-out.png';
 import logout2 from '../assets/images/log-out2.png';
 import Chatbot from './chatbot';
 
+
 function MainPage() {
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [text, setText] = useState('');
@@ -25,6 +25,8 @@ function MainPage() {
   const [isRectangleVisible, setIsRectangleVisible] = useState(false); 
   const [isChatbotOpen, setIsChatbotOpen] = useState(false); // 챗봇 팝업 상태
   const [isWarningVisible, setIsWarningVisible] = useState(false);
+  const location = useLocation();
+  const selectedCategory = location.state?.selectedCategory;
 
   const handleOpenChatbot = () => {
     // 입력된 text를 서버로 보내는 fetch 요청
@@ -67,7 +69,7 @@ function MainPage() {
   const handleCancelClose = () => {
     setIsWarningVisible(false); // 경고 메시지 숨기기
   };
-  
+
   const handleInquiryClick = () => {
     setIsRectangleVisible(!isRectangleVisible);
   };
@@ -76,13 +78,11 @@ function MainPage() {
   const handleMenuClick = () => {
     setIsSidebarVisible(true);
   };
+
   const handleExitClick = () => {
     setIsSidebarVisible(false);
   };
-  const handleHomeClick = () => {
-    navigate('/');
 
-  };
   const handleModifyClick = () => {
     navigate('/modifyinfo');
   };
@@ -114,7 +114,7 @@ function MainPage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text }),
+      body: JSON.stringify({ content: text, category : selectedCategory }),
     })
     .then(response => response.json())  // response를 JSON으로 파싱
     .then(data => {
@@ -145,7 +145,7 @@ function MainPage() {
       console.log('API response:', data);  // 서버 응답 확인
       if (data.status === 200) {
         const bookId = data.bookId;
-        navigate(`/book-reading/${bookId}`);
+        navigate(`/book-reading/${bookId}`, { state: { selectedCategory } });
       }
     })
     
@@ -186,7 +186,7 @@ function MainPage() {
       </header>
 
       <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
-        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
+        <img src={profileImagePath} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
         <ul>
@@ -197,7 +197,7 @@ function MainPage() {
             <img src={edit} alt="Edit" className="icon edit-icon" onClick={handleModifyClick}/>
           </li>
           <li>
-            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleHomeClick}/>
+            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleLogout}/>
           </li>
         </ul>
         </nav>
@@ -239,9 +239,8 @@ function MainPage() {
             <li onClick={() => navigate('/customerinquiry')}>1:1 문의</li>
           </ul>
         </div>
-        
       )}
-    {/* 챗봇 팝업 창을 조건부로 렌더링 */}
+      {/* 챗봇 팝업 창을 조건부로 렌더링 */}
     {isChatbotOpen && (
         <div className="chatbot-popup">
           <Chatbot onClose={handleCloseChatbot} /> {/* onClose prop 전달 */}

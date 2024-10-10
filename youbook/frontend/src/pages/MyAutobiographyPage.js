@@ -38,12 +38,11 @@ function MyAutobiographyPage() {
   const handleInquiryClick = () => {
     setIsRectangleVisible(!isRectangleVisible); // 클릭할 때마다 보임/숨김 토글
   };
+  
   const handleModifyClick = () => {
     navigate('/modifyinfo');
   };
-  const handleHomeClick = () => {
-    navigate('/');
-  };
+
   // 유저 정보를 서버에서 가져옴
   useEffect(() => {
     fetch('/api/get_user_info')
@@ -370,7 +369,7 @@ const handleAddCategory = () => {
           </div>
         </div>
         <div className="autobiography-list">
-          <div className="autobiography-item add-new" onClick={() => navigate('/main')}>
+          <div className="autobiography-item add-new" onClick={handleAddNewItem}>
             <span className="plus-icon">+</span>
           </div>
           {filteredItems.map(item => (
@@ -392,7 +391,7 @@ const handleAddCategory = () => {
                   src={item.content} 
                   alt={item.title} 
                   className="item-image" 
-                  onError={(e) => e.target.src = defaultProfileImage} 
+                  onError={(e) => e.target.src = profileImagePath} 
                 />
                 <div className="item-details">
                   <div className="item-title">{item.title}</div>

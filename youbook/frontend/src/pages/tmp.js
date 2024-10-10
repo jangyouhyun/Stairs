@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import $ from 'jquery';
 import '../assets/js/turn.js'; // Ensure this path is correct for your project
@@ -31,107 +31,21 @@ function BookPage() {
   const [isDesignOpen, setIsDesignOpen] = useState(false);  // 팝업 열기 상태
   const [isWarningVisible, setIsWarningVisible] = useState(false);  // 경고 창 상태
   const [submenuVisible, setSubmenuVisible] = useState(false);
-  const [submenuVisible2, setSubmenuVisible2] = useState(false);
-  const [submenuVisible3, setSubmenuVisible3] = useState(false);
-  const [submenuVisible4, setSubmenuVisible4] = useState(false);
   const [submenuPosition, setSubmenuPosition] = useState({ x: 0, y: 0 });
   const [isActive, setIsActive] = useState(false);
-  const [addMenuVisible, setAddMenuVisible] = useState(false); // For add popup
-  const [addMenuVisible2, setAddMenuVisible2] = useState(false);
-  const [headings, setHeadings] = useState([]);
-  const [content, setContent] = useState({
-    title : '',
-    subtitleerror : '',
-    imageUrl: '',
-    paragraph: 'Since childhood, I grew up in a humble environment with my family... Since childhood, I grew up in a humble environment with my family...'
-  });
-  const [isEditable, setIsEditable] = useState(false); 
-  
-  const fileInputRef = useRef(null); // 파일 input 요소에 접근하기 위한 ref
-
   const [bookContent, setBookContent] = useState([]);
   const { bookId } = useParams();
   const bookRef = useRef(null);
   const location = useLocation();
   const selectedCategory = location.state?.selectedCategory;
 
-  //제목 삽입
-  const handleTitleAdd = () => {
-    setContent((prevContent) => ({ ...prevContent, title: 'Title' }));
-    setIsEditable(true);
-    setSubmenuVisible(false); // Close the submenu
-    setAddMenuVisible(false); // Close add menu
-  };
-
-  //소제목 삽입
-  const handleSubtitleAdd = () => {
-    setContent((prevContent) => ({ ...prevContent, subitle: 'subtitle' }));
-    setIsEditable(true);
-    setSubmenuVisible(false); // Close the submenu
-    setAddMenuVisible(false); // Close add menu
-  };
-  
-  // Function to handle edit
-  const handleEditClick = () => {
-    setIsEditable(true); // Make paragraph editable
-    setSubmenuVisible(false); // Close submenu
-  };
-
-  // Function to save the edited
-  const handleSaveClick = () => {
-    setIsEditable(false); // Disable editing after save
-  };
-
-  // paragraph 삭제
-  const handleDeleteClick = () => {
-    setContent((prevContent) => ({ ...prevContent, paragraph: '' })); // Clear the paragraph content
-    setSubmenuVisible(false);
-  }
-
-  // Function to handle edit
-  const handleTitleEditClick = () => {
-    setIsEditable(true); // Make paragraph editable
-    setSubmenuVisible3(false); // Close submenu
-    setSubmenuVisible4(false); // Close submenu
-  };
-
-  // title 삭제
-  const handleTitleDeleteClick = () => {
-    setContent((prevContent) => ({ ...prevContent, title: '' })); // Clear the paragraph content
-    setSubmenuVisible3(false);
-  }
-  // subtitle 삭제
-  const handleSubtitleDeleteClick = () => {
-    setContent((prevContent) => ({ ...prevContent, subtitleerror: '' })); // Clear the paragraph content
-    setSubmenuVisible4(false);
-  }
-  // Function to handle right-click on the title & subtitle
-  const handleTitleRightClick = (event) => {
-    event.preventDefault(); // Prevent the default browser right-click menu
-    const rect = event.target.getBoundingClientRect(); // Get the bounding box of the paragraph
-    setSubmenuPosition({
-      x: 30,
-      y: rect.bottom+ window.scrollY - 120,
-    });
-    setSubmenuVisible3(true); // Show the submenu
-  };
-  const handleSubtitleRightClick = (event) => {
-    event.preventDefault(); // Prevent the default browser right-click menu
-    const rect = event.target.getBoundingClientRect(); // Get the bounding box of the paragraph
-    setSubmenuPosition({
-      x: 30,
-      y: rect.bottom+ window.scrollY - 120,
-    });
-    setSubmenuVisible4(true); // Show the submenu
+  // Function to handle paragraph click
+  const handleParagraphClick = () => {
+    setIsActive(!isActive); // Toggle active state
   };
   // Function to handle right-click on the paragraph
   const handleParagraphRightClick = (event) => {
     event.preventDefault(); // Prevent the default browser right-click menu
-    const rect = event.target.getBoundingClientRect(); // Get the bounding box of the paragraph
-    setSubmenuPosition({
-      x: 30,
-      y: rect.bottom+ window.scrollY - 120,
-    });
     setSubmenuVisible(true); // Show the submenu
   };
 
@@ -164,8 +78,13 @@ function BookPage() {
     navigate('/my-autobiography');
   };
 
+  // Navigate to the book design page
+  const handleEditClick = () => {
+    navigate('/book-design');
+  };
+
   // Handle "임시 저장" click event to show a popup
-  const handleSemiSaveClick = () => {
+  const handleSaveClick = () => {
     alert('임시 저장되었습니다'); // Show popup when "임시 저장" is clicked
   };
   const handleMenuClick = () => {
@@ -185,43 +104,6 @@ function BookPage() {
     navigate('/modifyinfo');
   };
 
-  const handleAddClick = () => {
-    setAddMenuVisible(true); // Show add menu popup
-    setSubmenuVisible(false); // Hide submenu
-  };
-
-  const handleImageClick = () => {
-    setAddMenuVisible2(true); // Show add menu popup
-    setSubmenuVisible(false); // Hide submenu
-  };
-
-    // 이미지 업로드 핸들러
-    const handleImageUpload = (event) => {
-      const file = event.target.files[0]; // 사용자가 선택한 첫 번째 파일
-      if (file) {
-        const reader = new FileReader();
-  
-        reader.onloadend = () => {
-          setContent((prevContent) => ({
-            ...prevContent,
-            imageUrl: reader.result // 이미지 데이터를 base64 형식으로 변환하여 상태에 저장
-          }));
-        };
-  
-        reader.readAsDataURL(file); // 파일을 base64 형식으로 읽음
-      }
-    };
-  
-    // 버튼 클릭 시 파일 선택 창 열기
-    const ImageAdd = () => {
-      if (fileInputRef.current) {
-        fileInputRef.current.click(); // 숨겨진 파일 input 요소 클릭
-      }
-    };
-    const handleBackClick = () => {
-      setAddMenuVisible(false); // Close add menu
-    };
-
   useEffect(() => {
     // Ensure the DOM is loaded before calling turn.js
     const $book = $('#book');
@@ -231,11 +113,11 @@ function BookPage() {
       $book.turn({
         width: 800,
         height: 500,
-        autoCenter: true,
+        autoCenter: true, // Center the book
         elevation: 50,
         gradients: true,
         duration: 1000,
-        pages: 6,
+        pages: 6, // Set total pages
         when: {
           turned: function (event, page) {
             const actualPage = Math.floor((page - 2) / 2) + 1; // Calculate actual page number
@@ -253,6 +135,7 @@ function BookPage() {
     };
   }, []);
 
+  ///책 내용 끌고오기  => 여기서 문자열 배열 형태로 반환되는 BookContent 에 대해서 배열의 한 요소가 한 문단이라고 보고 출력되게 ///////////////////////////
   useEffect(() => {
     // Fetch book content from the API
     const fetchBookContent = async () => {
@@ -277,6 +160,8 @@ function BookPage() {
 
     fetchBookContent();
   }, []);
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
   // Handle previous button click to flip the page backward
   const handlePrevious = () => {
@@ -341,137 +226,48 @@ function BookPage() {
       </div>
 
       {/* Book content */}
-      <div id="book">
+      <div id="book" className="book-content">
         <div className="hard">
           <div className="page-content">
+            <h2>Cover Page</h2>
           </div>
         </div>
         <div className="hard">
           <div className="page-content">
+            <h2>Inner Cover</h2>
           </div>
         </div>
         <div className="page">
           {/* text 마우스 왼쪽 버튼으로 클릭시 수정 아이콘 */}
           <div className="page-content">
-             {/* Editable paragraph */}
-            <h1
-              contentEditable={isEditable}
-              onBlur={handleSaveClick}
-              suppressContentEditableWarning={true}
-              onContextMenu={handleTitleRightClick}
-              >
-                {content.title}
-            </h1>
-            <h4
-              contentEditable={isEditable}
-              onBlur={handleSaveClick}
-              suppressContentEditableWarning={true}
-              onContextMenu={handleSubtitleRightClick}
-              >
-                {content.subtitleerror}
-            </h4>
-            {/* 업로드된 이미지가 있으면 화면에 표시 */}
-            {content.imageUrl && (
-              <img src={content.imageUrl} alt="Uploaded" style={{ width: '100%', height: 'auto' }} />
-            )}
-
-            {/* 숨겨진 파일 업로드 input */}
-            <input
-              type="file"
-              ref={fileInputRef} // ref를 통해 이 요소에 접근
-              style={{ display: 'none' }} // 화면에 표시되지 않도록 숨김
-              onChange={handleImageUpload} // 파일 선택 시 핸들러 호출
-            />
-            <p
-                contentEditable={isEditable}
-                suppressContentEditableWarning={true}
-                onContextMenu={handleParagraphRightClick}
-                onBlur={handleSaveClick}
-              >
-                {content.paragraph}
-              </p>
-            {/* Title Submenu container */}
-            {submenuVisible3 && (
-              <div
-                className="submenu"
-                style={{
-                  position: 'absolute',
-                  top: `${submenuPosition.y}px`,
-                  left: `${submenuPosition.x}px`,
-                }}
-              >
-                <button >AI 추천 받기</button>
-                <button onClick={handleTitleEditClick}>Edit</button>
-                <button onClick={handleTitleDeleteClick}>Delete</button>
-              </div>
-              )}
-              {/* subttle Submenu container */}
-            {submenuVisible4 && (
-              <div
-                className="submenu"
-                style={{
-                  position: 'absolute',
-                  top: `${submenuPosition.y}px`,
-                  left: `${submenuPosition.x}px`,
-                }}
-              > 
-                <button >AI 추천 받기</button>
-                <button onClick={handleTitleEditClick}>Edit</button>
-                <button onClick={handleSubtitleDeleteClick}>Delete</button>
-              </div>
-              )}
+            <p onContextMenu={handleParagraphRightClick} className={isActive ? 'active' : ''}>
+          Since childhood, I grew up in a humble environment with my family...
+            Since childhood, I grew up in a humble environment with my family...
+            Since childhood, I grew up in a humble environment with my family...
+            Since childhood, I grew up in a humble environment with my family...
+            Since childhood, I grew up in a humble environment with my family...
+            </p>
             {/* Submenu container */}
             {submenuVisible && (
               <div
                 className="submenu"
-                style={{
-                  position: 'absolute',
-                  top: `${submenuPosition.y}px`,
-                  left: `${submenuPosition.x}px`,
-                }}
+                style={{ top: submenuPosition.y, left: submenuPosition.x }}
               >
-                <button onClick={handleAddClick}>Add</button>
                 <button>Chatbot</button>
-                <button onClick={handleEditClick}>Edit</button>
-                <button onClick={handleDeleteClick}>Delete</button>
+                <button>Edit</button>
+                <button>Delete</button>
               </div>
-              )}
-            {/* Add Menu Popup */}
-            {addMenuVisible && (
-              <div className="add-popup"
-              style={{
-                position: 'absolute',
-                top: `${submenuPosition.y}px`,
-                left: `${submenuPosition.x}px`,
-              }}>
-                <button onClick={handleTitleAdd}>Title</button>
-                <button onClick={handleSubtitleAdd}>Subtitle</button>
-                <button onClick={handleImageClick}>Image</button>
-                <button onClick={handleBackClick}>Back</button>
-              </div>
-            )}
-            {/* Add Image Popup */}
-            {addMenuVisible2 && (
-              <div className="add-popup"
-              style={{
-                position: 'absolute',
-                top: `${submenuPosition.y}px`,
-                left: `${submenuPosition.x}px`,
-              }}>
-                <button>AI 추천 받기</button>
-                <button onClick={ImageAdd}>직접 삽입</button>
-                <button onClick={handleBackClick}>Back</button>
-              </div>
-            )}
+      )}
           </div>
         </div>
         <div className="page">
           <div className="page-content">
-            
+            <p>The path to presidency was far from easy...</p>
           </div>
         </div>
         <div className="hard">
           <div className="page-content">
+            <h2>Back Cover</h2>
           </div>
         </div>
       </div>
@@ -491,7 +287,7 @@ function BookPage() {
       <div className="book-footer">
         <button className="footer-button" onClick={handleOpenDesignPage}>표지 만들기</button>
         <button className="footer-button">그대로 완성</button>
-        <button className="footer-button save-button" onClick={handleSemiSaveClick}>임시 저장</button> {/* 임시 저장 button */}
+        <button className="footer-button save-button" onClick={handleSaveClick}>임시 저장</button> {/* 임시 저장 button */}
       </div>
       
       <div className="fixed-inquiry-icon" onClick={handleInquiryClick}>

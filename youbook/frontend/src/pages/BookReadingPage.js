@@ -6,29 +6,30 @@ import './BookReadingPage.css';
 import defaultProfileImage from '../assets/images/signup-icon.png';
 import leftArrow from '../assets/images/left.png';
 import rightArrow from '../assets/images/right.png';
-import book from '../assets/images/book.png';
-import edit from '../assets/images/edit.png';
-import logout from '../assets/images/log-out.png';
-import exit from '../assets/images/x.png';
-import Design from './BookDesignPage';  // BookDesignPage 불러오기
 
 function BookReadingPage() {
-  const [isRectangleVisible, setIsRectangleVisible] = useState(false);
-  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-  const [userName, setUserName] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
+  const { bookId } = useParams();
+  const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [bookName, setBookName] = useState('');
   const [category, setCategory] = useState('');
   const [bookContent, setBookContent] = useState([]);
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage);
   const bookRef = useRef(null);
-  const navigate = useNavigate();
-  const { bookId } = useParams();
-  const [isDesignOpen, setIsDesignOpen] = useState(false);  // 팝업 열기 상태
-  const [isWarningVisible, setIsWarningVisible] = useState(false);  // 경고 창 상태
 
-  // 사용자 프로필 정보 가져오기
+  const handleProfileClick = () => {
+    navigate('/my-autobiography');
+  };
+
+  const handleEditClick = () => {
+    navigate('/book-design');
+  };
+
+  const handleSaveClick = () => {
+    alert('임시 저장되었습니다');
+  };
+
   useEffect(() => {
     fetch('/api/get_user_info')
       .then(response => response.json())
@@ -45,14 +46,13 @@ function BookReadingPage() {
       });
   }, [navigate]);
 
-  // 책 내용 가져오기
   useEffect(() => {
     fetch(`/api/book-content/${bookId}`)
       .then(response => response.json())
       .then(data => {
         if (data.status === 200) {
           const paragraphs = data.content.split('\n');
-          distributeContentToPages(paragraphs);  // 내용 분배
+          distributeContentToPages(paragraphs);
         } else {
           console.error('Failed to fetch book content');
         }
@@ -62,12 +62,11 @@ function BookReadingPage() {
       });
   }, [bookId]);
 
-  // 책 내용 분배 함수
   const distributeContentToPages = (paragraphs) => {
     const pages = [];
     let currentPageContent = '';
-    const pageHeight = 500;
-    const lineHeight = 24;
+    const pageHeight = 500; // 페이지 높이 설정
+    const lineHeight = 24; // 각 줄의 높이 설정
 
     paragraphs.forEach(paragraph => {
       const paragraphHeight = Math.ceil(paragraph.length / 50) * lineHeight;
@@ -78,25 +77,27 @@ function BookReadingPage() {
         currentPageContent = paragraph;
       }
     });
-
     if (currentPageContent) {
       pages.push(currentPageContent.trim());
     }
-
     setBookContent(pages);
     setTotalPages(pages.length);
   };
 
-  // turn.js 초기화 및 페이지 넘김 효과 처리
   useEffect(() => {
     const $book = $('#book');
-
+  
+    // 내용이 있을 경우에만 실행
     if (bookContent.length && $book.length) {
+      // 기존 인스턴스가 존재하면 제거
       if ($book.data('turn')) {
-        $book.turn('destroy');
+        $book.turn('destroy'); // 페이지를 삭제
       }
-
-      $book.empty();
+  
+      // 페이지 초기화
+      $book.empty(); // 페이지 내용 비우기
+  
+      // 커버 페이지 추가
       $book.append(`
         <div class="hard">
           <div class="page-content">
@@ -104,6 +105,8 @@ function BookReadingPage() {
           </div>
         </div>
       `);
+  
+      // 내지 커버 추가
       $book.append(`
         <div class="hard">
           <div class="page-content">
@@ -111,19 +114,21 @@ function BookReadingPage() {
           </div>
         </div>
       `);
-
+  
+      // 책 내용 페이지 추가
       bookContent.forEach((content, index) => {
         const pageContent = `
           <div class="page">
             <div class="page-content">
               ${content.split('\n').map(paragraph => `<p>${paragraph}</p>`).join('')}
-              <div class="page-number ${index % 2 === 1 ? 'left' : 'right'}">${index + 1}</div>
+              <div class="page-number ${index % 2 === 1 ? 'left' : 'right'}"> ${index + 1}</div> <!-- Adjusting for Cover Pages -->
             </div>
           </div>
         `;
         $book.append(pageContent);
       });
-
+  
+      // 백커버 추가
       $book.append(`
         <div class="hard">
           <div class="page-content">
@@ -131,24 +136,27 @@ function BookReadingPage() {
           </div>
         </div>
       `);
-
+  
+      // 페이지 초기화
       $book.turn({
         width: 800,
-        height: 600,
+        height: 500,
         autoCenter: true,
         elevation: 50,
         gradients: true,
         duration: 1000,
-        pages: bookContent.length + 2,
+        pages: bookContent.length + 2, // Cover pages 포함
         when: {
           turned: function (event, page) {
             const actualPage = Math.floor((page - 2) / 2) + 1;
-            setCurrentPage(actualPage >= 0 ? actualPage : 1);
+            setCurrentPage(actualPage >= 0 ? actualPage : 0);
           },
         },
       });
     }
   }, [bookContent]);
+  
+  
 
   const handlePrevious = () => {
     $('#book').turn('previous');
@@ -158,52 +166,68 @@ function BookReadingPage() {
     $('#book').turn('next');
   };
 
-  const handleOpenDesignPage = () => {
-    setIsDesignOpen(true);  // 팝업 열기
-  };
-
-  const handleCloseDesignPage = () => {
-    setIsWarningVisible(true);  // 경고 창 열기
-  };
-
-  const handleConfirmClose = () => {
-    setIsDesignOpen(false);  // 팝업 닫기
-    setIsWarningVisible(false);  // 경고 창 숨기기
-  };
-
-  const handleCancelClose = () => {
-    setIsWarningVisible(false);  // 경고 창 숨기기
-  };
-
   return (
     <div className="book-reading-page">
       <header className="main-header">
-        <button className="menu-button" onClick={() => setIsSidebarVisible(true)}>☰</button>
-        <button className="profile-button" onClick={() => navigate('/my-autobiography')}>
+        <button className="menu-button">☰</button>
+        <button className="profile-button" onClick={handleProfileClick}>
           <img src={profileImagePath} alt="Profile" className="profile-image" />
         </button>
       </header>
 
-      <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
-        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
-        <div className="profile-name">{userName}</div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li>
-              <img src={book} alt="Book" className="icon book-icon" onClick={() => navigate('/my-autobiography')} />
-            </li>
-            <li>
-              <img src={edit} alt="Edit" className="icon edit-icon" onClick={() => navigate('/modifyinfo')} />
-            </li>
-            <li>
-              <img src={logout} alt="Logout" className="icon logout-icon" onClick={() => navigate('/')} />
-            </li>
-          </ul>
-        </nav>
-        <img src={exit} alt="Exit" className="exit" onClick={() => setIsSidebarVisible(false)} />
-      </aside>
+      <div className="book-details">
+        <div className="input-group">
+          <select
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">카테고리</option>
+            <option value="fiction">카테고리1</option>
+            <option value="nonfiction">카테고리2</option>
+            <option value="biography">카테고리3</option>
+          </select>
+        </div>
+        <div className="input-group name">
+          <input
+            type="text"
+            id="bookName"
+            value={bookName}
+            onChange={(e) => setBookName(e.target.value)}
+            placeholder="책 이름을 입력하세요"
+          />
+        </div>
+      </div>
 
-      <div id="book" className="book-content"></div>
+      <div id="book" className="book-content" ref={bookRef}>
+        <div className="hard">
+          <div className="page-content">
+            <h2>Cover Page</h2>
+          </div>
+        </div>
+        <div className="hard">
+          <div className="page-content">
+            <h2>Inner Cover</h2>
+          </div>
+        </div>
+        {bookContent.map((content, index) => (
+          <div key={index} className="page">
+            <div className="page-content">
+              {content.split('\n').map((paragraph, idx) => (
+                <p key={idx}>{paragraph}</p>
+              ))}
+              <div className="page-number"> {/* 페이지 번호 추가 */}
+                {index + 1}
+              </div>
+            </div>
+          </div>
+        ))}
+        <div className="hard">
+          <div className="page-content">
+            <h2>Back Cover</h2>
+          </div>
+        </div>
+      </div>
 
       <div className="page-move">
         <span className="left-button" onClick={handlePrevious}>
@@ -216,26 +240,10 @@ function BookReadingPage() {
       </div>
 
       <div className="book-footer">
-        <button className="footer-button" onClick={handleOpenDesignPage}>표지 만들기</button>
-        <button className="footer-button">완성</button>
-        <button className="footer-button save-button" onClick={() => alert('임시 저장되었습니다')}>임시 저장</button>
+        <button className="footer-button" onClick={handleEditClick}>직접 수정</button>
+        <button className="footer-button">그대로 완성</button>
+        <button className="footer-button save-button" onClick={handleSaveClick}>임시 저장</button>
       </div>
-
-      {isDesignOpen && (
-        <div className="design-popup">
-          <Design onClose={handleCloseDesignPage} />
-        </div>
-      )}
-
-      {isWarningVisible && (
-        <div className="warning-popup">
-          <p>창을 닫으면 표지가 초기화 됩니다.<br />그래도 닫겠습니까?</p>
-          <div className="button-container">
-            <button onClick={handleConfirmClose}>Yes</button>
-            <button onClick={handleCancelClose}>No</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -12,14 +12,14 @@ const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
-const fineTunedModelId = 'ft:gpt-4o-mini-2024-07-18:personal:autobiography:AG1hlRpE';
+const fineTunedModelId = 'ft:gpt-4o-mini-2024-07-18:personal:autobiography:AG1hlRpE'
 
 // OpenAI 모델 응답을 받는 함수
 async function getModelResponse(userInput) {
     const response = await client.chat.completions.create({
         model: fineTunedModelId,
         messages: [
-            { role: 'system', content: '당신은 한국인의 자서전을 쓰는 것을 돕는 도우미입니다. 입력된 내용만을 사용하여 작성해주세요.' },
+            { role: 'system', content: "당신은 한국인의 자서전을 쓰는 것을 돕는 도우미입니다. 입력된 내용만을 사용하여 작성해주세요. 내용에 따라 적절히 문단을 나눠주세요."},
             { role: 'user', content: userInput }
         ]
     });

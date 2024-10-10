@@ -32,7 +32,7 @@ function App() {
         <Route path="/chatbot/:bookId" element={<Chatbot />} />
         <Route path="/chatbot/" element={<Chatbot />} />
         <Route path="/modifyinfo" element={<ModifyInfo />} />
-        {/*<Route path="/book-reading/:bookId" element={<BookReadingPage />} />*/}
+        <Route path="/book-reading/:bookId" element={<BookPage />} />
         <Route path="/book-reading2" element={<BookPage />} />
         <Route path="/customerinquiry" element={<CustomerInquiryPage />} />
       </Routes>

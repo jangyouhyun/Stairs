@@ -16,6 +16,7 @@ const logoutRouter = require('./api/auth/logout.js');
 const chatbotRouter = require('./api/chatbotapi.js');
 const categoryRouter = require('./api/category.js')
 const summaryRouter = require('./api/summary.js')
+const printRouter = require('./api/print_book.js')
 
 const app = express();
 
@@ -93,6 +94,7 @@ app.use('/api', logoutRouter);
 app.use('/api', chatbotRouter);
 app.use('/api', summaryRouter);
 app.use('/api', categoryRouter);
+app.use('/api', printRouter);
 
 
 app.use((req, res, next) => {
