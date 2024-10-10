@@ -1,0 +1,176 @@
+/* Global Styles */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  font-family: 'MinSans-Regular', sans-serif;
+  background-color: #FFFFFF;
+}
+
+.book-reading-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #f5f5f5;
+}
+
+/* Book details styling (for book name and category) */
+.book-details {
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  top: 40px;
+  width: 400px;
+  justify-content: center;
+  gap : 10px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-group select,
+.input-group input {
+  padding: 12px;
+  border: 1px solid #AD8B73;
+  border-radius: 5px;
+  font-size: 14px;
+  color: #3D230B;
+}
+
+.input-group.name input {
+  width: 250px;
+}
+
+.input-group select {
+  width: 150px;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+  outline: none;
+  border-color: #3D230B;
+}
+
+/* Book container */
+#book {
+  position: relative;
+  top: 20px;
+  height: 600px;
+  width: 800px; /* 책의 크기를 실제 책처럼 설정 */
+  display: flex;
+  justify-content: center;
+}
+
+/* Page and content styling */
+.page, .hard {
+  width: 100%; /* Full width for the single visible page */
+  height: 100%;
+  background-color: white;
+  border: 1px solid #AD8B73;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  position: relative;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.hard {
+  background-color: #5C401C;
+  color: white;
+}
+
+.page-content {
+  padding: 40px;
+  text-align: justify;
+  font-size: 18px;
+  line-height: 1.8;
+  color: #333;
+}
+
+/* Footer Styling */
+.book-footer {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin-top: 20px;
+}
+
+.footer-button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  background-color: #00322A;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.footer-button:hover {
+  background-color: #00322A;
+}
+
+.book-footer .save-button {
+  background-color: #ccc;
+  color: #333;
+}
+
+.book-footer .save-button:hover {
+  background-color: #bbb;
+}
+
+/* Page indicator and navigation buttons */
+.page-move {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  top: 50px;
+}
+
+.page-indicator {
+  background-color: #00462a;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  color: white;
+  text-align: center;
+  border-radius: 10px;
+}
+
+.left-button img,
+.right-button img {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+/* Book dimensions for turn.js */
+.book-content {
+  display: block;
+  width: 800px; /* 책이 두 페이지로 보이도록 조정 */
+  height: 600px;
+  margin: 0 auto;
+}
+
+.page-number {
+  position: absolute;
+  bottom: 10px;
+  font-size: 12px;
+  color: #555;
+}
+
+.page-number.left {
+  left: 20px;
+}
+
+.page-number.right {
+  right: 20px;
+}

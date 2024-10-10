@@ -1,9 +1,9 @@
 .my-autobiography-page {
-  display: flex;
-  height: 100%;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
   font-family: 'MinSans-Regular', sans-serif;
   background-color: white;
+  overflow: hidden;
 }
 
 .menu-container{
@@ -20,7 +20,8 @@
 }
 
 .page-content {
-  width: calc(100vw - 150px);
+  width: 100%;
+  height: 100%;
   margin : 0px;
   position : absolute;
   top : 0;
