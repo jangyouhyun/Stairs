@@ -30,7 +30,6 @@
 }
 
 .header {
-  width: 100%;
   padding: 40px;
   margin-top : 0px;
   margin-bottom: 100px;
@@ -41,6 +40,7 @@
   position : absolute;
   top : 50px;
   left : 200px;
+  gap : 400px;
 }
 
 .header h1 {
@@ -57,8 +57,6 @@
 }
 
 .search-bar {
-  position : absolute;
-  left : 700px;
   display: flex;
   align-items: center;
   border: 1px solid #CEAB93;

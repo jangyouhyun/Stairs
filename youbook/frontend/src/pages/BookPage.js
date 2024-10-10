@@ -221,6 +221,15 @@ function BookPage() {
     const handleBackClick = () => {
       setAddMenuVisible(false); // Close add menu
     };
+    const handleBackClick2 = () => {
+      setAddMenuVisible2(false);
+    };
+    // 완료 버튼을 누를 때 경고창 없이 팝업을 닫는 함수
+    const handleCompleteClick = () => {
+      setIsDesignOpen(false);  // 팝업 닫기
+      alert("표지가 저장되었습니다!");  // 알림
+    };
+
 
   useEffect(() => {
     // Ensure the DOM is loaded before calling turn.js
@@ -372,7 +381,7 @@ function BookPage() {
             </h4>
             {/* 업로드된 이미지가 있으면 화면에 표시 */}
             {content.imageUrl && (
-              <img src={content.imageUrl} alt="Uploaded" style={{ width: '100%', height: 'auto' }} />
+              <img src={content.imageUrl} alt="Uploaded" style={{ width: '80%', height: 'auto' }} />
             )}
 
             {/* 숨겨진 파일 업로드 input */}
@@ -390,6 +399,22 @@ function BookPage() {
               >
                 {content.paragraph}
               </p>
+              {/* main Submenu container */}
+            {submenuVisible && (
+              <div
+                className="submenu"
+                style={{
+                  position: 'absolute',
+                  top: `${submenuPosition.y}px`,
+                  left: `${submenuPosition.x}px`,
+                }}
+              >
+                <button onClick={handleAddClick}>Add</button>
+                <button>Chatbot</button>
+                <button onClick={handleEditClick}>Edit</button>
+                <button onClick={handleDeleteClick}>Delete</button>
+              </div>
+              )}
             {/* Title Submenu container */}
             {submenuVisible3 && (
               <div
@@ -405,7 +430,7 @@ function BookPage() {
                 <button onClick={handleTitleDeleteClick}>Delete</button>
               </div>
               )}
-              {/* subttle Submenu container */}
+              {/* subtitle Submenu container */}
             {submenuVisible4 && (
               <div
                 className="submenu"
@@ -418,22 +443,6 @@ function BookPage() {
                 <button >AI 추천 받기</button>
                 <button onClick={handleTitleEditClick}>Edit</button>
                 <button onClick={handleSubtitleDeleteClick}>Delete</button>
-              </div>
-              )}
-            {/* Submenu container */}
-            {submenuVisible && (
-              <div
-                className="submenu"
-                style={{
-                  position: 'absolute',
-                  top: `${submenuPosition.y}px`,
-                  left: `${submenuPosition.x}px`,
-                }}
-              >
-                <button onClick={handleAddClick}>Add</button>
-                <button>Chatbot</button>
-                <button onClick={handleEditClick}>Edit</button>
-                <button onClick={handleDeleteClick}>Delete</button>
               </div>
               )}
             {/* Add Menu Popup */}
@@ -460,7 +469,7 @@ function BookPage() {
               }}>
                 <button>AI 추천 받기</button>
                 <button onClick={ImageAdd}>직접 삽입</button>
-                <button onClick={handleBackClick}>Back</button>
+                <button onClick={handleBackClick2}>Back</button>
               </div>
             )}
           </div>
@@ -509,7 +518,9 @@ function BookPage() {
       )}
     {isDesignOpen && (
         <div className="design-popup">
-          <Design onClose={handleCloseDesignPage} />
+          <Design onClose={handleCloseDesignPage}
+                  onComplete={handleCompleteClick}
+          />
         </div>
       )}
 

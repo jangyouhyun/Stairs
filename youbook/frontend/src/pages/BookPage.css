@@ -174,40 +174,4 @@ border-radius: 10px;
     cursor: pointer;
   }
   
-  /* Submenu container */
-.submenu  {
-  display: block;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius : 10px;
-  padding: 10px;
-  z-index: 10;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  width : 280px;
-  gap : 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 0px;
-}
-
-/* Show the submenu when it is active */
-.submenu.active {
-  display: block;
-}
-
-.add-popup  {
-  display: block; /* Hidden by default */
-  position: relative;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius : 10px;
-  padding: 10px;
-  z-index: 10;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  width : 280px;
-  gap : 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+ 

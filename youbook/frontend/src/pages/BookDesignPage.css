@@ -21,17 +21,12 @@
 }
 
 .book-container {
-  flex-grow: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top : -150px;
   position: relative;
-}
-
-.book-cover {
-  width: 100%; /* 책 표지 크기를 확대 */
-  height: auto;
+  padding : 0;
+  height : 500px;
 }
 
 .book-cover {
@@ -39,28 +34,17 @@
   height: 400px;
   background-color: #E3CAA5;
   object-fit: cover;
-  transition: width 0.3s ease, height 0.3s ease;
+  position: fixed;
+  top : 200px;
 }
 
-.added-image, .resizable-rotatable-image {
-  position: absolute;
-  cursor: move; /* 이미지 이동을 암시하는 커서 */
-  z-index: 10;
-}
-
-.resizable-rotatable-image {
+.add-img {
   position: absolute;
   cursor: move;
   z-index: 10;
-  transition: transform 0.1s ease, width 0.1s ease;
+  width : 150px;
 }
 
-.resizable-rotatable-image {
-  position: absolute;
-  cursor: move;
-  z-index: 10;
-  transition: transform 0.1s ease, width 0.1s ease;
-}
 
 .book-container input[type="text"] {
   outline: none;
@@ -112,7 +96,7 @@
   }
   
   .tool-button {
-    background: none;
+    background: transparent;
     border: none;
     cursor: pointer;
     width : 50px;
@@ -134,30 +118,23 @@
   }
   
   .color-palette {
-    position: absolute;
-    top: 40px; /* Adjust based on the position of your button */
-    left: 0; /* Position relative to the button */
-    display: flex;
-    flex-direction: column;
-    background-color: #ffffff;
-    border: 1px solid #ddd;
+    position: fixed;
+    top: 23%;
+    left: 35%;
+    transform: translate(-50%, -50%);
+    background-color: white;
     padding: 10px;
     border-radius: 8px;
-    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
   }
   
-  .color-swatch {
-    width: 30px;
-    height: 30px;
+  .color-palette label {
+    display: block;
     margin-bottom: 10px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: transform 0.1s ease-in-out;
   }
   
-  .color-swatch:hover {
-    transform: scale(1.1);
-  }
+  
   
   .text-options-popup {
     position: fixed;
