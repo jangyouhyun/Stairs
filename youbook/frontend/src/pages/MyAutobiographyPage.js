@@ -370,7 +370,7 @@ const handleAddCategory = () => {
           </div>
         </div>
         <div className="autobiography-list">
-          <div className="autobiography-item add-new" onClick={handleAddNewItem}>
+          <div className="autobiography-item add-new" onClick={() => navigate('/main')}>
             <span className="plus-icon">+</span>
           </div>
           {filteredItems.map(item => (
@@ -392,7 +392,7 @@ const handleAddCategory = () => {
                   src={item.content} 
                   alt={item.title} 
                   className="item-image" 
-                  onError={(e) => e.target.src = profileImagePath} 
+                  onError={(e) => e.target.src = defaultProfileImage} 
                 />
                 <div className="item-details">
                   <div className="item-title">{item.title}</div>

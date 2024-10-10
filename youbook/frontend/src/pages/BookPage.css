@@ -59,69 +59,69 @@ body, html {
   }
   
   /*book*/
-  #book {
-    height: 700px;
-    width: 600px;
-    display: flex;
-    justify-content: center;
-    margin-top: 100px;
-    margin-bottom: 30px;
+#book {
+  margin-top: 100px;
+  margin-bottom: 30px;
 }
 
 /* Page and content styling */
 .page, .hard {
-    width: 100%; /* Full width for the single visible page */
-    height: 100%;
-    background-color: white;
-    z-index: 1;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    display: flex;
-    justify-content: center; /* Center align the content */
-    align-items: center; /* Vertically center the content */
-    overflow: hidden; /* Hide overflow to ensure content fits */
-    position: relative;
+  width: 100%; /* Full width for the single visible page */
+  height: 100%;
+  background-color: white;
+  z-index: 1;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center; /* Center align the content */
+  position: relative;
 }
 
 .hard {
-    background-color: #5C401C;
-    color: white;
-    z-index: 2;
+  background-color: #5C401C;
+  color: white;
+  z-index: 2;
 }
 
 /* Page content */
 .page-content {
+width: 400px;
+height: 700px;
+max-height: 700px;
+color: #3D230B;
+padding: 10px;
+box-sizing: border-box;
+position: relative;
+}
+
+.page-content h1{
   width: 100%;
-  height: 100%;
-  padding: 10px;
-  font-size: 16px;    
-  line-height: 1.6;
-    color: #3D230B;
-    overflow-y: auto; /* Add vertical scroll if content overflows */
-    padding: 10px;
-    box-sizing: border-box;
-    text-align: justify; /* Justify the text to fit content better */
+  margin-bottom: 20px;
+  z-index : 2;
+}
+.page-content h4 {
+  color : #CEAB93;
 }
 
 .page-content p {
-    margin: 0;
-    padding: 0;
+  width : 90%;
+  margin: 20px;
+  padding : 0;
+  font-size: 16px;    
+  line-height: 1.6;
+  text-align : justify;
 }
 
 .page-content p:hover {
-  border : 1px solid #0056b3;
-  border-radius: 10px;
+border : 1px solid #0056b3;
+border-radius: 10px;
 }
 
-.active {
-  border : 1px solid #0056b3;
-  border-radius: 10px;
-}
   /* Footer Styling */
   .book-footer {
     text-align: center;
-    position : absolute;
+    position : relative;
     bottom : 50px;
-    right : 50px;
+    right : -500px;
   }
   
   .footer-button {
@@ -174,33 +174,40 @@ body, html {
     cursor: pointer;
   }
   
-  /* Book dimensions for turn.js */
-  .book-content {
-    display: block;
-    width: 600px;
-    height: 500px;
-    margin: 0 auto;
-  }
-
   /* Submenu container */
-.submenu {
-  display: block; /* Hidden by default */
-  position: relative;
-  top : 20px;
+.submenu  {
+  display: block;
   background-color: white;
   border: 1px solid #ccc;
   border-radius : 10px;
   padding: 10px;
   z-index: 10;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  width : 200px;
-  gap : 10px;
+  width : 280px;
+  gap : 20px;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 0px;
 }
 
 /* Show the submenu when it is active */
 .submenu.active {
   display: block;
+}
+
+.add-popup  {
+  display: block; /* Hidden by default */
+  position: relative;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius : 10px;
+  padding: 10px;
+  z-index: 10;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  width : 280px;
+  gap : 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
