@@ -135,7 +135,7 @@ function BookPage() {
     };
   }, []);
 
-  {/* 책 내용 끌고오기 */}  
+  ///책 내용 끌고오기  => 여기서 문자열 배열 형태로 반환되는 BookContent 에 대해서 배열의 한 요소가 한 문단이라고 보고 출력되게 ///////////////////////////
   useEffect(() => {
     // Fetch book content from the API
     const fetchBookContent = async () => {
@@ -146,8 +146,8 @@ function BookPage() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            book_id: bookId, // Replace with actual book_id
-            input_count: 1, // Replace with actual input_count
+            book_id: bookId,
+            input_count: 1,
             category:selectedCategory
           }),
         });
@@ -160,6 +160,8 @@ function BookPage() {
 
     fetchBookContent();
   }, []);
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
   // Handle previous button click to flip the page backward
   const handlePrevious = () => {

@@ -12,7 +12,7 @@ const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
-const fineTunedModelId = 'ft:gpt-4o-mini-2024-07-18:personal:autobiography:AG1hlRpE';
+const fineTunedModelId = 'ft:gpt-4o-mini-2024-07-18:personal:autobiography:AG1hlRpE'
 
 // OpenAI 모델 응답을 받는 함수
 async function getModelResponse(userInput) {
