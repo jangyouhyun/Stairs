@@ -9,16 +9,23 @@ router.post('/update_content', function (req, res) {
     const input_count = req.body.inputCount;
     const content_order = req.body.content_order;   // 업데이트할 레코드의 content_order
     const content = req.body.content;  // 새롭게 업데이트할 content 내용
+    const changeValue = req.body.cNum;
 
     // 필수 값들이 있는지 확인
     if (!book_id || !user_id || !input_count || !content_order || !content) {
         return res.status(400).json({ error: 'Invalid request data' });
     }
 
-    // content 업데이트 쿼리
+    // 변경할 열 선택
+    let sqlValue = "";
+    if (changeValue == 1) sqlValue = "big_title";
+    else if (changeValue == 2) sqlValue = "small_title";
+    else if (changeValue == 3) sqlValue = "content";
+
+    // 열 이름을 동적으로 사용하기 위해 문자열 템플릿 사용
     const updateContentQuery = `
         UPDATE final_input
-        SET content = ?
+        SET ${sqlValue} = ?
         WHERE user_id = ? AND book_id = ? AND input_count = ? AND content_order = ?
     `;
 
@@ -34,7 +41,7 @@ router.post('/update_content', function (req, res) {
         }
 
         // 성공적으로 업데이트한 경우
-		console.log("updated text: ", content);
+        console.log("updated text: ", content);
         return res.status(200).json({ message: 'Content updated successfully' });
     });
 });

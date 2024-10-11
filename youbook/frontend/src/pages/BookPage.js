@@ -129,16 +129,38 @@ const fetchBookContent = async () => {
     setSubmenuVisible(false); // Close submenu
   };
 
+
+
+  /////// 아래 두개 함수 수정
+  //// 추가 해야 하는 부분 : 추후에 가지고 가는 content_order의 경우, content 배열의 인덱스를 가져가도록
+  // 또, 문단번호가 업데이트 될때 - 문단이 이동되거나 , 삭제, 삽입될때 -> 배열의 인덱스도 동적으로 이동하도록 해야함 
   // Function to save the edited
   const handleSaveClick = async (event) => {
+    var whatToChange;
     try {
       // 편집된 문단 내용을 가져와서 상태 업데이트
-      const updatedParagraph = event.target.innerText;
-      
+      const updatedContent = event.target.innerText;
+
+          // 어떤 부분이 수정되었는지 확인 후, 각각의 상태 업데이트
+    if (event.target.id === 'editable-title') {
       setContent((prevContent) => ({
         ...prevContent,
-        paragraph: updatedParagraph,
+        title: updatedContent,
       }));
+      whatToChange = 1;
+    } else if (event.target.id === 'editable-subtitle') {
+      setContent((prevContent) => ({
+        ...prevContent,
+        subtitle: updatedContent,
+      }));
+      whatToChange = 2;
+    } else if (event.target.id === 'editable-paragraph') {
+      setContent((prevContent) => ({
+        ...prevContent,
+        paragraph: updatedContent,
+      }));
+      whatToChange = 3;
+    }
   
       // API 호출을 통해 수정된 문단 데이터를 서버에 저장
       const response = await fetch('/api/update_content', {
@@ -150,7 +172,8 @@ const fetchBookContent = async () => {
           bookId: bookId,
           inputCount: 1, 
           content_order: 1, // 임시 값
-          content: updatedParagraph, // 수정된 문단 내용
+          content: updatedContent, // 수정된 문단 내용
+          cNum: whatToChange
         }),
       });
   
@@ -166,11 +189,38 @@ const fetchBookContent = async () => {
   };
   
 
-  // paragraph 삭제
-  const handleDeleteClick = () => {
-    setContent((prevContent) => ({ ...prevContent, paragraph: '' })); // Clear the paragraph content
-    setSubmenuVisible(false);
+  // 이상하게 작동이 안되긴하는데.. 일단 넣어놓음
+// Function to handle paragraph deletion
+const handleDeleteClick = async () => {
+  try {
+    const response = await fetch('/api/delete_content', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        bookId: bookId,
+        inputCount: 1,  // 적절한 inputCount 값을 설정
+        content_order: 1, // 삭제할 문단의 content_order
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      alert('문단이 성공적으로 삭제되었습니다.');
+      
+      // 상태를 업데이트하거나 필요한 후속 작업을 수행
+      fetchBookContent(); // 삭제 후 책 내용을 다시 불러오기
+    } else {
+      const errorData = await response.json();
+      console.error('Failed to delete content:', errorData.error);
+      alert('문단 삭제에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('Error during delete request:', error);
+    alert('문단 삭제 중 오류가 발생했습니다.');
   }
+};
 
   // Function to handle edit
   const handleTitleEditClick = () => {
@@ -462,6 +512,7 @@ const fetchBookContent = async () => {
           <div className="page-content">
             {/* Editable paragraph */}
             <h1
+              id="editable-title"
               contentEditable={isEditable}
               onBlur={handleSaveClick}
               suppressContentEditableWarning={true}
@@ -470,6 +521,7 @@ const fetchBookContent = async () => {
               {content.title}
             </h1>
             <h4
+              id="editable-subtitle"
               contentEditable={isEditable}
               onBlur={handleSaveClick}
               suppressContentEditableWarning={true}
@@ -490,6 +542,7 @@ const fetchBookContent = async () => {
               onChange={handleImageUpload} // 파일 선택 시 핸들러 호출
             />
             <p
+              id="editable-paragraph"
               contentEditable={isEditable}
               suppressContentEditableWarning={true}
               onContextMenu={handleParagraphRightClick}
