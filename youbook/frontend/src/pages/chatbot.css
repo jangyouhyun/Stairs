@@ -1,0 +1,125 @@
+.chatbot-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px;
+  height: 700px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  border-radius : 10px;
+}
+
+.chatbot-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 20px;
+  background-color: #E3CAA5;
+}
+
+.chatbot-header {
+  background-color: #AD8B73;
+  padding: 10px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  border-bottom: 1px solid #CEAB93;
+  position : relative;
+}
+
+.back-icon{
+  width : 50px;
+  height : 50px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  margin : 0;
+}
+
+.progress-bar {
+  position: relative;
+  height: 10px;
+  background-color: #CEAB93;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.chatbot-body {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.chatbot-profile {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: white;
+}
+
+.message-container {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.message {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  max-width: 80%;
+}
+
+.message.bot {
+  background-color: #FFFBE9;
+  align-self: flex-start;
+  margin-right: auto; /* 왼쪽 여백을 자동으로 설정해서 오른쪽으로 배치 */
+  margin-left: 0;
+  text-align: left; /* 텍스트는 왼쪽 정렬로 유지 */
+  border-bottom-right-radius: 0;
+}
+
+.message.user {
+  background-color: #d1e7dd;
+  align-self: flex-end;
+  margin-left: auto; /* 왼쪽 여백을 자동으로 설정해서 오른쪽으로 배치 */
+  margin-right: 0;
+  text-align: left; /* 텍스트는 왼쪽 정렬로 유지 */
+  border-bottom-right-radius: 0;
+}
+
+.chatbot-footer {
+  display: flex;
+  padding: 10px;
+  background-color: #FFFBE9;
+  border-top: 1px solid #FFFBE9;
+}
+
+.chatbot-footer input {
+  flex: 1;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #CEAB93;
+  border-radius: 5px;
+}
+
+.chatbot-footer button {
+  padding: 10px 15px;
+  margin-left: 10px;
+  border: none;
+  background-color: #914F1E;
+  color: white;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.chatbot-footer button:hover {
+  background-color: #0056b3;
+}

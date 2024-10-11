@@ -1,0 +1,160 @@
+
+.main-page {
+  height: 100vh;
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+  margin : 0 auto;
+  background-color: white;
+}
+
+
+.main-content {
+  margin-top: 100px; /* 헤더 아래에 위치하도록 여백 추가 */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center align elements horizontally */
+  justify-content: center;
+  text-align: center; /* Align text within elements */
+  width: 100%;
+}
+
+.title-image-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center align the title and image */
+  justify-content: center;
+  width: 100%;
+  margin-top : 100px;
+  margin-bottom: -50px; 
+}
+
+.main-title {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  color: #5C401C;
+  margin : 0;
+  text-align: center;
+  z-index: 1;
+}
+
+.message{
+  margin-bottom: 20px;
+  width : 650px;
+  height : 120px;
+  display: block;
+}
+
+.main-image {
+  width: 150px!important; /* 이미지 크기 조정 */
+  height: 150px!important;
+  margin : 0 auto;
+  display: block;
+  animation: floating 3s ease-in-out infinite;
+  position : relative;
+  left : 300px;
+  top : -60px;
+
+}
+
+.question-button {
+  background-color: #AD8B73; /* 상단바 색상과 동일하게 설정 */
+  border: none;
+  color: white;
+  padding: 10px 20px!important;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between!important; /* 오른쪽 정렬 */
+  gap: 20px;
+  margin-top: 30px;
+
+}
+
+.create-book-button {
+  padding: 10px 20px;
+  background-color: #AD8B73;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.question-button:hover {
+  background-color: #CEAB93;
+}
+.create-book-button:hover {
+  background-color: #CEAB93;
+}
+
+.text-container{
+  width : 100%;
+  display: flex;
+  justify-content: center;
+  margin : 0 auto;
+}
+.main-textarea {
+  width: 50%; /* Set a width for the textarea */
+  padding: 15px; /* Add some padding for spacing */
+  font-size: 16px; /* Adjust the font size */
+  box-sizing: border-box; 
+  height: 300px;
+  border: 1px solid #E3CAA5;
+  border-radius: 5px;
+  
+}
+
+/* 반응형 디자인을 위한 미디어 쿼리 */
+@media (max-width: 768px) {
+  .main-container {
+    padding: 10px;
+  }
+  
+  .main-header {
+    flex-direction: row; /* 작은 화면에서도 동일한 위치 유지 */
+  }
+  
+  .main-title {
+    font-size: 1.5rem; /* 작은 화면에서는 글꼴 크기 조정 */
+    margin: 10px 0;
+  }
+  
+  .main-content {
+    padding: 20px; /* 작은 화면에서도 패딩을 크게 설정 */
+    width: calc(100% - 20px); /* 작은 화면에서 좌우 간격을 뺀 너비 */
+  }
+  
+  .main-image {
+    width: 100px; /* 작은 화면에서는 이미지 크기 조정 */
+    height: 100px; /* 작은 화면에서는 이미지 높이 조정 */
+  }
+  
+  .question-button {
+    padding: 15px;
+    font-size: 1.2rem;
+  }
+  
+  .main-textarea {
+    height: 150px;
+  }
+}
+
+
+@keyframes floating {
+  0% {
+    transform: translateY(0); /* Starting position */
+  }
+  50% {
+    transform: translateY(-10px); /* Move up 10px */
+  }
+  100% {
+    transform: translateY(0); /* Back to starting position */
+  }
+}

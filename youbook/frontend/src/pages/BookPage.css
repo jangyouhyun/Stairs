@@ -1,0 +1,219 @@
+/* Global Styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    font-family: 'MinSans-Regular', sans-serif;
+    background-color: #FFFFFF;
+  }
+  
+  .book-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: #f5f5f5;
+  }
+  
+  /* Book details styling (for book name and category) */
+  .book-details {
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    top: 30px;
+    width: 400px;
+    justify-content: center;
+    gap : 10px;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .input-group select,
+  .input-group input {
+    padding: 12px;
+    border: 1px solid #AD8B73;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #3D230B;
+  }
+  
+  .input-group.name input {
+    width: 250px;
+  }
+  
+  .input-group select {
+    width: 150px;
+  }
+  
+  .input-group input:focus,
+  .input-group select:focus {
+    outline: none;
+    border-color: #3D230B;
+  }
+  
+  /*book*/
+#book {
+  margin-top: 100px;
+  margin-bottom: 30px;
+}
+
+/* Page and content styling */
+.page, .hard {
+  width: 100%; /* Full width for the single visible page */
+  height: 100%;
+  background-color: white;
+  z-index: 1;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center; /* Center align the content */
+  position: relative;
+}
+
+.hard {
+  background-color: #5C401C;
+  color: white;
+  z-index: 2;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 이미지가 책 커버에 맞게 크기 조정 */
+}
+
+/* Page content */
+.page-content {
+width: 400px;
+height: 700px;
+max-height: 700px;
+color: #3D230B;
+padding: 10px;
+box-sizing: border-box;
+position: relative;
+}
+
+.page-content h1{
+  width: 100%;
+  margin-bottom: 20px;
+  z-index : 2;
+}
+.page-content h4 {
+  color : #CEAB93;
+}
+
+.page-content p {
+  width : 90%;
+  margin: 20px;
+  padding : 0;
+  font-size: 16px;    
+  line-height: 1.6;
+  text-align : justify;
+}
+
+.page-content p:hover {
+border : 1px solid #0056b3;
+border-radius: 10px;
+}
+
+  /* Footer Styling */
+  .book-footer {
+    text-align: center;
+    position : relative;
+    bottom : 50px;
+    right : -500px;
+  }
+  
+  .footer-button {
+    margin: 0 10px;
+    padding: 15px 20px;
+    background-color:#914F1E;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .footer-button:hover {
+    background-color: #892B1E;
+  }
+  
+  .book-footer .save-button {
+    background-color: #FFFBE9;
+    color: #333;
+  }
+  
+  .book-footer .save-button:hover {
+    background-color: #bbb;
+  }
+  
+  /* Page indicator and navigation buttons */
+  .page-move {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .page-indicator {
+    background-color: #00462a;
+    padding: 20px;
+    width: 100px;
+    height: 10px;
+    font-size: 1.2rem;
+    color: white;
+    text-align: center;
+    line-height: 10px;
+    border-radius: 10px;
+  }
+  
+  .left-button img,
+  .right-button img {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+  }
+  
+  .loading-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 1000;
+  }
+  
+  .loading-icon {
+    width: 180px;
+    height: 180px;
+  }
+
+  .main-icon {
+    width: 150px;
+    height: 150px;
+    margin : 0 auto;
+    display: block;
+    animation: floating 3s ease-in-out infinite;
+  }
+  
+  .biography-created-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 1000;
+    font-size : 20px;
+  }
+ 
