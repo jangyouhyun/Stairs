@@ -29,32 +29,49 @@ function BookDesignPage({ onClose, onComplete }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [deletePopupPosition, setDeletePopupPosition] = useState({ x: 0, y: 0 });
+  const [resizeColor, setResizeColor] = useState('#000');
   const imageRef = useRef(null);
-  // 책 표지 이미지로 저장하는 함수
-  const saveBookCoverAsImage = () => {
-    const bookCover = bookCoverRef.current;
+  const [resizeEnabled, setResizeEnabled] = useState(false); // 크기 조정 활성화 상태
 
-    html2canvas(bookCover).then((canvas) => {
-      const imageData = canvas.toDataURL('image/png'); // 이미지 데이터를 Base64로 변환
+// 책 표지 이미지로 저장하는 함수
+const saveBookCoverAsImage = () => {
+  const bookCover = bookCoverRef.current;
 
-      // 서버로 이미지 전송
-      fetch('/api/save-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ image: imageData }), // Base64 이미지를 서버로 전송
+  // 모든 이미지가 로드된 후 html2canvas를 실행하도록 처리
+  const images = bookCover.querySelectorAll('img');
+  const imagePromises = Array.from(images).map((img) => {
+    return new Promise((resolve, reject) => {
+      if (img.complete) {
+        resolve();
+      } else {
+        img.onload = resolve;
+        img.onerror = reject;
+      }
+    });
+  });
+
+  // 모든 이미지가 로드된 후 캡처 실행
+  Promise.all(imagePromises)
+    .then(() => {
+      html2canvas(bookCover, {
+        useCORS: true, // 외부 이미지를 사용할 경우 CORS 설정
+        allowTaint: false, // 외부 리소스 허용 설정
+        logging: true, // 디버깅을 위한 로그 출력
       })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log('Image saved successfully:', data);
+        .then((canvas) => {
+          const imageData = canvas.toDataURL('image/png'); // 이미지 데이터를 Base64로 변환
+          
+          // 이미지가 저장된 URL 또는 Base64 데이터
+          onComplete(imageData);  // 이미지 URL을 onComplete 콜백으로 전달
         })
         .catch((error) => {
-          console.error('Error saving image:', error);
+          console.error("Error capturing the book cover:", error);
         });
+    })
+    .catch((error) => {
+      console.error("Error loading images before capture:", error);
     });
-    onComplete();
-  };
+};
 
   // 팝업창 열기/닫기 토글 함수
   const toggleColorPalette = () => {
@@ -66,6 +83,10 @@ function BookDesignPage({ onClose, onComplete }) {
     setBookCoverColor(event.target.value);
   };
 
+  // 텍스트 색상 선택 핸들러
+  const handleColorChange2 = (event) => {
+    setTextStyle((prev) => ({ ...prev, color: event.target.value })); // 텍스트 색상 설정
+  };
 
   // 버튼 클릭 시 텍스트 추가 함수
   const handleTextClick = () => {
@@ -136,10 +157,16 @@ function BookDesignPage({ onClose, onComplete }) {
     }
   };
   // 이미지 크기 조정 핸들러
-  const handleResize = (id, event, { size }) => {
+  const handleResize = (event, { size }) => {
     setImageSize(size);
+    // 가로와 세로 중 어느 방향으로 크기가 조정되는지에 따라 색상 변경
+    if (size.width !== imageSize.width) {
+      setResizeColor('blue'); // 가로 조정 시 파란색
+    } else if (size.height !== imageSize.height) {
+      setResizeColor('blue'); // 세로 조정 시 초록색
+    }
   };
- // 이미지 삭제 팝업창 열기
+ // 이미지 삭제, 크기 조정 팝업창 열기
  const handleRightClick = (e) => {
   e.preventDefault();
   const rect = e.target.getBoundingClientRect();
@@ -147,6 +174,7 @@ function BookDesignPage({ onClose, onComplete }) {
     x: rect.right + window.scrollX + 10,
     y: rect.bottom + window.scrollY + 10, 
   });
+  setResizeEnabled(true);
   setShowDeletePopup(true);
 };
 
@@ -193,7 +221,7 @@ useEffect(() => {
       {/* 색상 선택 팝업창 */}
         {showColorPicker && (
           <div className="color-palette">
-            <label>색상을 선택하세요:</label>
+            <label>색상을 선택하세요</label>
             <input
               type="color"
               value={bookCoverColor}
@@ -214,10 +242,15 @@ useEffect(() => {
         )}
         {/* 텍스트 편집 팝업창 */}
         {showPopup && (
-          <div className="text-options-popup">
+          <div className="text-options-popup"
+          style={{
+            position: 'absolute',
+            top: `${TextSubmenuPosition.y+130}px`,
+            left: `${TextSubmenuPosition.x+250}px`,
+            }}>
             <h3>텍스트 옵션</h3>
             <div>
-              <label>폰트 크기:</label>
+              <label>폰트 크기 </label>
               <input
                 type="number"
                 value={textStyle.fontSize}
@@ -227,8 +260,8 @@ useEffect(() => {
               />
             </div>
             <div>
-              <label>색상 선택:</label>
-              <input type="color" value={textStyle.color} onChange={handleColorChange} />
+              <label>색상 선택 </label>
+              <input type="color" value={textStyle.color} onChange={handleColorChange2} />
             </div>
             <button onClick={handleSaveStyle}>저장</button>
           </div>
@@ -291,15 +324,20 @@ useEffect(() => {
               <Resizable
                 width={imageSize.width}
                 height={imageSize.height}
-                onResize={handleResize}
+                onResize={(event, { size }) => handleResize(size)}
                 minConstraints={[100, 100]}
                 maxConstraints={[400, 400]}
+                resizeHandles={resizeEnabled ? ['se'] : []}
+                handleStyles={{
+                se: { cursor: 'nwse-resize', backgroundColor: resizeColor },
+            }}
               >
                 <div
                   style={{
                     width: imageSize.width,
                     height: imageSize.height,
                     position: 'relative',
+                    border: `${resizeColor}`,
                   }}
                   onContextMenu={handleRightClick} // 오른쪽 클릭 시 삭제 팝업 열기
                   ref={imageRef} // 이미지에 대한 참조 설정
@@ -324,10 +362,10 @@ useEffect(() => {
             className="popup"
             style={{
               position: 'absolute',
-              top: `${popupPosition.y}px`,
-              left: `${popupPosition.x}px`,
-              backgroundColor: '#fff',
-              border: '1px solid #ccc',
+              top: `${popupPosition.y + 200}px`,
+              left: `${popupPosition.x + 490}px`,
+              backgroundColor: 'gray',
+              radius : '20px',
               padding: '10px',
               zIndex: 1000,
             }}
