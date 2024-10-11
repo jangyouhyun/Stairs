@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
 import bookImage from '../assets/images/book3.png';
@@ -7,25 +7,6 @@ function HomePage() {
   const navigate = useNavigate();
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
-
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        const response = await fetch('/auth/check_login', {
-          method: 'GET',
-          credentials: 'include', // 세션 정보를 포함하여 요청
-        });
-        const data = await response.json();
-        if (data.loggedIn) {
-          navigate('/my-autobiography'); // 로그인 되어 있으면 리다이렉트
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
-    checkLoginStatus();
-  }, [navigate]);
 
   const handleLogin = async (event) => {
     event.preventDefault();

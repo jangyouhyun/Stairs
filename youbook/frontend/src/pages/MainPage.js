@@ -138,22 +138,36 @@ function MainPage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text , category : selectedCategory}),  // 'text' 변수에 담긴 내용을 'content'로 전송
+      body: JSON.stringify({ content: text, category: selectedCategory }),  // 'text'와 'category' 전송
     })
-    .then(response => response.json())
-    .then(data => {
-      console.log('API response:', data);  // 서버 응답 확인
-      if (data.status === 200) {
-        const bookId = data.bookId;
-        navigate(`/book-reading/${bookId}`, { state: { selectedCategory } });
-      }
-    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('API response:', data);  // 서버 응답 확인
+        if (data.status === 200) {
+          const bookId = data.bookId;
+          navigate(`/book-reading/${bookId}`, { state: { selectedCategory, paragraph: text } });  // 'text'를 'paragraph'로 전달
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('저장 중 오류가 발생했습니다.');
+      });
+  };
+
+  const handleCreateBook2 = () => {
+    const content = text;  // 넘기고자 하는 텍스트 데이터
     
-    .catch(error => {
-      console.error('Error:', error);
-      alert('저장 중 오류가 발생했습니다.');
+    // navigate로 데이터를 BookPage로 전달
+    navigate('/book-reading2', { 
+      state: { 
+        paragraph: content, 
+        category: selectedCategory,  // 선택된 카테고리도 전달
+        title: "",            // 필요한 경우 제목도 전달
+        subtitle: "",           // 부제목도 전달 가능
+        imageUrl: ""        // 이미지도 있으면 전달
+      } 
     });
-  };  
+  };
 
   const handleLogout = async () => {
     try {
@@ -223,7 +237,7 @@ function MainPage() {
           <button className="create-book-button" onClick={handleCreateBook}>
             자서전 바로 만들기
           </button>
-          <button className="button" onClick={() => navigate('/book-reading2')}>
+          <button className="button" onClick= {handleCreateBook2}>
             자서전 제작 페이지
           </button>
         </div>
