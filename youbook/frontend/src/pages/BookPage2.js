@@ -44,10 +44,10 @@ function BookPage() {
   const { paragraph, category: initialCategory, title, subtitle, imageUrl } = location.state || {};  // 전달된 데이터를 수신
   const [category, setCategory] = useState(initialCategory || '');
   const [content, setContent] = useState({
-    title: title || '',         // 제목 설정
-    subtitle: subtitle || '',   // 부제 설정
-    imageUrl: imageUrl || '',   // 이미지 URL 설정
-    paragraph: paragraph || '', // 본문 설정
+    title: title || '',         // 전달받은 제목
+    subtitle: subtitle || '',   // 전달받은 부제
+    imageUrl: imageUrl || '',   // 전달받은 이미지 URL
+    paragraph: paragraph || '', // 전달받은 본문
   });
   useEffect(() => {
     if (userId) {
