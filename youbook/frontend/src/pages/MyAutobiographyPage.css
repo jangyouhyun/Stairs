@@ -1,0 +1,255 @@
+.my-autobiography-page {
+  height: 100vh;
+  width: 100vw;
+  font-family: 'MinSans-Regular', sans-serif;
+  background-color: white;
+  overflow: hidden;
+}
+
+.menu-container{
+  position : absolute;
+  top : 0px;
+  left : 80px;
+  margin : 0px;
+  
+}
+
+.menu{
+  font-size: 5.0rem;
+  color: #CEAB93;
+}
+
+.page-content {
+  width: 100%;
+  height: 100%;
+  margin : 0px;
+  position : absolute;
+  top : 0;
+  left : 0;
+  justify-content: center;
+}
+
+.header {
+  padding: 40px;
+  margin-top : 0px;
+  margin-bottom: 100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  white-space: nowrap;
+  position : absolute;
+  top : 50px;
+  left : 200px;
+  gap : 400px;
+}
+
+.header h1 {
+  margin: 0px;
+  font-size: 4.0rem;
+  font-weight: bold;
+  white-space: nowrap;
+  color : #5C401C;
+}
+
+.highlighted-number {
+  color:  #914F1E;
+  
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  border: 1px solid #CEAB93;
+  padding: 5px;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
+.search-bar input[type="text"] {
+  flex-grow: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color : #DFB188;
+
+}
+
+.search-bar .search-image {
+  width: 20px; 
+  height: 20px;
+  margin-left: 10px;
+  margin-right : 20px;
+  cursor: pointer;
+}
+
+
+.categories-container {
+  position: absolute;
+  top : 220px;
+  left : 140px;
+  width: 1200px;
+  display: flex;
+  justify-content: center;
+
+}
+
+.categories {
+  width: 100%;
+  display: flex;
+  margin-bottom: 5px;
+  position : absolute;
+  top : 0px;
+}
+
+.category-button {
+  position : relative;
+  left : 60px;
+  font-size: 1.5rem;
+  padding: 15px 40px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 5px solid transparent;
+  margin-right: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  color : #5C401C;
+}
+
+.category-button.active {
+  border-color:  #AD8B73;
+  font-weight: bold;
+}
+
+.category-line {
+  display : block;
+  width: 95%;
+  height: 2.5px;
+  background-color:  #AD8B73;
+  position : absolute;
+  top : 70px;
+  justify-content: center;
+}
+
+.selection {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  position : absolute;
+  top : 320px;
+  width: 1200px;
+}
+
+
+.selection-right .delete-button, .selection-right .download-button {
+  margin-left: 20px;
+  padding: 10px 20px;
+  border: 1px solid  #AD8B73;
+  background-color:  #AD8B73;
+  cursor: pointer;
+  color: white;
+}
+
+.selection-right .download-button {
+  background-color:  #AD8B73;
+  color: white;
+  border: 1px solid  #AD8B73;
+}
+
+.autobiography-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 60px;
+  width: 1200px;
+  margin-right: 50px;
+  box-sizing: border-box;
+  position : absolute;
+  top : 400px;
+  left : 250px;
+}
+
+
+.autobiography-item {
+  width: 200px;
+  height: 270px;
+  background-color: #AD8B73;
+  border: 1px solid #AD8B73;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom : 50px;
+}
+
+.item-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.item-details {
+  position : relative;
+  top : 190px;
+  left : -50px;
+  text-align: left;
+  width: 100%;
+}
+
+.item-title {
+  font-size: 1.2rem;
+  color: #5C401C;
+}
+
+.item-date {
+  font-size: 1.0rem;
+  color: #DFB188;
+  margin-bottom : 50px;
+}
+
+.autobiography-item input[type="checkbox"] {
+  position : relative;
+  top : -60px;
+  left : -120px;
+  
+}
+
+.autobiography-item.add-new .plus-icon {
+  font-size: 2rem;
+}
+
+.autobiography-item.add-new{
+  border: none;
+  background-color:  #E3CAA5;
+  color : #914F1E;
+}
+
+.context-menu {
+  position: absolute;
+  background-color: #FFFBE9; /* Light gray background */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+  z-index: 100;
+  border-radius: 4px;
+  padding: 5px 0;
+  max-width : 150px;
+}
+
+.context-menu-item {
+  padding: 10px 20px;
+  cursor: pointer;
+  color : #5C401C;
+  
+}
+.context-menu-item:hover {
+  background-color: #E3CAA5;
+  font-weight: bold;
+}
+
+.active {
+  content: url('../assets/images/book2.png');
+}
+
