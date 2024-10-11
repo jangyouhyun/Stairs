@@ -14,9 +14,15 @@ const getBookListRouter = require('./api/get_books.js');
 const deleteBookRouter = require('./api/delete_book.js');
 const logoutRouter = require('./api/auth/logout.js');
 const chatbotRouter = require('./api/chatbotapi.js');
-const categoryRouter = require('./api/category.js')
-const summaryRouter = require('./api/summary.js')
-const printRouter = require('./api/print_book.js')
+const categoryRouter = require('./api/category.js');
+const summaryRouter = require('./api/summary.js');
+const printRouter = require('./api/print_book.js');
+const updateContentRouter = require('./api/update_book_content.js');
+const insertContentRouter = require('./api/insert_book_content.js');
+const deleteContentRouter = require('./api/delete_book_content.js');
+const updateCategoryRouter = require('./api/update_book_category.js');
+const updateOrderRouter = require('./api/update_book_order.js');
+const updateTitleRouter = require('./api/update_title.js');
 
 const app = express();
 
@@ -95,7 +101,12 @@ app.use('/api', chatbotRouter);
 app.use('/api', summaryRouter);
 app.use('/api', categoryRouter);
 app.use('/api', printRouter);
-
+app.use('/api', updateContentRouter);
+app.use('/api', deleteContentRouter);
+app.use('/api', updateCategoryRouter);
+app.use('/api', updateOrderRouter);
+app.use('/api', updateTitleRouter);
+app.use('/api', insertContentRouter);
 
 app.use((req, res, next) => {
     res.status(404).send('Not found');

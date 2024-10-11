@@ -61,6 +61,52 @@ function BookPage() {
   const bookRef = useRef(null);
   const selectedCategory = location.state?.selectedCategory;
 
+  
+  // 책 내용 불러오기 + 배열로 넣기 
+  useEffect(() => {
+    fetchBookContent();
+  }, []);  // 초기화 시 한 번만 실행
+
+  // bookContent가 업데이트되었을 때 convertBookContentToContent 실행
+  useEffect(() => {
+    if (bookContent.length > 0) { // bookContent가 업데이트된 후 실행
+      console.log(bookContent); // 업데이트된 bookContent 출력
+      convertBookContentToContent(); // bookContent 기반으로 content 생성
+    }
+  }, [bookContent]);
+
+  useEffect(() => {
+    if (contentArray.length > 0 && contentArray[0].paragraph) {
+      console.log("content::::::", contentArray[0].paragraph); // 디버깅 문장 추가
+      setContent(contentArray[0]);
+    } else {
+      console.log("contentArray is empty or paragraph is missing");
+    }
+  }, [contentArray]);
+
+// 책 내용 가져오는 함 수 
+const fetchBookContent = async () => {
+  try {
+    const response = await fetch('/api/print', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        book_id: bookId,
+        input_count: 1,
+        category: selectedCategory
+      }),
+    });
+
+    const data = await response.json();
+    setBookContent(data.contentArray); // 상태 업데이트
+
+  } catch (error) {
+    console.error('Failed to fetch book content:', error);
+  }
+};
+
   //제목 삽입
   const handleTitleAdd = () => {
     setContent((prevContent) => ({ ...prevContent, title: 'Title' }));
@@ -84,9 +130,41 @@ function BookPage() {
   };
 
   // Function to save the edited
-  const handleSaveClick = () => {
-    setIsEditable(false); // Disable editing after save
+  const handleSaveClick = async (event) => {
+    try {
+      // 편집된 문단 내용을 가져와서 상태 업데이트
+      const updatedParagraph = event.target.innerText;
+      
+      setContent((prevContent) => ({
+        ...prevContent,
+        paragraph: updatedParagraph,
+      }));
+  
+      // API 호출을 통해 수정된 문단 데이터를 서버에 저장
+      const response = await fetch('/api/update_content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookId: bookId,
+          inputCount: 1, 
+          content_order: 1, // 임시 값
+          content: updatedParagraph, // 수정된 문단 내용
+        }),
+      });
+  
+      if (response.ok) {
+        setIsEditable(false); // 수정 모드를 비활성화
+        fetchBookContent(); // 수정된 데이터를 다시 불러오기 위해 호출
+      } else {
+        console.error('Failed to save content');
+      }
+    } catch (error) {
+      console.error('Error saving content:', error);
+    }
   };
+  
 
   // paragraph 삭제
   const handleDeleteClick = () => {
@@ -314,54 +392,7 @@ function BookPage() {
 
     console.log('Converted bookContent to content:', newContent);
     setContentArray(newContent);
-    //setContent(contentArray[0]);
   };
-
-  // 책 내용 불러오기 + 배열로 넣기 
-  useEffect(() => {
-    // Fetch book content from the API
-    const fetchBookContent = async () => {
-      try {
-        const response = await fetch('/api/print', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            book_id: bookId,
-            input_count: 1,
-            category: selectedCategory
-          }),
-        });
-
-        const data = await response.json();
-        setBookContent(data.contentArray); // 상태 업데이트
-
-      } catch (error) {
-        console.error('Failed to fetch book content:', error);
-      }
-    };
-
-    fetchBookContent();
-  }, []);  // 초기화 시 한 번만 실행
-
-  // bookContent가 업데이트되었을 때 convertBookContentToContent 실행
-  useEffect(() => {
-    if (bookContent.length > 0) { // bookContent가 업데이트된 후 실행
-      console.log(bookContent); // 업데이트된 bookContent 출력
-      convertBookContentToContent(); // bookContent 기반으로 content 생성
-    }
-  }, [bookContent]);
-
-  useEffect(() => {
-    if (contentArray.length > 0 && contentArray[0].paragraph) {
-      console.log("content::::::", contentArray[0].paragraph); // 디버깅 문장 추가
-      setContent(contentArray[0]);
-    } else {
-      console.log("contentArray is empty or paragraph is missing");
-    }
-  }, [contentArray]);
-  
 
   return (
     <div className="book-page">
