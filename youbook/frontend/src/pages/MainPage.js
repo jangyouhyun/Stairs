@@ -14,6 +14,7 @@ import edit2 from '../assets/images/edit2.png'; // 활성화 상태일 때의 �
 import logout from '../assets/images/log-out.png';
 import logout2 from '../assets/images/log-out2.png';
 import Chatbot from './chatbot';
+import loadingIcon from '../assets/images/loadingicon.gif';
 
 
 function MainPage() {
@@ -27,7 +28,7 @@ function MainPage() {
   const [isWarningVisible, setIsWarningVisible] = useState(false);
   const location = useLocation();
   const selectedCategory = location.state?.selectedCategory;
-
+  const [isLoading, setIsLoading] = useState(false);  
   const handleOpenChatbot = () => {
     // 입력된 text를 서버로 보내는 fetch 요청
     fetch('/api/write_process/chatbot', {
@@ -154,21 +155,6 @@ function MainPage() {
       });
   };
 
-  const handleCreateBook2 = () => {
-    const content = text;  // 넘기고자 하는 텍스트 데이터
-    
-    // navigate로 데이터를 BookPage로 전달
-    navigate('/book-reading2', { 
-      state: { 
-        paragraph: content, 
-        category: selectedCategory,  // 선택된 카테고리도 전달
-        title: "",            // 필요한 경우 제목도 전달
-        subtitle: "",           // 부제목도 전달 가능
-        imageUrl: ""        // 이미지도 있으면 전달
-      } 
-    });
-  };
-
   const handleLogout = async () => {
     try {
       const response = await fetch('/api/logout', {
@@ -237,9 +223,6 @@ function MainPage() {
           <button className="create-book-button" onClick={handleCreateBook}>
             자서전 바로 만들기
           </button>
-          <button className="button" onClick= {handleCreateBook2}>
-            자서전 제작 페이지
-          </button>
         </div>
       </div>
       <div className="fixed-inquiry-icon" onClick={handleInquiryClick}>
@@ -270,7 +253,12 @@ function MainPage() {
           </div>
         </div>
       )}
-    
+    {/* 로딩 중 팝업 */}
+    {isLoading && (
+        <div className="loading-popup">
+          <img src={loadingIcon} alt="Loading" className="loading-icon" />
+        </div>
+      )}
     </div>
     
   );
