@@ -508,49 +508,47 @@ const handleDeleteClick = async () => {
           </div>
         </div>
         <div className="page">
-          {/* text 마우스 왼쪽 버튼으로 클릭시 수정 아이콘 */}
-          <div className="page-content">
-            {/* Editable paragraph */}
-            <h1
-              id="editable-title"
-              contentEditable={isEditable}
-              onBlur={handleSaveClick}
-              suppressContentEditableWarning={true}
-              onContextMenu={handleTitleRightClick}
-            >
-              {content.title}
-            </h1>
-            <h4
-              id="editable-subtitle"
-              contentEditable={isEditable}
-              onBlur={handleSaveClick}
-              suppressContentEditableWarning={true}
-              onContextMenu={handleSubtitleRightClick}
-            >
-              {content.subtitle}
-            </h4>
-            {/* 업로드된 이미지가 있으면 화면에 표시 */}
-            {content.imageUrl && (
-              <img src={content.imageUrl} alt="Uploaded" style={{ width: '80%', height: 'auto' }} />
-            )}
-
-            {/* 숨겨진 파일 업로드 input */}
-            <input
-              type="file"
-              ref={fileInputRef} // ref를 통해 이 요소에 접근
-              style={{ display: 'none' }} // 화면에 표시되지 않도록 숨김
-              onChange={handleImageUpload} // 파일 선택 시 핸들러 호출
-            />
-            <p
-              id="editable-paragraph"
-              contentEditable={isEditable}
-              suppressContentEditableWarning={true}
-              onContextMenu={handleParagraphRightClick}
-              onBlur={handleSaveClick}
-            >
-              {content.paragraph}
-            </p>
-            {/* main Submenu container */}
+          {/* contentArray를 순회하면서 각 요소를 화면에 표시 */}
+          {contentArray.map((contentItem, index) => (
+            <div className="page-content" key={index}>
+              <h1
+                id="editable-title"
+                contentEditable={isEditable}
+                onBlur={handleSaveClick}
+                suppressContentEditableWarning={true}
+                onContextMenu={handleTitleRightClick}
+              >
+                {contentItem.title}
+              </h1>
+              <h4
+                id="editable-subtitle"
+                contentEditable={isEditable}
+                onBlur={handleSaveClick}
+                suppressContentEditableWarning={true}
+                onContextMenu={handleSubtitleRightClick}
+              >
+                {contentItem.subtitle}
+              </h4>
+              {/* 이미지가 있을 경우 표시 */}
+              {contentItem.imageUrl && (
+                <img src={contentItem.imageUrl} alt="Uploaded" style={{ width: '80%', height: 'auto' }} />
+              )}
+              <input
+                type="file"
+                ref={fileInputRef} // 파일 선택을 위한 ref
+                style={{ display: 'none' }} // 화면에 보이지 않도록 숨김
+                onChange={handleImageUpload} // 파일 선택 시 호출되는 핸들러
+              />
+              <p
+                id="editable-paragraph"
+                contentEditable={isEditable}
+                suppressContentEditableWarning={true}
+                onContextMenu={handleParagraphRightClick}
+                onBlur={handleSaveClick}
+              >
+                {contentItem.paragraph}
+              </p>
+              {/* main Submenu container */}
             {submenuVisible && (
               <div
                 className="submenu"
@@ -623,7 +621,8 @@ const handleDeleteClick = async () => {
                 <button onClick={handleBackClick2}>Back</button>
               </div>
             )}
-          </div>
+            </div>
+            ))}
         </div>
         <div className="page">
           <div className="page-content">
