@@ -90,11 +90,13 @@ body, html {
 
 /* Page content */
 .page-content {
-  display: block;
+  display: 90%;
   width: 400px;
   height: 700px;
-  margin-bottom: 20px;
-  overflow-y: auto;
+  box-sizing: border-box;
+  overflow: hidden;
+  margin-bottom : 10px;
+  overflow-y: auto; 
 }
 
 .page-content h1{
