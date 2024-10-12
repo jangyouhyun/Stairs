@@ -60,7 +60,8 @@ function BookPage() {
   const [bookContent, setBookContent] = useState([]);
   const bookRef = useRef(null);
   const selectedCategory = location.state?.selectedCategory;
-
+  const [pages, setPages] = useState([]); 
+  const pageRef = useRef(null);  // pageRef 정의
   
   // 책 내용 불러오기 + 배열로 넣기 
   useEffect(() => {
@@ -418,9 +419,19 @@ const handleDeleteClick = async () => {
     }
     document.addEventListener('click', handleOutsideClick);
     return () => {
+      // Clean up the turn.js instance when the component is unmounted
+      if ($book.length) {
+        $book.turn('destroy');
+      }
       document.removeEventListener('click', handleOutsideClick);
     };
-  }, []);
+  }, [pages]);
+
+  useEffect(() => {
+    if (pageRef.current && $('#book').data('turn')) {
+      $('#book').turn('addPage', pageRef.current, $('#book').turn('pages') + 1);
+    }
+  }, [pages]); 
 
   // Handle previous button click to flip the page backward
   const handlePrevious = () => {
@@ -508,7 +519,7 @@ const handleDeleteClick = async () => {
           </div>
         </div>
         {contentArray.map((contentItem, index) => (
-        <div className="page" key={index}>
+        <div className="page" key={`page-${index}`} ref={index === pages.length - 1 ? pageRef : null}>
           {/* contentArray를 순회하면서 각 요소를 화면에 표시 */}
           
             <div className="page-content">
