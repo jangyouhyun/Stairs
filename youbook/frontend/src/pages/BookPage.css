@@ -90,13 +90,13 @@ body, html {
 
 /* Page content */
 .page-content {
-width: 400px;
-height: 700px;
-max-height: 700px;
-color: #3D230B;
-padding: 10px;
-box-sizing: border-box;
-position: relative;
+  display: 90%;
+  width: 400px;
+  height: 700px;
+  box-sizing: border-box;
+  overflow: hidden;
+  margin-bottom : 10px;
+  overflow-y: auto; 
 }
 
 .page-content h1{

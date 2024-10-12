@@ -1,3 +1,8 @@
+// 메인페이지에서.. 
+// contentArray 에 지속적으로 데이터베이스를 담고 불러오고.. 해야되는데 애가 그러지를 않음
+// 계속해서 저장되는 contentArray를 들고가서 마지막 데이터베이스에 저장예정
+// 안들고 가더라도.. contentArray 에 들은 변수가 mysql 에 계속 저장되고 있음. 
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
@@ -28,7 +33,7 @@ function MainPage() {
   const location = useLocation();
   const selectedCategory = location.state?.selectedCategory;
 
-  const handleOpenChatbot = () => {
+  const handleOpenChatbot2 = () => {
     // 입력된 text를 서버로 보내는 fetch 요청
     fetch('/api/write_process/chatbot', {
       method: 'POST',
@@ -44,7 +49,7 @@ function MainPage() {
         if (bookId) {
           // API 요청이 성공하면 팝업을 열고 데이터와 함께 전달
           setIsChatbotOpen(true);  // 챗봇 팝업 열기
-          navigate(`/chatbot/${bookId}`);  // bookId가 있을 때 navigate
+          navigate(`/chatbot/${bookId}`, { state: { selectedCategory } });  // bookId가 있을 때 navigate
         } else {
           console.error('bookId is missing in the response:', data);
         }
@@ -54,7 +59,7 @@ function MainPage() {
       console.error('Error:', error);
     });
   };
-  const handleOpenChatbot2 = () => {
+  const handleOpenChatbot = () => {
     setIsChatbotOpen(true); // 챗봇 팝업 열기
   };
   const handleCloseChatbot = () => {
@@ -106,30 +111,6 @@ function MainPage() {
 
   const handleProfileClick = () => {
     navigate('/my-autobiography');
-  };
-
-  const handleSubmit = () => {
-    fetch('/api/write_process/chatbot', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ content: text, category : selectedCategory }),
-    })
-    .then(response => response.json())  // response를 JSON으로 파싱
-    .then(data => {
-      if (data.status === 200) {
-        const bookId = data.bookId;  // 여기에 bookId가 있는지 확인
-        if (bookId) {
-          navigate(`/chatbot/${bookId}`);  // bookId가 있을 때만 navigate
-        } else {
-          console.error('bookId is missing in the response:', data);
-        }
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
   };
 
   const handleCreateBook = () => {

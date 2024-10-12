@@ -58,15 +58,41 @@ function BookPage() {
   const [imgData, setImgData] = useState(null);
   // 북콘텐츠 관련 백엔드 변수
   const [bookContent, setBookContent] = useState([]);
+  const [categories, setCategories] = useState([]);
   const bookRef = useRef(null);
+ // const [selectedCategory, setSelectedCategory] = useState(''); // 선택된 카테고리
   const selectedCategory = location.state?.selectedCategory;
+  
+
+  // 카테고리 목록 가져오기
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/get_category', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setCategories(data.categorys); // 카테고리 상태 업데이트
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+    }
+  };
+
+  // 페이지 로드 시 카테고리 가져오기
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   
-  // 책 내용 불러오기 + 배열로 넣기 
   useEffect(() => {
     fetchBookContent();
-  }, []);  // 초기화 시 한 번만 실행
-
+  }, []); // 'location'이 변경될 때마다 fetchBookContent 실행
+  
   // bookContent가 업데이트되었을 때 convertBookContentToContent 실행
   useEffect(() => {
     if (bookContent.length > 0) { // bookContent가 업데이트된 후 실행
@@ -107,12 +133,48 @@ const fetchBookContent = async () => {
   }
 };
 
+// 이미지 핸들러
+const handleImageUpload = async (event) => {
+  const file = event.target.files[0]; // 사용자가 선택한 첫 번째 파일
+  if (file) {
+    const formData = new FormData();
+    formData.append('image', file); // 이미지 파일 추가
+    formData.append('bookId', bookId); // bookId 추가
+    formData.append('inputCount', 1);
+    formData.append('content_order', 1);
+
+    try {
+      // 서버에 이미지 업로드 요청
+      const response = await fetch('/api/update_image', {
+        method: 'POST',
+        body: formData, // FormData 전송
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setContent((prevContent) => ({
+          ...prevContent,
+          imageUrl: result.image_path, // 서버에서 받은 이미지 경로 설정
+        }));
+        alert('이미지가 성공적으로 업로드되었습니다.');
+      } else {
+        alert('이미지 업로드에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('이미지 업로드 중 오류가 발생했습니다.');
+    }
+  }
+};
+
+
   //제목 삽입
   const handleTitleAdd = () => {
     setContent((prevContent) => ({ ...prevContent, title: 'Title' }));
     setIsEditable(true);
     setSubmenuVisible(false); // Close the submenu
     setAddMenuVisible(false); // Close add menu
+    fetchBookContent();
   };
 
   //소제목 삽입
@@ -121,6 +183,7 @@ const fetchBookContent = async () => {
     setIsEditable(true);
     setSubmenuVisible(false); // Close the submenu
     setAddMenuVisible(false); // Close add menu
+    fetchBookContent();
   };
 
   // Function to handle edit
@@ -129,11 +192,6 @@ const fetchBookContent = async () => {
     setSubmenuVisible(false); // Close submenu
   };
 
-
-
-  /////// 아래 두개 함수 수정
-  //// 추가 해야 하는 부분 : 추후에 가지고 가는 content_order의 경우, content 배열의 인덱스를 가져가도록
-  // 또, 문단번호가 업데이트 될때 - 문단이 이동되거나 , 삭제, 삽입될때 -> 배열의 인덱스도 동적으로 이동하도록 해야함 
   // Function to save the edited
   const handleSaveClick = async (event) => {
     var whatToChange;
@@ -188,8 +246,6 @@ const fetchBookContent = async () => {
     }
   };
   
-
-  // 이상하게 작동이 안되긴하는데.. 일단 넣어놓음
 // Function to handle paragraph deletion
 const handleDeleteClick = async () => {
   try {
@@ -227,17 +283,20 @@ const handleDeleteClick = async () => {
     setIsEditable(true); // Make paragraph editable
     setSubmenuVisible3(false); // Close submenu
     setSubmenuVisible4(false); // Close submenu
+    fetchBookContent();
   };
 
   // title 삭제
   const handleTitleDeleteClick = () => {
     setContent((prevContent) => ({ ...prevContent, title: '' })); // Clear the paragraph content
     setSubmenuVisible3(false);
+    fetchBookContent();
   }
   // subtitle 삭제
   const handleSubtitleDeleteClick = () => {
     setContent((prevContent) => ({ ...prevContent, subtitleerror: '' })); // Clear the paragraph content
     setSubmenuVisible4(false);
+    fetchBookContent();
   }
   // Function to handle right-click on the title & subtitle
   const handleTitleRightClick = (event) => {
@@ -328,25 +387,9 @@ const handleDeleteClick = async () => {
     setSubmenuVisible(false); // Hide submenu
   };
 
-  // 이미지 업로드 핸들러
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0]; // 사용자가 선택한 첫 번째 파일
-    if (file) {
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
-        setContent((prevContent) => ({
-          ...prevContent,
-          imageUrl: reader.result // 이미지 데이터를 base64 형식으로 변환하여 상태에 저장
-        }));
-      };
-      reader.readAsDataURL(file); // 파일을 base64 형식으로 읽음
-    }
-  };
-
   // 버튼 클릭 시 파일 선택 창 열기
   const ImageAdd = () => {
-    if (fileInputRef.currenㅍt) {
+    if (fileInputRef.current) {
       fileInputRef.current.click(); // 숨겨진 파일 input 요소 클릭
       setAddMenuVisible2(false);
     }
@@ -444,6 +487,18 @@ const handleDeleteClick = async () => {
     setContentArray(newContent);
   };
 
+  const handleCategoryChange = (e) => {
+    const newCategory = e.target.value;
+    
+    // 현재 상태를 유지하면서 새 selectedCategory를 포함하여 navigate
+    navigate(location.pathname, {
+      state: {
+        ...location.state,
+        selectedCategory: newCategory, // 새로운 카테고리 값
+      },
+    });
+  };
+
   return (
     <div className="book-page">
       {/* Header */}
@@ -474,16 +529,18 @@ const handleDeleteClick = async () => {
       {/* Book name input and category selection */}
       <div className="book-details">
         <div className="input-group">
-          <select
+        <select
             id="category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            value={selectedCategory}
+            onChange={handleCategoryChange} // 선택한 값으로 상태 업데이트
           >
-            <option value="">카테고리</option>
-            <option value="fiction">카테고리1</option>
-            <option value="nonfiction">카테고리2</option>
-            <option value="biography">카테고리3</option>
+            {categories.map((category) => (
+              <option key={category.name} value={category.name}>
+                {category.name}
+              </option>
+            ))}
           </select>
+
         </div>
         <div className="input-group name">
           <input
@@ -508,47 +565,50 @@ const handleDeleteClick = async () => {
           </div>
         </div>
         <div className="page">
-          {/* contentArray를 순회하면서 각 요소를 화면에 표시 */}
-          {contentArray.map((contentItem, index) => (
-            <div className="page-content" key={index}>
-              <h1
-                id="editable-title"
-                contentEditable={isEditable}
-                onBlur={handleSaveClick}
-                suppressContentEditableWarning={true}
-                onContextMenu={handleTitleRightClick}
-              >
-                {contentItem.title}
-              </h1>
-              <h4
-                id="editable-subtitle"
-                contentEditable={isEditable}
-                onBlur={handleSaveClick}
-                suppressContentEditableWarning={true}
-                onContextMenu={handleSubtitleRightClick}
-              >
-                {contentItem.subtitle}
-              </h4>
-              {/* 이미지가 있을 경우 표시 */}
-              {contentItem.imageUrl && (
-                <img src={contentItem.imageUrl} alt="Uploaded" style={{ width: '80%', height: 'auto' }} />
-              )}
-              <input
-                type="file"
-                ref={fileInputRef} // 파일 선택을 위한 ref
-                style={{ display: 'none' }} // 화면에 보이지 않도록 숨김
-                onChange={handleImageUpload} // 파일 선택 시 호출되는 핸들러
-              />
-              <p
-                id="editable-paragraph"
-                contentEditable={isEditable}
-                suppressContentEditableWarning={true}
-                onContextMenu={handleParagraphRightClick}
-                onBlur={handleSaveClick}
-              >
-                {contentItem.paragraph}
-              </p>
-              {/* main Submenu container */}
+          {/* text 마우스 왼쪽 버튼으로 클릭시 수정 아이콘 */}
+          <div className="page-content">
+            {/* Editable paragraph */}
+            <h1
+              id="editable-title"
+              contentEditable={isEditable}
+              onBlur={handleSaveClick}
+              suppressContentEditableWarning={true}
+              onContextMenu={handleTitleRightClick}
+            >
+              {content.title}
+            </h1>
+            <h4
+              id="editable-subtitle"
+              contentEditable={isEditable}
+              onBlur={handleSaveClick}
+              suppressContentEditableWarning={true}
+              onContextMenu={handleSubtitleRightClick}
+            >
+              {content.subtitle}
+            </h4>
+            {/* 업로드된 이미지가 있으면 화면에 표시 */}
+            {content.imageUrl ? (
+              <img src={content.imageUrl} alt="Uploaded" style={{ width: '80%', height: 'auto' }} />
+            ) : content.image_path ? (
+              <img src={content.image_path} alt="Stored" style={{ width: '80%', height: 'auto' }} />
+            ) : null}
+            {/* 숨겨진 파일 업로드 input */}
+            <input
+              type="file"
+              ref={fileInputRef} // ref를 통해 이 요소에 접근
+              style={{ display: 'none' }} // 화면에 표시되지 않도록 숨김
+              onChange={handleImageUpload} // 파일 선택 시 핸들러 호출
+            />
+            <p
+              id="editable-paragraph"
+              contentEditable={isEditable}
+              suppressContentEditableWarning={true}
+              onContextMenu={handleParagraphRightClick}
+              onBlur={handleSaveClick}
+            >
+              {content.paragraph}
+            </p>
+            {/* main Submenu container */}
             {submenuVisible && (
               <div
                 className="submenu"
@@ -621,8 +681,7 @@ const handleDeleteClick = async () => {
                 <button onClick={handleBackClick2}>Back</button>
               </div>
             )}
-            </div>
-            ))}
+          </div>
         </div>
         <div className="page">
           <div className="page-content">

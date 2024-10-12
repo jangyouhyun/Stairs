@@ -23,7 +23,7 @@ const deleteContentRouter = require('./api/delete_book_content.js');
 const updateCategoryRouter = require('./api/update_book_category.js');
 const updateOrderRouter = require('./api/update_book_order.js');
 const updateTitleRouter = require('./api/update_title.js');
-
+const updateImageRouter = require('./api/update_book_image.js');
 const app = express();
 
 // 요청 본문 해석
@@ -35,8 +35,8 @@ app.use(morgan('dev'));
 
 // Redis 클라이언트 설정
 const redisClient = new Redis({
-  host: 'localhost'
- // port: 6379
+  host: 'localhost',
+  port: 6379
 });
 
 // 세션 설정
@@ -107,13 +107,14 @@ app.use('/api', updateCategoryRouter);
 app.use('/api', updateOrderRouter);
 app.use('/api', updateTitleRouter);
 app.use('/api', insertContentRouter);
+app.use('/api', updateImageRouter);
 
 app.use((req, res, next) => {
     res.status(404).send('Not found');
 })
 
 // 포트 연결
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT,'0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });

@@ -118,6 +118,7 @@ router.post('/write_process/book_reading', function (req, res) {
     const category = req.body.category;
 
     if (!content) {
+        console.log("내용이 기입되지 않았습니다");
         return res.status(400).json({ status: 400, error: '내용이 기입되지 않았습니다!' });
     }
 
