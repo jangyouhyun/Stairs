@@ -19,7 +19,7 @@ router.post('/update_category', function (req, res) {
     const updateContentQuery = `
         UPDATE final_input
         SET category = ?
-        WHERE user_id = ? AND book_id = ? AND input_count = ? AND content_order = ?
+        WHERE user_id = ? AND book_id = ? AND input_count = ?
     `;
 
     // 데이터베이스에서 업데이트 수행

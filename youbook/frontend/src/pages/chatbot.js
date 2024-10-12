@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom'; // useNavigate로 수정
+import { useLocation } from 'react-router-dom';
 import './chatbot.css';
 import chatbotImage from '../assets/images/chatbot1.png';
 import back from '../assets/images/exit.png';
@@ -16,6 +17,8 @@ function Chatbot({ onClose }) {
   const [error, setError] = useState(null); // 에러 상태 추가
   const [isConversationEnded, setIsConversationEnded] = useState(false); // 대화 종료 상태 추가
   const navigate = useNavigate(); // 페이지 이동을 위한 hook
+  const location = useLocation();
+  const selectedCategory = location.state?.selectedCategory;
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -153,7 +156,7 @@ function Chatbot({ onClose }) {
             }
 
             // 성공적으로 처리되면 페이지 이동
-            navigate(`/book-reading/${bookId}`);
+            navigate(`/book-reading/${bookId}`, { state: { selectedCategory } });
           } catch (error) {
             console.error('Error:', error);
             setError('book_reading 데이터를 처리하는 중 오류가 발생했습니다.');

@@ -23,7 +23,7 @@ const deleteContentRouter = require('./api/delete_book_content.js');
 const updateCategoryRouter = require('./api/update_book_category.js');
 const updateOrderRouter = require('./api/update_book_order.js');
 const updateTitleRouter = require('./api/update_title.js');
-
+const updateImageRouter = require('./api/update_book_image.js');
 const app = express();
 
 // 요청 본문 해석
@@ -107,6 +107,7 @@ app.use('/api', updateCategoryRouter);
 app.use('/api', updateOrderRouter);
 app.use('/api', updateTitleRouter);
 app.use('/api', insertContentRouter);
+app.use('/api', updateImageRouter);
 
 app.use((req, res, next) => {
     res.status(404).send('Not found');
