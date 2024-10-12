@@ -63,6 +63,7 @@ function BookPage() {
   const bookRef = useRef(null);
   const selectedCategory = location.state?.selectedCategory;
   const [pages, setPages] = useState([]); 
+
   const pageRef = useRef(null);
   const [pageRefs, setPageRefs] = useState([]); 
   const [isHovered, setIsHovered] = useState(false);
@@ -70,7 +71,6 @@ function BookPage() {
 
   const handleHoverEnter = () => setIsHovered(true);
   const handleHoverLeave = () => setIsHovered(false);
-
   // 책 내용 불러오기 + 배열로 넣기 
   useEffect(() => {
     fetchBookContent();
@@ -480,13 +480,13 @@ const handleDeleteClick = async () => {
     document.addEventListener('click', handleOutsideClick);
   
     return () => {
-      // turn.js 인스턴스 제거
       if ($book.data('turn')) {
         $book.turn('destroy');
       }
       document.removeEventListener('click', handleOutsideClick);
     };
   }, [pages, pageRefs]);
+
 
   // Handle previous button click to flip the page backward
   const handlePrevious = () => {
@@ -586,6 +586,7 @@ useEffect(() => {
         <div className="hard">
         <div className = "page-content"></div>
         </div>
+
         
         <div className="page">
           {/* contentArray를 순회하면서 각 요소를 화면에 표시 */}
@@ -666,7 +667,6 @@ useEffect(() => {
                 </div>
               )}
               </div>
-              
         {/*popup */}
         {/* main Submenu container */}
         {submenuVisible && (

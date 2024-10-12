@@ -92,7 +92,7 @@ body, html {
 /* Page content */
 .page-content {
   width: 400px;
-  box-sizing: border-box;
+  box-sizing: border-box; 
 }
 
 .page-content h1{
