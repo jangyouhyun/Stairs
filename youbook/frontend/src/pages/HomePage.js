@@ -22,7 +22,7 @@ function HomePage() {
 
       const data = await response.json();
       if (data.success) {
-        navigate('/main');
+        navigate('/my-autobiography');
       } else {
         alert(data.message);
       }
