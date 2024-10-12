@@ -89,10 +89,12 @@ function BookPage() {
     fetchCategories();
   }, []);
 
+  const [pages, setPages] = useState([]); 
   const pageRef = useRef(null);
   const [pageRefs, setPageRefs] = useState([]); 
   const [isHovered, setIsHovered] = useState(false);
   const [addPopupVisible, setAddPopupVisible] = useState(false);
+
 
   const handleHoverEnter = () => setIsHovered(true);
   const handleHoverLeave = () => setIsHovered(false);
