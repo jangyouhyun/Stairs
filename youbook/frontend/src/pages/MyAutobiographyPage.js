@@ -291,7 +291,7 @@ const fetchCategories = () => {
           </div>
         </div>
         <div className="autobiography-list">
-          <div className="autobiography-item add-new" onClick={handleAddNewItem}>
+          <div className="autobiography-item add-new" onClick={() => navigate('/main')}>
             <span className="plus-icon">+</span>
           </div>
           {filteredItems.map(item => (

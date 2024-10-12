@@ -35,7 +35,8 @@ function BookPage() {
   const [submenuVisible3, setSubmenuVisible3] = useState(false);
   const [submenuVisible4, setSubmenuVisible4] = useState(false);
   const [submenuPosition, setSubmenuPosition] = useState({ x: 0, y: 0 });
-
+  const [addMenuVisible5, setAddMenuVisible5] = useState(false);
+ 
   const [addMenuVisible, setAddMenuVisible] = useState(false); // For add popup
   const [addMenuVisible2, setAddMenuVisible2] = useState(false);
   const [savedCoverImageUrl, setSavedCoverImageUrl] = useState(null);
@@ -43,69 +44,39 @@ function BookPage() {
   const location = useLocation();
   const { paragraph, category: initialCategory, title, subtitle, imageUrl } = location.state || {};  // 전달된 데이터를 수신
   const [category, setCategory] = useState(initialCategory || '');
-  const [contentArray, setContentArray] = useState([]);
   const [content, setContent] = useState({
     title: title || '',         // 제목 설정
     subtitle: subtitle || '',   // 부제 설정
     imageUrl: imageUrl || '',   // 이미지 URL 설정
     paragraph: paragraph || '', // 본문 설정
   });
-
+  useEffect(() => {
+    if (userId) {
+      // 서버 또는 API에서 사용자 ID에 따라 데이터 요청 (가상 함수)
+      fetch(`/api/getUserContent?userId=${userId}`)
+        .then(response => response.json())
+        .then(data => {
+          setContent({
+            title: data.title || '',
+            subtitle: data.subtitle || '',
+            imageUrl: data.imageUrl || '',
+            paragraph: data.paragraph || ''
+          });
+        })
+        .catch(error => {
+          console.error("Error fetching user content:", error);
+        });
+    }
+  }, [userId]);
   const [isEditable, setIsEditable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);  // 로딩 중 상태
   const [isBiographyCreated, setIsBiographyCreated] = useState(false);
   const fileInputRef = useRef(null); // 파일 input 요소에 접근하기 위한 ref
   const [imgData, setImgData] = useState(null);
-  // 북콘텐츠 관련 백엔드 변수
+    // 북콘텐츠 관련 백엔드 변수
   const [bookContent, setBookContent] = useState([]);
   const bookRef = useRef(null);
   const selectedCategory = location.state?.selectedCategory;
-
-  
-  // 책 내용 불러오기 + 배열로 넣기 
-  useEffect(() => {
-    fetchBookContent();
-  }, []);  // 초기화 시 한 번만 실행
-
-  // bookContent가 업데이트되었을 때 convertBookContentToContent 실행
-  useEffect(() => {
-    if (bookContent.length > 0) { // bookContent가 업데이트된 후 실행
-      console.log(bookContent); // 업데이트된 bookContent 출력
-      convertBookContentToContent(); // bookContent 기반으로 content 생성
-    }
-  }, [bookContent]);
-
-  useEffect(() => {
-    if (contentArray.length > 0 && contentArray[0].paragraph) {
-      console.log("content::::::", contentArray[0].paragraph); // 디버깅 문장 추가
-      setContent(contentArray[0]);
-    } else {
-      console.log("contentArray is empty or paragraph is missing");
-    }
-  }, [contentArray]);
-
-// 책 내용 가져오는 함 수 
-const fetchBookContent = async () => {
-  try {
-    const response = await fetch('/api/print', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        book_id: bookId,
-        input_count: 1,
-        category: selectedCategory
-      }),
-    });
-
-    const data = await response.json();
-    setBookContent(data.contentArray); // 상태 업데이트
-
-  } catch (error) {
-    console.error('Failed to fetch book content:', error);
-  }
-};
 
   //제목 삽입
   const handleTitleAdd = () => {
@@ -129,98 +100,16 @@ const fetchBookContent = async () => {
     setSubmenuVisible(false); // Close submenu
   };
 
-
-
-  /////// 아래 두개 함수 수정
-  //// 추가 해야 하는 부분 : 추후에 가지고 가는 content_order의 경우, content 배열의 인덱스를 가져가도록
-  // 또, 문단번호가 업데이트 될때 - 문단이 이동되거나 , 삭제, 삽입될때 -> 배열의 인덱스도 동적으로 이동하도록 해야함 
   // Function to save the edited
-  const handleSaveClick = async (event) => {
-    var whatToChange;
-    try {
-      // 편집된 문단 내용을 가져와서 상태 업데이트
-      const updatedContent = event.target.innerText;
-
-          // 어떤 부분이 수정되었는지 확인 후, 각각의 상태 업데이트
-    if (event.target.id === 'editable-title') {
-      setContent((prevContent) => ({
-        ...prevContent,
-        title: updatedContent,
-      }));
-      whatToChange = 1;
-    } else if (event.target.id === 'editable-subtitle') {
-      setContent((prevContent) => ({
-        ...prevContent,
-        subtitle: updatedContent,
-      }));
-      whatToChange = 2;
-    } else if (event.target.id === 'editable-paragraph') {
-      setContent((prevContent) => ({
-        ...prevContent,
-        paragraph: updatedContent,
-      }));
-      whatToChange = 3;
-    }
-  
-      // API 호출을 통해 수정된 문단 데이터를 서버에 저장
-      const response = await fetch('/api/update_content', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          bookId: bookId,
-          inputCount: 1, 
-          content_order: 1, // 임시 값
-          content: updatedContent, // 수정된 문단 내용
-          cNum: whatToChange
-        }),
-      });
-  
-      if (response.ok) {
-        setIsEditable(false); // 수정 모드를 비활성화
-        fetchBookContent(); // 수정된 데이터를 다시 불러오기 위해 호출
-      } else {
-        console.error('Failed to save content');
-      }
-    } catch (error) {
-      console.error('Error saving content:', error);
-    }
+  const handleSaveClick = () => {
+    setIsEditable(false); // Disable editing after save
   };
-  
 
-  // 이상하게 작동이 안되긴하는데.. 일단 넣어놓음
-// Function to handle paragraph deletion
-const handleDeleteClick = async () => {
-  try {
-    const response = await fetch('/api/delete_content', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        bookId: bookId,
-        inputCount: 1,  // 적절한 inputCount 값을 설정
-        content_order: 1, // 삭제할 문단의 content_order
-      }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      alert('문단이 성공적으로 삭제되었습니다.');
-      
-      // 상태를 업데이트하거나 필요한 후속 작업을 수행
-      fetchBookContent(); // 삭제 후 책 내용을 다시 불러오기
-    } else {
-      const errorData = await response.json();
-      console.error('Failed to delete content:', errorData.error);
-      alert('문단 삭제에 실패했습니다.');
-    }
-  } catch (error) {
-    console.error('Error during delete request:', error);
-    alert('문단 삭제 중 오류가 발생했습니다.');
+  // paragraph 삭제
+  const handleDeleteClick = () => {
+    setContent((prevContent) => ({ ...prevContent, paragraph: '' })); // Clear the paragraph content
+    setSubmenuVisible(false);
   }
-};
 
   // Function to handle edit
   const handleTitleEditClick = () => {
@@ -422,15 +311,15 @@ const handleDeleteClick = async () => {
     };
   }, []);
 
-  // Handle previous button click to flip the page backward
-  const handlePrevious = () => {
-    $('#book').turn('previous');
-  };
-
-  // Handle next button click to flip the page forward
-  const handleNext = () => {
-    $('#book').turn('next');
-  };
+    // Handle previous button click to flip the page backward
+    const handlePrevious = () => {
+      $('#book').turn('previous');
+    };
+  
+    // Handle next button click to flip the page forward
+    const handleNext = () => {
+      $('#book').turn('next');
+    };
 
   const convertBookContentToContent = () => {
     const newContent = bookContent.map(paragraph => ({
@@ -441,14 +330,50 @@ const handleDeleteClick = async () => {
     }));
 
     console.log('Converted bookContent to content:', newContent);
-    setContentArray(newContent);
+    setContent(newContent);
   };
+
+  // 책 내용 불러오기 + 배열로 넣기 
+  useEffect(() => {
+    // Fetch book content from the API
+    const fetchBookContent = async () => {
+      try {
+        const response = await fetch('/api/print', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            book_id: bookId,
+            input_count: 1,
+            category: selectedCategory
+          }),
+        });
+
+        const data = await response.json();
+        setBookContent(data.contentArray); // 상태 업데이트
+
+      } catch (error) {
+        console.error('Failed to fetch book content:', error);
+      }
+    };
+
+    fetchBookContent();
+  }, []);  // 초기화 시 한 번만 실행
+
+  // bookContent가 업데이트되었을 때 convertBookContentToContent 실행
+  useEffect(() => {
+    if (bookContent.length > 0) { // bookContent가 업데이트된 후 실행
+      console.log(bookContent); // 업데이트된 bookContent 출력
+      convertBookContentToContent(); // bookContent 기반으로 content 생성
+    }
+  }, [bookContent]);
 
   return (
     <div className="book-page">
       {/* Header */}
       <header className="main-header">
-        <button className="menu-button" onClick={handleMenuClick}>☰</button>
+      <button className="menu-button" onClick={handleMenuClick}>☰</button>
         <button className="profile-button" onClick={handleProfileClick}>
           <img src={signupIcon} alt="Profile" className="profile-image" />
         </button>
@@ -457,23 +382,23 @@ const handleDeleteClick = async () => {
         <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
-          <ul>
-            <li>
-              <img src={book} alt="Book" className="icon book-icon" onClick={handleProfileClick} />
-            </li>
-            <li>
-              <img src={edit} alt="Edit" className="icon edit-icon" onClick={handleModifyClick} />
-            </li>
-            <li>
-              <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleHomeClick} />
-            </li>
-          </ul>
+        <ul>
+          <li>
+            <img src={book} alt="Book" className="icon book-icon" onClick={handleProfileClick} />
+          </li>
+          <li>
+            <img src={edit} alt="Edit" className="icon edit-icon" onClick={handleModifyClick}/>
+          </li>
+          <li>
+            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleHomeClick}/>
+          </li>
+        </ul>
         </nav>
         <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
       </aside>
       {/* Book name input and category selection */}
       <div className="book-details">
-        <div className="input-group">
+      <div className="input-group">
           <select
             id="category"
             value={category}
@@ -499,9 +424,9 @@ const handleDeleteClick = async () => {
       {/* Book content */}
       <div id="book">
         <div className="hard">
-          {savedCoverImageUrl && (
-            <img src={savedCoverImageUrl} alt="Book Cover" className="cover-image" />
-          )}
+            {savedCoverImageUrl && (
+              <img src={savedCoverImageUrl} alt="Book Cover" className="cover-image" />
+            )}
         </div>
         <div className="hard">
           <div className="page-content">
@@ -510,24 +435,22 @@ const handleDeleteClick = async () => {
         <div className="page">
           {/* text 마우스 왼쪽 버튼으로 클릭시 수정 아이콘 */}
           <div className="page-content">
-            {/* Editable paragraph */}
+             {/* Editable paragraph */}
             <h1
-              id="editable-title"
               contentEditable={isEditable}
               onBlur={handleSaveClick}
               suppressContentEditableWarning={true}
               onContextMenu={handleTitleRightClick}
-            >
-              {content.title}
+              >
+                {content.title}
             </h1>
             <h4
-              id="editable-subtitle"
               contentEditable={isEditable}
               onBlur={handleSaveClick}
               suppressContentEditableWarning={true}
               onContextMenu={handleSubtitleRightClick}
-            >
-              {content.subtitle}
+              >
+                {content.subtitle}
             </h4>
             {/* 업로드된 이미지가 있으면 화면에 표시 */}
             {content.imageUrl && (
@@ -542,15 +465,14 @@ const handleDeleteClick = async () => {
               onChange={handleImageUpload} // 파일 선택 시 핸들러 호출
             />
             <p
-              id="editable-paragraph"
-              contentEditable={isEditable}
-              suppressContentEditableWarning={true}
-              onContextMenu={handleParagraphRightClick}
-              onBlur={handleSaveClick}
-            >
-              {content.paragraph}
-            </p>
-            {/* main Submenu container */}
+                contentEditable={isEditable}
+                suppressContentEditableWarning={true}
+                onContextMenu={handleParagraphRightClick}
+                onBlur={handleSaveClick}
+              >
+                {content.paragraph}
+              </p>
+              {/* main Submenu container */}
             {submenuVisible && (
               <div
                 className="submenu"
@@ -565,7 +487,7 @@ const handleDeleteClick = async () => {
                 <button onClick={handleEditClick}>Edit</button>
                 <button onClick={handleDeleteClick}>Delete</button>
               </div>
-            )}
+              )}
             {/* Title Submenu container */}
             {submenuVisible3 && (
               <div
@@ -580,8 +502,8 @@ const handleDeleteClick = async () => {
                 <button onClick={handleTitleEditClick}>Edit</button>
                 <button onClick={handleTitleDeleteClick}>Delete</button>
               </div>
-            )}
-            {/* subtitle Submenu container */}
+              )}
+              {/* subtitle Submenu container */}
             {submenuVisible4 && (
               <div
                 className="submenu"
@@ -590,20 +512,20 @@ const handleDeleteClick = async () => {
                   top: `${submenuPosition.y}px`,
                   left: `${submenuPosition.x}px`,
                 }}
-              >
+              > 
                 <button >AI 추천 받기</button>
                 <button onClick={handleTitleEditClick}>Edit</button>
                 <button onClick={handleSubtitleDeleteClick}>Delete</button>
               </div>
-            )}
+              )}
             {/* Add Menu Popup */}
             {addMenuVisible && (
               <div className="add-popup"
-                style={{
-                  position: 'absolute',
-                  top: `${submenuPosition.y}px`,
-                  left: `${submenuPosition.x}px`,
-                }}>
+              style={{
+                position: 'absolute',
+                top: `${submenuPosition.y}px`,
+                left: `${submenuPosition.x}px`,
+              }}>
                 <button onClick={handleTitleAdd}>Title</button>
                 <button onClick={handleSubtitleAdd}>Subtitle</button>
                 <button onClick={handleImageClick}>Image</button>
@@ -613,11 +535,11 @@ const handleDeleteClick = async () => {
             {/* Add Image Popup */}
             {addMenuVisible2 && (
               <div className="add-popup"
-                style={{
-                  position: 'absolute',
-                  top: `${submenuPosition.y}px`,
-                  left: `${submenuPosition.x}px`,
-                }}>
+              style={{
+                position: 'absolute',
+                top: `${submenuPosition.y}px`,
+                left: `${submenuPosition.x}px`,
+              }}>
                 <button>AI 추천 받기</button>
                 <button onClick={ImageAdd}>직접 삽입</button>
                 <button onClick={handleBackClick2}>Back</button>
@@ -627,7 +549,7 @@ const handleDeleteClick = async () => {
         </div>
         <div className="page">
           <div className="page-content">
-
+            
           </div>
         </div>
         <div className="hard">
@@ -646,14 +568,14 @@ const handleDeleteClick = async () => {
           <img src={rightArrow} alt="Next" />
         </span>
       </div>
-
+      
       {/* Footer buttons */}
       <div className="book-footer">
         <button className="footer-button save-button" onClick={handleSemiSaveClick}>임시 저장</button>
         <button className="footer-button" onClick={handleOpenDesignPage}>표지 만들기</button>
-        <button className="footer-button" onClick={handleCompleteClick2}>완료</button>
+        <button className="footer-button"  onClick={handleCompleteClick2}>완료</button>
       </div>
-
+      
       <div className="fixed-inquiry-icon" onClick={handleInquiryClick}>
         <img src={askicon} alt="문의하기 아이콘" />
       </div>
@@ -665,12 +587,12 @@ const handleDeleteClick = async () => {
             <li onClick={() => navigate('/customerinquiry')}>1:1 문의</li>
           </ul>
         </div>
-
+        
       )}
-      {isDesignOpen && (
+    {isDesignOpen && (
         <div className="design-popup">
           <Design onClose={handleCloseDesignPage}
-            onComplete={handleCompleteClick}
+                  onComplete={handleCompleteClick}
           />
         </div>
       )}
