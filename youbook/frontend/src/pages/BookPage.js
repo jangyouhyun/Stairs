@@ -507,10 +507,11 @@ const handleDeleteClick = async () => {
           <div className="page-content">
           </div>
         </div>
-        <div className="page">
+        {contentArray.map((contentItem, index) => (
+        <div className="page" key={index}>
           {/* contentArray를 순회하면서 각 요소를 화면에 표시 */}
-          {contentArray.map((contentItem, index) => (
-            <div className="page-content" key={index}>
+          
+            <div className="page-content">
               <h1
                 id="editable-title"
                 contentEditable={isEditable}
@@ -621,9 +622,9 @@ const handleDeleteClick = async () => {
                 <button onClick={handleBackClick2}>Back</button>
               </div>
             )}
+             </div>
             </div>
             ))}
-        </div>
         <div className="page">
           <div className="page-content">
 
