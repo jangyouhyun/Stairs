@@ -26,204 +26,204 @@ function MyAutobiographyPage() {
   const navigate = useNavigate();
   const contextMenuRef = useRef(null);
 
-    // 메뉴 관련 핸들러들
-    const handleMenuClick = () => setIsSidebarVisible(true);
-    const handleExitClick = () => setIsSidebarVisible(false);
-    const handleInquiryClick = () => setIsRectangleVisible(!isRectangleVisible);
-    const handleModifyClick = () => navigate('/modifyinfo');
-    const handleHomeClick = () => navigate('/');
-    const handleItemClick = (id) => navigate('/book', { state: { id } });
-
-  // 요 파트 API 수정 ?
-  // 책 데이터를 가져오는 함수
-  const fetchBooks = (userId) => {
-    fetch(`/api/get_books?user_id=${userId}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          const fetchedItems = data.books.map((book, index) => ({
-            id: index + 1,
-            category: book.category,
-            book_id: book.book_id,
-            content: book.image_path || defaultProfileImage, 
-            title: book.title,
-            date: new Date(book.create_date).toISOString().slice(0, 10),
-            checked: false,
-          }));
-          setItems(fetchedItems);
-        }
-      })
-      .catch(error => console.error('Error fetching books:', error));
-  };
-
-// category 데이터를 가져오는 함수
-const fetchCategories = () => {
-	fetch('/api/get_category')
-	  .then(response => response.json())
-	  .then(data => {
-      if (data.success) {
-        const sortedCategories = data.categorys.map(category => category.name).sort((a, b) => a.localeCompare(b));
-        setCategories(sortedCategories);
-        if (sortedCategories.length > 0) {
-        setSelectedCategory(sortedCategories[0]);
-        }
-		}
-	  })
-	  .catch(error => {console.error('Error fetching categories:', error);});
-  };
+      // 메뉴 관련 핸들러들
+      const handleMenuClick = () => setIsSidebarVisible(true);
+      const handleExitClick = () => setIsSidebarVisible(false);
+      const handleInquiryClick = () => setIsRectangleVisible(!isRectangleVisible);
+      const handleModifyClick = () => navigate('/modifyinfo');
   
-  useEffect(() => {
-    fetchCategories();
-  }, []);
 
-  // 카테고리 클릭 핸들러
-  const handleCategoryClick = (category) => setSelectedCategory(category);
-
-  // 전체 선택 핸들러
-  const handleSelectAll = () => {
-    const allChecked = items.every(item => item.checked);
-    setItems(items.map(item => ({ ...item, checked: !allChecked })));
-  };
-
-  // 체크박스 변경 핸들러
-  const handleCheckboxChange = (id) => {
-    setItems(items.map(item => (item.id === id ? { ...item, checked: !item.checked } : item)));
-  };
-
-  // 삭제 핸들러
-  const handleDelete = () => {
-    if (window.confirm('정말 삭제하시겠습니까?')) {
-      setItems(items.filter(item => !item.checked));
-    }
-  };
-
-  // 로그아웃 핸들러
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('/api/logout', { method: 'POST' });
-      if (response.ok) navigate('/');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
-
-  const handleContextMenu = (event, category) => {
-    event.preventDefault();
-    setShowContextMenu(true);
-    setContextMenuPosition({ x: event.pageX, y: event.pageY });
-    setEditingCategory(category); 
-  };
-
-  // 카테고리 이름 변경 핸들러
-  const handleRenameCategory = (newName, name) => {
-    if (!newName) return;
-    fetch('/api/update_category', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, new_name: newName }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          fetchCategories();
-          fetchBooks();
-        }
-      })
-      .catch(error => console.error('Error renaming category:', error));
-  };
-
-  // 카테고리 삭제 핸들러
-  const handleDeleteCategory = (name) => {
-    fetch('/api/delete_category', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          fetchCategories();
-          fetchBooks();
-        }
-      })
-      .catch(error => console.error('Error deleting category:', error));
-  };
-
-  // 카테고리 추가 핸들러
-  const handleAddCategory = () => {
-    if (categories.length >= 4) {
-      window.alert('카테고리는 최대 4개까지 추가할 수 있습니다.');
-    } else {
-      const newCategory = prompt('새 카테고리 이름을 입력하세요');
-      if (newCategory) {
-        fetch('/api/add_category', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: newCategory }),
+    // 유저 정보를 서버에서 가져옴
+    useEffect(() => {
+      fetch('/api/get_user_info')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            setUserName(data.nickname); // 닉네임을 상태에 저장
+            setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로를 상태에 저장
+            
+            // 유저 정보를 가져온 후, book_list 데이터를 가져옴
+            fetchBooks(data.user_id);
+          } else {
+            console.error(data.message);
+            navigate('/');
+          }
         })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) fetchCategories();
-          })
-          .catch(error => console.error('Error adding category:', error));
-      }
-    }
+        .catch(error => {
+          console.error('Error fetching user info:', error);
+        });
+    }, [navigate]);
+  
+    
+  // book_list 데이터를 가져오는 함수
+  const fetchBooks = () => {
+    fetch('/api/get_books')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const fetchedItems = data.books.map((book, index) => {
+            // 날짜 포맷팅 -> 시간 제거
+            const formattedDate = new Date(book.create_date).toISOString().slice(0, 10);
+            
+            return {
+              id: index + 1,
+              category: book.category,
+              book_id: book.book_id,
+              content: book.image_path || defaultProfileImage,
+              title: book.title,
+              date: formattedDate,
+              checked: false,
+            };
+          });
+          setItems(fetchedItems);
+  
+          const fetchedCategories = data.books.map(book => book.category);
+          fetchedCategories.sort((a, b) => a.localeCompare(b));
+          const uniqueCategories = [...new Set(fetchedCategories)];
+          
+          // 카테고리 배열이 비어 있지 않으면 첫 번째 카테고리로 selectedCategory 설정
+           if (uniqueCategories.length > 0) {
+            setSelectedCategory(uniqueCategories[0]);
+          }
+          setCategories(uniqueCategories);
+          
+        } else {
+          console.error(data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching books:', error);
+      });
   };
   
-  //검색 핸들러
-  const handleSearch = (event) => {
-    setSearchQuery(event.target.value); // 검색어를 업데이트
-  };
-
-  // 외부 클릭 시 컨텍스트 메뉴 닫기
+  // categories가 변경될 때마다 배열을 콘솔에 출력
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
-        setShowContextMenu(false);
+    console.log('Categories:', categories);
+  }, [categories]);
+  
+    const handleCategoryClick = (category) => {
+      setSelectedCategory(category);
+    };
+  
+    const handleItemClick = (id) => {
+      navigate('/book', { state: { id } });
+    };
+  
+    const handleCheckboxChange = (id) => {
+      setItems(items.map(item =>
+        item.id === id ? { ...item, checked: !item.checked } : item
+      ));
+    };
+  
+    const handleSelectAll = () => {
+      const allChecked = items.every(item => item.checked);
+      setItems(items.map(item => ({ ...item, checked: !allChecked })));
+    };
+  
+    const handleDelete = () => {
+      const confirmed = window.confirm('정말 삭제하시겠습니까?');
+      if (confirmed) {
+        setItems(items.filter(item => !item.checked));
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-   // BookPage에서 전달된 데이터가 있을 경우 새로운 아이템 추가
-   useEffect(() => {
-    if (category && title && date && image) {
-      setItems((prevItems) => [
-        ...prevItems,
-        {
-          id: prevItems.length + 1,   // 새로운 아이템 ID
-          category: category,         // 카테고리
-          title: title,               // 책 제목
-          date: date,                 // 생성 날짜
-          image: image || defaultProfileImage,  // 이미지 데이터 또는 기본 이미지
-        }
-      ]);
-    }
-  }, [category, title, date, image]);
-
-  // 카테고리 및 책 데이터 가져오기
-  useEffect(() => {
-    fetch('/api/get_user_info')
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          setUserName(data.nickname); 
-          setProfileImagePath(data.imagePath || defaultProfileImage); 
-          fetchBooks(data.user_id); 
+  
+    const handleLogout = async () => {
+      try {
+        const response = await fetch('/api/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+    
+        if (response.ok) {
+          navigate('/');  // 로그아웃 성공 후 메인 페이지로 이동
         } else {
-          navigate('/');
+          console.error('Failed to log out');
         }
-      })
-      .catch(error => console.error('Error fetching user info:', error));
-  }, [navigate]);
-
-  const handleAddNewItem = () => {
-    navigate('/main', { state: { selectedCategory } });
-  }
-
-  const filteredItems = items.filter(item => item.category === selectedCategory);
-
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+  
+    const handleContextMenu = (event, category) => {
+      event.preventDefault();
+      setShowContextMenu(true);
+      setContextMenuPosition({ x: event.pageX, y: event.pageY });
+      setEditingCategory(category);
+    };
+  
+    const handleRenameCategory = (newName) => {
+      setCategories(categories.map(cat => (cat === editingCategory ? newName : cat)));
+      setSelectedCategory(newName === selectedCategory ? newName : selectedCategory);
+      setShowContextMenu(false);
+    };
+  
+    const handleDeleteCategory = () => {
+      const confirmed = window.confirm('정말 카테고리를 삭제하시겠습니까?');
+      if (confirmed) {
+        setCategories(categories.filter(cat => cat !== editingCategory));
+        setItems(items.filter(item => item.category !== editingCategory));
+        setSelectedCategory(categories[0]);
+      }
+      setShowContextMenu(false);
+    };
+  
+    const handleAddCategory = () => {
+      if (categories.length >= 4) {
+        window.alert('카테고리는 최대 4개까지 추가할 수 있습니다.');
+      } else {
+        const newCategory = `카테고리${categories.length + 1}`;
+        setCategories([...categories, newCategory]);
+        setSelectedCategory(newCategory);
+      }
+    };
+  
+    // Event listener to close the context menu when clicking outside
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
+          setShowContextMenu(false); // Hide context menu
+        }
+      };
+  
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
+  
+    const handleAddNewItem = () => {
+      const newItem = {
+        id: items.length + 1,
+        category: selectedCategory,
+        content: `New Item ${items.length + 1}`,
+        title: `제목 ${items.length + 1}`,
+        date: new Date().toISOString().slice(0, 10),
+        checked: false,
+      };
+      setItems([...items, newItem]);
+    };
+  
+    const handleSearch = (event) => {
+      setSearchQuery(event.target.value);
+    };
+  
+    const filteredItems = items.filter(item => item.category === selectedCategory);
+  
+    // Event listener to close the context menu when clicking outside
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
+          setShowContextMenu(false); // Hide context menu
+        }
+      };
+  
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
 
   return (
     <div className="my-autobiography-page">
@@ -308,7 +308,6 @@ const fetchCategories = () => {
                 <div className="item-details">
                   <div className="item-title">{item.title}</div>
                   <div className="item-date">{item.date}</div>
-                  <div className="item-category">{item.category}</div>
                 </div>
               </div>
               ))}

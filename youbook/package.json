@@ -7,7 +7,7 @@
     "start": "concurrently \"npm run start-redis\" \"npm run start-backend\" \"npm run start-frontend\"",
     "start-backend": "node backend/src/page.js",
     "start-frontend": "npm start --prefix frontend",
-    "start-redis": "../../redis-stable/src/redis-server",
+    "start-redis": "../../redis-stable/src/redis-server --port 6380",
     "install-all": "npm install && npm install --prefix frontend && npm install --prefix backend"
   },
   "keywords": [],
