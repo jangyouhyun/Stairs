@@ -90,14 +90,11 @@ body, html {
 
 /* Page content */
 .page-content {
-width: 400px;
-height: 700px;
-max-height: 700px;
-color: #3D230B;
-padding: 10px;
-box-sizing: border-box;
-position: relative;
-margin-bottom: 20px;
+  display: block;
+  width: 400px;
+  height: 700px;
+  margin-bottom: 20px;
+  overflow-y: auto;
 }
 
 .page-content h1{
