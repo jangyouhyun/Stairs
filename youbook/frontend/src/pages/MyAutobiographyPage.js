@@ -44,7 +44,7 @@ const fetchBooks = () => {
           // 날짜를 포맷팅 (시간 제거)
           const formattedDate = new Date(book.create_date).toISOString().slice(0, 10);
           return {
-            id: index + 1,
+            id: book.book_id,
             category: book.category, // 모든 항목의 카테고리를 '카테고리1'로 설정
             content: book.image_path, // content 필드에 이미지 경로 설정
             title: book.title,
@@ -96,13 +96,45 @@ const fetchCategories = () => {
     setItems(items.map(item => (item.id === id ? { ...item, checked: !item.checked } : item)));
   };
 
-  // 삭제 핸들러
-  const handleDelete = () => {
-    if (window.confirm('정말 삭제하시겠습니까?')) {
-      setItems(items.filter(item => !item.checked));
+  const handleDelete = async () => {
+    const confirmed = window.confirm('정말 삭제하시겠습니까?');
+  
+    if (confirmed) {
+      // checked가 true인 항목들의 id 추출
+      const checkedId = items
+        .filter(item => item.checked)
+        .map(item => item.id); // book_id 대신 id 사용
+    
+      if (checkedId.length > 0) {
+        console.log(checkedId); // 확인을 위해 id 배열 출력
+        try {
+          // API 호출: 삭제할 id 목록을 body에 포함
+          const response = await fetch('/api/delete_book_list', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ book_id: checkedId }), // id들의 배열을 전송
+          });
+  
+          if (!response.ok) {
+            throw new Error('Failed to delete items');
+          }
+  
+          const data = await response.json();
+          console.log('Server response:', data);
+  
+          // 성공적으로 삭제된 경우 상태 업데이트
+          setItems(items.filter(item => !item.checked));
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      } else {
+        console.log('No items selected for deletion');
+      }
     }
   };
-
+  
   // 로그아웃 핸들러
   const handleLogout = async () => {
     try {
@@ -212,8 +244,8 @@ const fetchCategories = () => {
     navigate('/main', { state: { selectedCategory } });
   }
 
-  const filteredItems = items.filter(item => item.category === selectedCategory);
-
+  // 아이템 검색이 반영되도록 필터 수정
+  const filteredItems = items.filter(item => item.category === selectedCategory && item.title.includes(searchQuery)); // item.title이 존재하는지 확인
 
   return (
     <div className="my-autobiography-page">
