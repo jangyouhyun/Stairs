@@ -7,20 +7,18 @@ import back from '../assets/images/exit.png';
 import BooksIcon from '../assets/images/books.gif';
 
 
-function Chatbot({ onClose }) {
+function Chatbot({ bookId, selectedCategory, onClose }) {
   const [messages, setMessages] = useState([
     { type: 'bot', text: '안녕하세요! 유북 챗봇입니다. 작성해주신 내용을 바탕으로 몇 가지 질문드리겠습니다. 대화를 마치고 싶다면 종료라고 말씀해주세요!' },
   ]);
 
   const [inputValue, setInputValue] = useState('');
-  const { bookId } = useParams();  // URL 파라미터에서 bookId 추출
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
   const [error, setError] = useState(null); // 에러 상태 추가
   const [isConversationEnded, setIsConversationEnded] = useState(false); // 대화 종료 상태 추가
   const [isFinalLoading, setIsFinalLoading] = useState(false);
   const navigate = useNavigate(); // 페이지 이동을 위한 hook
   const location = useLocation();
-  const selectedCategory = location.state?.selectedCategory;
   const messagesEndRef = useRef(null); // 스크롤을 제어할 참조 추가
   const [isCreatingBook, setIsCreatingBook] = useState(false);
 
