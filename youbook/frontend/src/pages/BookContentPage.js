@@ -145,6 +145,7 @@ const fetchBookContent = async () => {
   const handleHomeClick = () => {
     navigate('/');
   };
+
   const handleModifyClick = () => {
     navigate('/modifyinfo');
   };
@@ -229,7 +230,12 @@ const fetchBookContent = async () => {
   };
 
   const handleOpenModifyPage = () => {
-    navigate('/book-modify/:bookId');
+    navigate(`/book-modify/${bookId}`,  {
+      state: {
+        contentArray: contentArray,
+        selectedCategory: selectedCategory,
+      },
+    });
   }
 
   return (

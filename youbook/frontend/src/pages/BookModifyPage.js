@@ -19,7 +19,7 @@ import askicon from '../assets/images/askicon.png';
 import loadingIcon from '../assets/images/loadingicon.gif';
 import chatbotImage from '../assets/images/chatbot1.png';
 
-function BookPage() {
+function BookModifyPage() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
@@ -45,7 +45,7 @@ function BookPage() {
   const location = useLocation();
   const { paragraph, category: initialCategory, title, subtitle, imageUrl } = location.state || {};  // 전달된 데이터를 수신
   const [category, setCategory] = useState(initialCategory || '');
-  const [contentArray, setContentArray] = useState([]);
+  const [contentArray, setContentArray] = useState([]); // 빈 배열로 초기화
   const [content, setContent] = useState({
     title: title || '',         // 제목 설정
     subtitle: subtitle || '',   // 부제 설정
@@ -63,8 +63,7 @@ function BookPage() {
   const [categories, setCategories] = useState([]);
   const bookRef = useRef(null);
  // const [selectedCategory, setSelectedCategory] = useState(''); // 선택된 카테고리
-  const selectedCategory = location.state?.selectedCategory;
-
+ const { newcontentArray, selectedCategory } = location.state || {};
   // 카테고리 목록 가져오기
   const fetchCategories = async () => {
     try {
@@ -680,7 +679,7 @@ useEffect(() => {
         
         <div className="page">
           {/* contentArray를 순회하면서 각 요소를 화면에 표시 */}
-          {contentArray.map((contentItem, index) => (
+          {contentArray?.map((contentItem, index) => (
             <div className="page-content"  key={`page-${index}`} ref={index === pages.length - 1 ? pageRef : null}>
               {/*타이틀*/}
               <h1
@@ -918,4 +917,4 @@ useEffect(() => {
   );
 }
 
-export default BookPage;
+export default BookModifyPage;
