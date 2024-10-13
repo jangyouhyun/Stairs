@@ -144,39 +144,80 @@ const fetchBookContent = async () => {
 };
 
 // 이미지 핸들러
-const handleImageUpload = async (event) => {
-  const file = event.target.files[0]; // 사용자가 선택한 첫 번째 파일
-  if (file) {
-    const formData = new FormData();
+// 이미지 핸들러
+const handleImageUpload = async (event, ImagePath = null) => {
+  const formData = new FormData();
+
+  if (ImagePath) {
+    console.log("나는 ai 생성에 성공했어요")
+    // AI에서 생성된 이미지 경로를 바로 전송
+    formData.append('image', null);
+    formData.append('image_path', ImagePath); // 경로 추가
+  } else {
+    console.log("나는 ai 생성에 실패했어요..")
+    // 사용자가 직접 업로드한 파일을 사용
+    const file = event.target.files[0];
     formData.append('image', file); // 이미지 파일 추가
-    formData.append('bookId', bookId); // bookId 추가
-    formData.append('inputCount', 1);
-    formData.append('content_order', 1);
+    formData.append('image_path', null);
+  }
 
-    try {
-      // 서버에 이미지 업로드 요청
-      const response = await fetch('/api/update_image', {
-        method: 'POST',
-        body: formData, // FormData 전송
-      });
+  formData.append('bookId', bookId); // bookId 추가
+  formData.append('inputCount', 1);
+  formData.append('content_order', 1);
 
-      const result = await response.json();
-      if (result.success) {
-        setContent((prevContent) => ({
-          ...prevContent,
-          imageUrl: result.image_path, // 서버에서 받은 이미지 경로 설정
-        }));
-        alert('이미지가 성공적으로 업로드되었습니다.');
-      } else {
-        alert('이미지 업로드에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('이미지 업로드 중 오류가 발생했습니다.');
+  try {
+    // 서버에 이미지 업로드 요청
+    const response = await fetch('/api/update_image', {
+      method: 'POST',
+      body: formData, // FormData 전송
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      setContent((prevContent) => ({
+        ...prevContent,
+        imageUrl: result.image_path, // 서버에서 받은 이미지 경로 설정
+      }));
+      alert('이미지가 성공적으로 업로드되었습니다.');
+    } else {
+      alert('이미지 업로드에 실패했습니다.');
     }
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    alert('이미지 업로드 중 오류가 발생했습니다.');
   }
 };
 
+
+  // AI로 이미지 생성하는 함수
+  const handleAIimagecreate = async () => {
+    try {
+      const promptData = {
+        prompt: content.paragraph, // 현재 선택한 문단의 내용을 프롬프트로 전달
+      };
+
+      // DALL-E API를 호출하여 이미지 생성
+      const dalleResponse = await fetch('/api/create-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(promptData), // 선택한 문단 내용 전달
+      });
+
+      const dalleData = await dalleResponse.json();
+
+      if (dalleData.path) {
+        // 생성된 이미지 경로가 있으면 이미지 업로드 함수로 넘김
+        handleImageUpload(dalleData.path);
+      } else {
+        alert('이미지 생성에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error creating AI image:', error);
+      alert('AI 이미지 생성 중 오류가 발생했습니다.');
+    }
+  };
 
   //제목 삽입
   const handleTitleAdd = () => {
@@ -273,8 +314,16 @@ const handleDeleteClick = async () => {
 
     if (response.ok) {
       const data = await response.json();
-      alert('문단이 성공적으로 삭제되었습니다.');
-      
+
+      // 서버로부터 경고 메시지가 올 경우 처리
+      if (data.message === '마지막 내용입니다.') {
+        alert(data.message);
+
+      }
+
+      else
+       alert('문단이 성공적으로 삭제되었습니다.');
+
       // 상태를 업데이트하거나 필요한 후속 작업을 수행
       fetchBookContent(); // 삭제 후 책 내용을 다시 불러오기
     } else {
@@ -287,6 +336,7 @@ const handleDeleteClick = async () => {
     alert('문단 삭제 중 오류가 발생했습니다.');
   }
 };
+
 
   // Function to handle edit
   const handleTitleEditClick = () => {
@@ -444,7 +494,15 @@ const handleDeleteClick = async () => {
       fileInputRef.current.click(); // 숨겨진 파일 input 요소 클릭
       setAddMenuVisible2(false);
     }
+    handleAIimagecreate()
+    setAddMenuVisible2(false);
   };
+  
+  const ImageAIAdd = () => {
+    handleAIimagecreate()
+    setAddMenuVisible2(false);
+  };
+
   const handleBackClick = () => {
     setAddMenuVisible(false); // Close add menu
   };
@@ -481,11 +539,11 @@ const handleDeleteClick = async () => {
       } else {
         const errorData = await response.json();
         console.error('Failed to delete content:', errorData.error);
-        alert('문단 삭제에 실패했습니다.');
+        alert('자서전 저장에 실패했습니다.');
       }
     } catch (error) {
       console.error('Error during delete request:', error);
-      alert('문단 삭제 중 오류가 발생했습니다.');
+      alert('저장 중 오류가 발생했습니다.');
     }
 
     setTimeout(() => {
@@ -839,7 +897,7 @@ useEffect(() => {
           top: `${submenuPosition.y}px`,
           left: `${submenuPosition.x}px`,
         }}>
-          <button>AI 추천 받기</button>
+          <button onClick={ImageAIAdd}>AI 추천 받기</button>
           <button onClick={ImageAdd}>직접 삽입</button>
           <button onClick={handleBackClick2}>Back</button>
         </div>

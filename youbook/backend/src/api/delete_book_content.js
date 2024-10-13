@@ -26,45 +26,65 @@ router.post('/delete_content', function (req, res) {
                 return res.status(500).json({ error: 'Failed to start transaction' });
             }
 
-            // 문단 삭제 쿼리를 실행
-            const deleteContentQuery = `
-                DELETE FROM final_input WHERE user_id = ? AND book_id = ? AND input_count = ? AND content_order = ?
+            // content_order가 2번째 문단인지 확인하는 쿼리 실행
+            const checkSecondParagraphQuery = `
+                SELECT * FROM final_input WHERE user_id = ? AND book_id = ? AND input_count = ? AND content_order = 2
             `;
 
-            connection.query(deleteContentQuery, [user_id, book_id, input_count, content_order], function (err, deleteResult) {
+            connection.query(checkSecondParagraphQuery, [user_id, book_id, input_count], function (err, rows) {
                 if (err) {
                     connection.rollback(function () {
                         connection.release();
-                        return res.status(500).json({ error: 'Failed to delete content' });
+                        return res.status(500).json({ error: 'Failed to check paragraph' });
                     });
                 }
 
-                // content_order가 현재 삭제된 content_order보다 큰 값들에 대해 content_order를 -1 감소
-                const updateOrderQuery = `
-                    UPDATE final_input
-                    SET content_order = content_order - 1
-                    WHERE user_id = ? AND book_id = ? AND input_count = ? AND content_order > ?
+                // 2번째 문단이 없으면 프론트엔드에 경고 메시지 전송
+                if (rows.length === 0) {
+                    connection.release();
+                    return res.status(200).json({ message: '마지막 내용입니다.' });
+                }
+
+                // 문단 삭제 쿼리를 실행
+                const deleteContentQuery = `
+                    DELETE FROM final_input WHERE user_id = ? AND book_id = ? AND input_count = ? AND content_order = ?
                 `;
 
-                connection.query(updateOrderQuery, [user_id, book_id, input_count, content_order], function (err, updateResult) {
+                connection.query(deleteContentQuery, [user_id, book_id, input_count, content_order], function (err, deleteResult) {
                     if (err) {
                         connection.rollback(function () {
                             connection.release();
-                            return res.status(500).json({ error: 'Failed to update content orders' });
+                            return res.status(500).json({ error: 'Failed to delete content' });
                         });
                     }
 
-                    // 성공적으로 삭제와 업데이트가 완료되면 커밋
-                    connection.commit(function (err) {
+                    // content_order가 현재 삭제된 content_order보다 큰 값들에 대해 content_order를 -1 감소
+                    const updateOrderQuery = `
+                        UPDATE final_input
+                        SET content_order = content_order - 1
+                        WHERE user_id = ? AND book_id = ? AND input_count = ? AND content_order > ?
+                    `;
+
+                    connection.query(updateOrderQuery, [user_id, book_id, input_count, content_order], function (err, updateResult) {
                         if (err) {
                             connection.rollback(function () {
                                 connection.release();
-                                return res.status(500).json({ error: 'Failed to commit transaction' });
+                                return res.status(500).json({ error: 'Failed to update content orders' });
                             });
                         }
 
-                        connection.release();
-                        return res.status(200).json({ message: 'Content deleted successfully' });
+                        // 성공적으로 삭제와 업데이트가 완료되면 커밋
+                        connection.commit(function (err) {
+                            if (err) {
+                                connection.rollback(function () {
+                                    connection.release();
+                                    return res.status(500).json({ error: 'Failed to commit transaction' });
+                                });
+                            }
+
+                            connection.release();
+                            return res.status(200).json({ message: 'Content deleted successfully' });
+                        });
                     });
                 });
             });

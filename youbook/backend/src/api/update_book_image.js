@@ -25,7 +25,7 @@ router.post('/update_image', upload.single('image'), function (req, res) {
     const user_id = req.session.nickname;  // 세션에서 사용자 아이디 가져옴
     const input_count = req.body.inputCount;
     const content_order = req.body.content_order; // 업데이트할 레코드의 content_order
-    const image_path = req.file ? `/uploads/${req.file.filename}` : null; // 업로드된 이미지 경로
+    const image = req.image ? `/uploads/${req.file.filename}` : req.image_path; // 업로드된 이미지 경로
 
     // 필수 값들이 있는지 확인
     if (!book_id || !user_id || !input_count || !content_order || !image_path) {

@@ -11,7 +11,7 @@ router.post('/store', function (req, res) {
     const user_id = req.session.nickname;
     const input_count = req.body.inputCount;
     const category = req.body.category;
-    const title = req.body.title;
+    const title = req.body.title ? req.body.title : "제목없는 자서전";
     //const date = req.body.createDate;
 
     // final_input에서 해당 book_id, user_id, input_count에 부합하는 데이터 조회
