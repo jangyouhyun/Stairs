@@ -12,15 +12,16 @@ router.post('/store', function (req, res) {
     const input_count = req.body.inputCount;
     const category = req.body.category;
     const title = req.body.title;
+    //const date = req.body.createDate;
 
     // final_input에서 해당 book_id, user_id, input_count에 부합하는 데이터 조회
     const finalInputQuery = `
         SELECT big_title, small_title, content, content_order 
         FROM final_input 
-        WHERE book_id = ? AND user_id = ? AND input_count = ? AND category = ?
+        WHERE book_id = ? AND user_id = ? AND input_count = ?
     `;
 
-    db.query(finalInputQuery, [book_id, user_id, input_count, category], function (error, finalInputResult) {
+    db.query(finalInputQuery, [book_id, user_id, input_count], function (error, finalInputResult) {
         if (error) {
             console.error('Error fetching data from final_input:', error);
             return res.status(500).json({ message: 'Internal server error' });
@@ -42,7 +43,7 @@ router.post('/store', function (req, res) {
                 console.error('Error inserting into book_list:', error);
                 return res.status(500).json({ message: 'Internal server error' });
             }
-
+            
             // real_book에 데이터 삽입
             const insertRealBookQuery = `
                 INSERT INTO real_book (book_id, big_title, small_title, content, content_order) 

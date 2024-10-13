@@ -34,27 +34,33 @@ function MyAutobiographyPage() {
     const handleHomeClick = () => navigate('/');
     const handleItemClick = (id) => navigate('/book', { state: { id } });
 
-  // 요 파트 API 수정 ?
-  // 책 데이터를 가져오는 함수
-  const fetchBooks = (userId) => {
-    fetch(`/api/get_books?user_id=${userId}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          const fetchedItems = data.books.map((book, index) => ({
+// book_list 데이터를 가져오는 함수
+const fetchBooks = () => {
+  fetch('/api/get_books')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const fetchedItems = data.books.map((book, index) => {
+          // 날짜를 포맷팅 (시간 제거)
+          const formattedDate = new Date(book.create_date).toISOString().slice(0, 10);
+          return {
             id: index + 1,
-            category: book.category,
-            book_id: book.book_id,
-            content: book.image_path || defaultProfileImage, 
+            category: book.category, // 모든 항목의 카테고리를 '카테고리1'로 설정
+            content: book.image_path, // content 필드에 이미지 경로 설정
             title: book.title,
-            date: new Date(book.create_date).toISOString().slice(0, 10),
+            date: formattedDate, // 포맷된 날짜 설정
             checked: false,
-          }));
-          setItems(fetchedItems);
-        }
-      })
-      .catch(error => console.error('Error fetching books:', error));
-  };
+          };
+        });
+        setItems(fetchedItems);
+      } else {
+        console.error(data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching books:', error);
+    });
+};
 
 // category 데이터를 가져오는 함수
 const fetchCategories = () => {
@@ -186,22 +192,6 @@ const fetchCategories = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-   // BookPage에서 전달된 데이터가 있을 경우 새로운 아이템 추가
-   useEffect(() => {
-    if (category && title && date && image) {
-      setItems((prevItems) => [
-        ...prevItems,
-        {
-          id: prevItems.length + 1,   // 새로운 아이템 ID
-          category: category,         // 카테고리
-          title: title,               // 책 제목
-          date: date,                 // 생성 날짜
-          image: image || defaultProfileImage,  // 이미지 데이터 또는 기본 이미지
-        }
-      ]);
-    }
-  }, [category, title, date, image]);
-
   // 카테고리 및 책 데이터 가져오기
   useEffect(() => {
     fetch('/api/get_user_info')
@@ -301,17 +291,20 @@ const fetchCategories = () => {
                 checked={item.checked}
                 onChange={() => handleCheckboxChange(item.id)}
               />
-              {/*새로운 아이템*/}
-              {items.map((item) => (
-              <div key={item.id} className="autobiography-item">
-                <img src={item.image} alt={item.title} className="item-image" />
+              <div className="item-content" onClick={() => handleItemClick(item.id)}>
+                {item.content && (  // item.content가 존재할 때만 이미지 출력
+                  <img 
+                    src={item.content} 
+                    alt={item.title} 
+                    className="item-image" 
+                    onError={(e) => e.target.src = null} 
+                  />
+                )}
                 <div className="item-details">
                   <div className="item-title">{item.title}</div>
                   <div className="item-date">{item.date}</div>
-                  <div className="item-category">{item.category}</div>
                 </div>
               </div>
-              ))}
             </div>
           ))}
         </div>

@@ -459,11 +459,34 @@ const handleDeleteClick = async () => {
   };
 
   // 완료 버튼 클릭 시 로딩 중 팝업을 4초 동안 표시하고 자서전 생성 완료 메시지 표시 후 페이지 이동
-  const handleCompleteClick2 = () => {
+  const handleCompleteClick2 = async () => {
     setIsLoading(true);
-
     // 생성 날짜 설정
-    const createdDate = new Date().toLocaleDateString();
+    //const createdDate = new Date().toLocaleDateString();
+    try {
+      const response = await fetch('/api/store', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookId: bookId,
+          inputCount: 1,  // 적절한 inputCount 값을 설정
+          title : bookName,
+          category:selectedCategory,
+          //createdDate : createdDate
+        }),
+      });
+      if (response.ok) {
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to delete content:', errorData.error);
+        alert('문단 삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error during delete request:', error);
+      alert('문단 삭제 중 오류가 발생했습니다.');
+    }
 
     setTimeout(() => {
       setIsLoading(false);
@@ -475,7 +498,6 @@ const handleDeleteClick = async () => {
           state: {
             category,
             title: bookName,
-            date: createdDate,
             image: imgData,  // 저장된 이미지 데이터
           },
         });
