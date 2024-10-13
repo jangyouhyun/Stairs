@@ -264,6 +264,9 @@ const fetchBookContent = async () => {
         <div className = "category-name"> 
           {category}
         </div>
+        <button className="modify-button" onClick={handleOpenModifyPage}>
+          <img src={modifyicon} alt="수정하기 아이콘" />
+        </button>
         <div className="book-name">
           {name}
         </div>
@@ -329,12 +332,6 @@ const fetchBookContent = async () => {
           <img src={rightArrow} alt="Next" />
         </span>
       </div>
-
-     
-      <button className="modify-button" onClick={handleOpenModifyPage}>
-        <img src={modifyicon} alt="수정하기 아이콘" />
-      </button>
-
 
       <div className="fixed-inquiry-icon" onClick={handleInquiryClick}>
         <img src={askicon} alt="문의하기 아이콘" />

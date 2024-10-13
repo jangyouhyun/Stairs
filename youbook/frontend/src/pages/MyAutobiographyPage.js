@@ -328,7 +328,7 @@ const fetchCategories = () => {
               {item.content && (
                 <img 
                   src={item.content} 
-                  alt={item.title} 
+                  alt={item.name} 
                   className="item-image" 
                   onError={(e) => e.target.src = null} 
                 />
