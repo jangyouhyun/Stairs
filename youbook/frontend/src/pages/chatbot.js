@@ -16,6 +16,7 @@ function Chatbot({ onClose }) {
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
   const [error, setError] = useState(null); // 에러 상태 추가
   const [isConversationEnded, setIsConversationEnded] = useState(false); // 대화 종료 상태 추가
+  const [isFinalLoading, setIsFinalLoading] = useState(false);
   const navigate = useNavigate(); // 페이지 이동을 위한 hook
   const location = useLocation();
   const selectedCategory = location.state?.selectedCategory;
@@ -156,12 +157,12 @@ function Chatbot({ onClose }) {
             }
 
             // 성공적으로 처리되면 페이지 이동
-            navigate(`/book-reading/${bookId}`, { state: { selectedCategory } });
+           // navigate(`/book-reading/${bookId}`, { state: { selectedCategory } });
           } catch (error) {
             console.error('Error:', error);
             setError('book_reading 데이터를 처리하는 중 오류가 발생했습니다.');
           }
-
+          setIsFinalLoading(true);
           return;  // 종료 시 이후 로직을 실행하지 않음
         }
 
@@ -180,13 +181,14 @@ function Chatbot({ onClose }) {
         ]);
       } finally {
         setIsLoading(false); // 로딩 상태 종료
+        setInputValue(''); 
       }
     }
   };
   
   // 대화 종료 후 '자서전 만들기' 및 '내용 새로 추가' 처리 함수
   const handleCreateBook = () => {
-    navigate(`/book-reading/${bookId}`); // 자서전 페이지로 이동
+    navigate(`/book-reading/${bookId}` , { state : {selectedCategory}}); // 자서전 페이지로 이동
   };
 
   const handleAddContent = () => {
@@ -199,6 +201,17 @@ function Chatbot({ onClose }) {
       handleSend();
     }
   };
+
+  const [dotCount, setDotCount] = useState(1);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDotCount((prevCount) => (prevCount % 3) + 1); // 1에서 3까지 순환
+    }, 500); // 0.5초마다 dotCount 변경
+
+    // 컴포넌트가 언마운트될 때 interval 정리
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="chatbot-container">
@@ -214,7 +227,7 @@ function Chatbot({ onClose }) {
             )}
             <div className={`message ${msg.type}`}>
               {msg.text}
-              {msg.text === '대화가 종료되었습니다. 감사합니다!' && (
+              {msg.text === '대화가 종료되었습니다. 감사합니다!' && isFinalLoading && (
                 <div className="conversation-end-buttons">
                   <button onClick={handleCreateBook}>대화 내용 바탕으로 자서전 만들기</button>
                   <button onClick={handleAddContent}>자서전 내용 새로 추가하기</button>
@@ -223,7 +236,7 @@ function Chatbot({ onClose }) {
             </div>
          </div>
         ))}
-        {isLoading && <div className="loading-indicator">로딩 중...</div>}
+        {(isLoading) && <div className="loading-indicator">로딩 중{'.'.repeat(dotCount)}</div>}
         {error && <div className="error-message">{error}</div>}
       </div>
       {!isConversationEnded && (
