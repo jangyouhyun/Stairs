@@ -11,10 +11,15 @@ function Chatbot({ bookId, selectedCategory, onClose }) {
     { type: 'bot', text: '안녕하세요! 유북 챗봇입니다. 작성해주신 내용을 바탕으로 몇 가지 질문드리겠습니다. 대화를 마치고 싶다면 종료라고 말씀해주세요!' },
   ]);
   const [inputValue, setInputValue] = useState('');
+
+  
+  const { bookId } = useParams(); 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [isConversationEnded, setIsConversationEnded] = useState(false);
+  const [error, setError] = useState(null); 
+  const [isConversationEnded, setIsConversationEnded] = useState(false); 
+  const [isFinalLoading, setIsFinalLoading] = useState(false);
   const navigate = useNavigate();
+
   const location = useLocation();
   const messagesEndRef = useRef(null); // 스크롤을 제어할 참조 추가
   const [isCreatingBook, setIsCreatingBook] = useState(false);
@@ -156,13 +161,13 @@ function Chatbot({ bookId, selectedCategory, onClose }) {
               throw new Error('book 데이터를 처리하는 데 오류가 발생했습니다.');
             }
 
-            navigate(`/book-reading/${bookId}`, { state: { selectedCategory } });
           } catch (error) {
             console.error('Error:', error);
           }
+          setIsFinalLoading(true);
           return;
-        }
 
+        }
         setMessages(prevMessages => [
           ...prevMessages,
           { type: 'bot', text: data.question }
@@ -183,10 +188,10 @@ function Chatbot({ bookId, selectedCategory, onClose }) {
 
   const handleCreateBook = () => {
     setIsCreatingBook(true);
-    navigate('/book-reading/${bookId}');
+    navigate(`/book-reading/${bookId}` , { state : {selectedCategory}});
     setIsCreatingBook(false);
-
   };
+  
   const handleAddContent = () => {
     navigate(`/main/${bookId}`);
   };
@@ -196,6 +201,17 @@ function Chatbot({ bookId, selectedCategory, onClose }) {
       handleSend();
     }
   };
+
+  const [dotCount, setDotCount] = useState(1);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDotCount((prevCount) => (prevCount % 3) + 1); // 1에서 3까지 순환
+    }, 500); // 0.5초마다 dotCount 변경
+
+    // 컴포넌트가 언마운트될 때 interval 정리
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="chatbot-container">
@@ -211,7 +227,7 @@ function Chatbot({ bookId, selectedCategory, onClose }) {
             )}
             <div className={`message ${msg.type}`}>
               {msg.text}
-              {msg.text === '대화가 종료되었습니다. 감사합니다!' && (
+              {msg.text === '대화가 종료되었습니다. 감사합니다!' && isFinalLoading && (
                 <div className="conversation-end-buttons">
                   <button onClick={handleCreateBook}>대화 내용 바탕으로 자서전 만들기</button>
                   <button onClick={handleAddContent}>자서전 내용 새로 추가하기</button>
@@ -221,7 +237,8 @@ function Chatbot({ bookId, selectedCategory, onClose }) {
           </div>
         ))}
         <div ref={messagesEndRef}></div> {/* 스크롤을 이동시키기 위한 참조 */}
-        {isLoading && <div className="loading-indicator">로딩 중...</div>}
+        {(isLoading) && <div className="loading-indicator">로딩 중{'.'.repeat(dotCount)}</div>}
+        <div ref={messagesEndRef}></div> {/* 스크롤을 이동시키기 위한 참조 */}
         {error && <div className="error-message">{error}</div>}
       </div>
       {!isConversationEnded && (

@@ -6,10 +6,6 @@ var bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
-
-
-///////얘 API가 빈 값을 내놓음 왤까
-
 // Initialize OpenAI client
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY // Your OpenAI API key from .env
