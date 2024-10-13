@@ -40,6 +40,9 @@ function BookPage() {
 
   const [addMenuVisible, setAddMenuVisible] = useState(false); // For add popup
   const [addMenuVisible2, setAddMenuVisible2] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 열림 상태 관리
+  const [imageRequest, setImageRequest] = useState(''); // 입력받은 이미지 요청 데이터
+
   const [savedCoverImageUrl, setSavedCoverImageUrl] = useState(null);
   const { userId, bookId } = useParams();   // URL에서 bookId 추출
   const location = useLocation();
@@ -488,13 +491,19 @@ const handleDeleteClick = async () => {
       fileInputRef.current.click(); // 숨겨진 파일 input 요소 클릭
       setAddMenuVisible2(false);
     }
-    handleAIimagecreate()
     setAddMenuVisible2(false);
   };
   
   const ImageAIAdd = () => {
-    handleAIimagecreate()
+    setIsPopupOpen(true);
     setAddMenuVisible2(false);
+  };
+
+
+
+  // 이미지 생성 요청 처리
+  const handleCreateImage = () => {
+    console.log('Requested image:', imageRequest);
   };
 
   const handleBackClick = () => {
@@ -646,7 +655,10 @@ useEffect(() => {
   const handleClickOutside = (event) => {
     if (!event.target.closest('.add-popup')) {
       setAddMenuVisible5(false);
-      setAddPopupVisible(false); // 팝업 닫기
+      setAddPopupVisible(false);
+    }
+    if (!event.target.closest('.dalle-popup-content')) {
+      setIsPopupOpen(false);
     }
   };
   document.addEventListener('mousedown', handleClickOutside);
@@ -925,6 +937,7 @@ useEffect(() => {
         </div>
 
       )}
+      
       {isDesignOpen && (
         <div className="design-popup">
           <Design onClose={handleCloseDesignPage}
@@ -956,6 +969,20 @@ useEffect(() => {
           <p>자서전이 생성되었습니다!</p>
         </div>
       )}
+      {/* 달리 팝업 창 */}
+      {isPopupOpen && (
+          <div className="dalle-popup">
+            <div className="dalle-popup-content">
+              <p>원하는 이미지를 알려주세요!</p>
+              <textarea
+                value={imageRequest}
+                onChange={(e) => setImageRequest(e.target.value)}
+                placeholder="이미지 설명을 입력하세요"
+              />
+              <button onClick={handleCreateImage} className = "dalle-button">만들기</button>
+            </div>
+          </div>
+        )}
     </div>
   );
 }
