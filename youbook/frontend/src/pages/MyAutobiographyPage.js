@@ -323,7 +323,7 @@ const fetchCategories = () => {
                 checked={item.checked}
                 onChange={() => handleCheckboxChange(item.id)}
               />
-              <div className="item-content" onClick={() => handleItemClick(item.id)}>
+              <div className="item-content" onClick={() => navigate(`/book-content/${item.id}`)}>
                 {item.content && (  // item.content가 존재할 때만 이미지 출력
                   <img 
                     src={item.content} 
