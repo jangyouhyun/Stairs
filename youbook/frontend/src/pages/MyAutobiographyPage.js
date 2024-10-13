@@ -245,7 +245,7 @@ const fetchCategories = () => {
   }
 
   // 아이템 검색이 반영되도록 필터 수정
-  const filteredItems = items.filter(item => item.category === selectedCategory && item.title.includes(searchQuery)); // item.title이 존재하는지 확인
+  const filteredItems = items.filter(item => item.category === selectedCategory && item.name.includes(searchQuery)); // item.title이 존재하는지 확인
 
   return (
     <div className="my-autobiography-page">
