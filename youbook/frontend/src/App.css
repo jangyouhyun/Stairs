@@ -265,6 +265,10 @@ body {
   z-index : 2000;
 }
 
+#firstmake{
+  background-color: rgba(227, 202, 165, 0.9);
+}
+
 .add-popup button{
   padding: 5px 8px;
   background-color: #ffffff; 

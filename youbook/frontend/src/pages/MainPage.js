@@ -20,7 +20,7 @@ import logout from '../assets/images/log-out.png';
 import logout2 from '../assets/images/log-out2.png';
 import Chatbot from './chatbot';
 import loadingIcon from '../assets/images/loadingicon.gif';
-
+import BooksIcon from '../assets/images/books.gif';
 
 function MainPage() {
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
@@ -32,11 +32,14 @@ function MainPage() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false); // 챗봇 팝업 상태
   const [isWarningVisible, setIsWarningVisible] = useState(false);
   const location = useLocation();
+  const [bookId, setBookId] = useState(null);
   const selectedCategory = location.state?.selectedCategory;
 
-  const [isLoading, setIsLoading] = useState(false);  
-  const handleOpenChatbot2 = () => {
-    // 입력된 text를 서버로 보내는 fetch 요청
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCreatingBook, setIsCreatingBook] = useState(false);
+  
+  const handleOpenChatbot = () => {
+    setIsLoading(true);
     fetch('/api/write_process/chatbot', {
       method: 'POST',
       headers: {
@@ -44,24 +47,25 @@ function MainPage() {
       },
       body: JSON.stringify({ content: text }),
     })
-    .then(response => response.json())  // response를 JSON으로 파싱
+    .then(response => response.json())
     .then(data => {
       if (data.status === 200) {
-        const bookId = data.bookId;  // bookId가 있는지 확인
+        const bookId = data.bookId;
         if (bookId) {
-          // API 요청이 성공하면 팝업을 열고 데이터와 함께 전달
-          setIsChatbotOpen(true);  // 챗봇 팝업 열기
-          navigate(`/chatbot/${bookId}`, { state: { selectedCategory } });  // bookId가 있을 때 navigate
+          setIsChatbotOpen(true);
         } else {
           console.error('bookId is missing in the response:', data);
         }
       }
+      setIsLoading(false);
     })
     .catch(error => {
       console.error('Error:', error);
+      setIsLoading(false);
     });
   };
-  const handleOpenChatbot = () => {
+
+  const handleOpenChatbot2 = () => {
     setIsChatbotOpen(true); // 챗봇 팝업 열기
   };
   const handleCloseChatbot = () => {
@@ -116,6 +120,7 @@ function MainPage() {
   };
 
   const handleCreateBook = () => {
+    setIsCreatingBook(true);
     fetch('/api/write_process/book_reading', {
       method: 'POST',
       headers: {
@@ -134,7 +139,10 @@ function MainPage() {
       .catch(error => {
         console.error('Error:', error);
         alert('저장 중 오류가 발생했습니다.');
+      }).finally(() => {
+        setIsCreatingBook(false); // 요청이 끝난 후 로딩 상태 종료
       });
+
   };
 
   const handleLogout = async () => {
@@ -201,7 +209,7 @@ function MainPage() {
         ></textarea>
         </div>
         <div className="button-container">
-        <button className="question-button" onClick={handleOpenChatbot2}>입력내용으로 질문받기</button>
+        <button className="question-button" onClick={handleOpenChatbot}>입력내용으로 질문받기</button>
           <button className="create-book-button" onClick={handleCreateBook}>
             자서전 바로 만들기
           </button>
@@ -222,7 +230,7 @@ function MainPage() {
       {/* 챗봇 팝업 창을 조건부로 렌더링 */}
     {isChatbotOpen && (
         <div className="chatbot-popup">
-          <Chatbot onClose={handleCloseChatbot} /> {/* onClose prop 전달 */}
+          <Chatbot bookId={bookId} selectedCategory={selectedCategory} onClose={handleCloseChatbot} /> {/* onClose prop 전달 */}
         </div>
       )}
     {/* 경고 메시지 창 */}
@@ -237,8 +245,15 @@ function MainPage() {
       )}
     {/* 로딩 중 팝업 */}
     {isLoading && (
-        <div className="loading-popup">
+        <div className="loading-popup" >
           <img src={loadingIcon} alt="Loading" className="loading-icon" />
+        </div>
+      )}
+      {/* 자서전 생성 중일 때만 로딩 팝업 표시 */}
+      {isCreatingBook && (
+        <div className="loading-popup" id = "firstmake">
+          <img src={BooksIcon} alt="Loading" className="loading-icon" />
+          <div className="loading-text">자서전이 만들어지고 있습니다...</div>
         </div>
       )}
     </div>
