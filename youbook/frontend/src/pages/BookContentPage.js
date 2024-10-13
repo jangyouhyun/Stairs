@@ -4,22 +4,17 @@ import $ from 'jquery';
 import '../assets/js/turn.js'; // Ensure this path is correct for your project
 import './BookPage.css';
 import book from '../assets/images/book.png';
-import book2 from '../assets/images/book2.png'; // 활성화 상태일 때의 이미지
 import edit from '../assets/images/edit.png';
-import edit2 from '../assets/images/edit2.png'; // 활성화 상태일 때의 이미지
 import logout from '../assets/images/log-out.png';
-import logout2 from '../assets/images/log-out2.png';
 import defaultProfileImage from '../assets/images/signup-icon.png';
 import exit from '../assets/images/x.png';
-import Design from './BookDesignPage.js';
 import signupIcon from '../assets/images/signup-icon.png';
 import leftArrow from '../assets/images/left.png';
 import rightArrow from '../assets/images/right.png';
 import askicon from '../assets/images/askicon.png';
-import loadingIcon from '../assets/images/loadingicon.gif';
-import chatbotImage from '../assets/images/chatbot1.png';
+import modifyicon from '../assets/images/modify.png';
 
-function BookPage() {
+function BookContentPage() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
@@ -28,23 +23,14 @@ function BookPage() {
   const [bookName, setBookName] = useState(''); // Book name state
   const [isRectangleVisible, setIsRectangleVisible] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-  const [isDesignOpen, setIsDesignOpen] = useState(false);  // 팝업 열기 상태
-  const [isWarningVisible, setIsWarningVisible] = useState(false);  // 경고 창 상태
   const [submenuVisible, setSubmenuVisible] = useState(false);
-
-  const [submenuVisible3, setSubmenuVisible3] = useState(false);
-  const [submenuVisible4, setSubmenuVisible4] = useState(false);
-  const [addMenuVisible5, setAddMenuVisible5] = useState(false);
-  
-  const [submenuPosition, setSubmenuPosition] = useState({ x: 0, y: 0 });
 
   const [addMenuVisible, setAddMenuVisible] = useState(false); // For add popup
   const [addMenuVisible2, setAddMenuVisible2] = useState(false);
   const [savedCoverImageUrl, setSavedCoverImageUrl] = useState(null);
   const { userId, bookId } = useParams();   // URL에서 bookId 추출
   const location = useLocation();
-  const { paragraph, category: initialCategory, title, subtitle, imageUrl } = location.state || {};  // 전달된 데이터를 수신
-  const [category, setCategory] = useState(initialCategory || '');
+  const { paragraph, title, subtitle, imageUrl } = location.state || {};
   const [contentArray, setContentArray] = useState([]);
   const [content, setContent] = useState({
     title: title || '',         // 제목 설정
@@ -52,6 +38,7 @@ function BookPage() {
     imageUrl: imageUrl || '',   // 이미지 URL 설정
     paragraph: paragraph || '', // 본문 설정
   });
+  const { category, name, image, date } = location.state || {};
 
   const [isEditable, setIsEditable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);  // 로딩 중 상태
@@ -272,17 +259,13 @@ const fetchBookContent = async () => {
         </nav>
         <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
       </aside>
-      {/* Book name input and category selection */}
-      <div className="book-details">
-        <div className = "category-name">
-            {categories.map((category) => (
-              <option key={category.name} value={category.name}>
-                {category.name}
-              </option>
-            ))}
+      {/* Book name input and category (백연결 확인 필요) */}
+      <div className="book-info">
+        <div className = "category-name"> 
+          {category}
         </div>
         <div className="book-name">
-          {book.title}
+          {name}
         </div>
       </div>
 
@@ -348,7 +331,9 @@ const fetchBookContent = async () => {
       </div>
 
      
-      <button className="footer-button" onClick={handleOpenModifyPage}>수정하기</button>
+      <button className="modify-button" onClick={handleOpenModifyPage}>
+        <img src={modifyicon} alt="수정하기 아이콘" />
+      </button>
 
 
       <div className="fixed-inquiry-icon" onClick={handleInquiryClick}>
@@ -368,4 +353,4 @@ const fetchBookContent = async () => {
   );
 }
 
-export default BookPage;
+export default BookContentPage;

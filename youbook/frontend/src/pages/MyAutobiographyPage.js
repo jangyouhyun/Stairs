@@ -47,7 +47,7 @@ const fetchBooks = () => {
             id: book.book_id,
             category: book.category, // 모든 항목의 카테고리를 '카테고리1'로 설정
             content: book.image_path, // content 필드에 이미지 경로 설정
-            title: book.title,
+            name: book.title,
             date: formattedDate, // 포맷된 날짜 설정
             checked: false,
           };
@@ -64,18 +64,18 @@ const fetchBooks = () => {
 
 // category 데이터를 가져오는 함수
 const fetchCategories = () => {
-	fetch('/api/get_category')
-	  .then(response => response.json())
-	  .then(data => {
+  fetch('/api/get_category')
+    .then(response => response.json())
+    .then(data => {
       if (data.success) {
         const sortedCategories = data.categorys.map(category => category.name).sort((a, b) => a.localeCompare(b));
         setCategories(sortedCategories);
         if (sortedCategories.length > 0) {
         setSelectedCategory(sortedCategories[0]);
         }
-		}
-	  })
-	  .catch(error => {console.error('Error fetching categories:', error);});
+    }
+    })
+    .catch(error => {console.error('Error fetching categories:', error);});
   };
   
   useEffect(() => {
@@ -317,25 +317,25 @@ const fetchCategories = () => {
             <span className="plus-icon">+</span>
           </div>
           {filteredItems.map(item => (
-            <div key={item.id} className="autobiography-item">
-              <input
-                type="checkbox"
-                checked={item.checked}
-                onChange={() => handleCheckboxChange(item.id)}
-              />
-              <div className="item-content" onClick={() => navigate(`/book-content/${item.id}`)}>
-                {item.content && (  // item.content가 존재할 때만 이미지 출력
-                  <img 
-                    src={item.content} 
-                    alt={item.title} 
-                    className="item-image" 
-                    onError={(e) => e.target.src = null} 
-                  />
-                )}
-                <div className="item-details">
-                  <div className="item-title">{item.title}</div>
-                  <div className="item-date">{item.date}</div>
-                </div>
+            <div className="item-content" onClick={() => navigate(`/book-content/${item.id}`, {
+              state: {
+                category: item.category,
+                name: item.name,
+                image: item.content,
+                date: item.date 
+              }
+            })}>
+              {item.content && (
+                <img 
+                  src={item.content} 
+                  alt={item.title} 
+                  className="item-image" 
+                  onError={(e) => e.target.src = null} 
+                />
+              )}
+              <div className="item-details">
+                <div className="item-title">{item.name}</div>
+                <div className="item-date">{item.date}</div>
               </div>
             </div>
           ))}
