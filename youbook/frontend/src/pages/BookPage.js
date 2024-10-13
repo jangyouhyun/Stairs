@@ -409,15 +409,9 @@ const handleDeleteClick = async () => {
   };
 
   //글 추가 생성
+  //(글 추가 생성시 다른 표시 해서 원래의 content 배열에 추가하는 로직 필요)
   const handleAddIconClick = (event) => {
-    event.preventDefault(); // Prevent the default browser right-click menu
-    const rect = event.target.getBoundingClientRect(); // Get the bounding box of the paragraph
-    setSubmenuPosition({
-      x: 30,
-      y: rect.bottom + window.scrollY-100,
-    });
-    setSubmenuVisible(true);
-    setAddPopupVisible(!addPopupVisible); // 팝업창 열고 닫기
+    navigate('/main');
   };
 
   const handleChatbotClick = () => {
@@ -878,17 +872,7 @@ useEffect(() => {
           <button onClick={handleSubtitleDeleteClick}>Delete</button>
         </div>
         )}
-        {addPopupVisible && (
-          <div className="add-popup"
-          style={{
-            position: 'absolute',
-            top: `${submenuPosition.y}px`,
-            left: `${submenuPosition.x}px`,
-          }}>
-            <button onClick={handleChatbotClick}>Chatbot</button>
-            <button onClick={handleDirectAddClick}>직접 추가</button>
-          </div>
-        )}
+
         {/* Add Image Popup */}
         {addMenuVisible2 && (
         <div className="add-popup"
