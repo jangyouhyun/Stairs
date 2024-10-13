@@ -85,6 +85,29 @@
   border-bottom-right-radius: 0;
 }
 
+.conversation-end-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* 버튼 사이의 간격 조절 */
+  margin-top: 12px; /* 버튼과 메시지 사이의 간격 */
+  align-items : center;
+}
+
+.conversation-end-buttons button {
+  padding: 8px 12px;
+  background-color: #892B1E;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  width : 100%;
+}
+
+.conversation-end-buttons button:hover {
+  background-color: #0056b3; /* 버튼에 마우스를 올렸을 때 색상 변경 */
+}
+
 .message.user {
   background-color: #d1e7dd;
   align-self: flex-end;

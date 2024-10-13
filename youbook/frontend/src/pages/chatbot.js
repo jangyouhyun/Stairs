@@ -214,19 +214,18 @@ function Chatbot({ onClose }) {
             )}
             <div className={`message ${msg.type}`}>
               {msg.text}
+              {msg.text === '대화가 종료되었습니다. 감사합니다!' && (
+                <div className="conversation-end-buttons">
+                  <button onClick={handleCreateBook}>대화 내용 바탕으로 자서전 만들기</button>
+                  <button onClick={handleAddContent}>자서전 내용 새로 추가하기</button>
+                </div>
+              )}
             </div>
          </div>
         ))}
         {isLoading && <div className="loading-indicator">로딩 중...</div>}
         {error && <div className="error-message">{error}</div>}
       </div>
-      {/* 대화 종료 시 버튼을 표시 */}
-      {isConversationEnded && (
-        <div className="conversation-end-buttons">
-          <button onClick={handleCreateBook}>대화 내용 바탕으로 자서전 만들기</button>
-          <button onClick={handleAddContent}>자서전 내용 새로 추가하기</button>
-        </div>
-      )}
       {!isConversationEnded && (
         <div className="chatbot-footer">
           <input
