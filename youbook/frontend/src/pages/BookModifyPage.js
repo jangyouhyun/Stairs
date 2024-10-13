@@ -44,7 +44,7 @@ function BookModifyPage() {
   const { userId, bookId } = useParams();   // URL에서 bookId 추출
   const location = useLocation();
   const { paragraph, category: initialCategory, title, subtitle, imageUrl } = location.state || {};  // 전달된 데이터를 수신
-  const [category, setCategory] = useState(initialCategory || '');
+  const selectedCategory = location.state?.selectedCategory;
   const [contentArray, setContentArray] = useState([]); // 빈 배열로 초기화
   const [content, setContent] = useState({
     title: title || '',         // 제목 설정
@@ -62,9 +62,7 @@ function BookModifyPage() {
   const [bookContent, setBookContent] = useState([]);
   const [categories, setCategories] = useState([]);
   const bookRef = useRef(null);
- // const [selectedCategory, setSelectedCategory] = useState(''); // 선택된 카테고리
- const { newcontentArray, selectedCategory } = location.state || {};
-  // 카테고리 목록 가져오기
+
   const fetchCategories = async () => {
     try {
       const response = await fetch('/api/get_category', {
@@ -495,7 +493,7 @@ const handleDeleteClick = async () => {
         // 페이지 이동 시 데이터를 함께 전달
         navigate('/my-autobiography', {
           state: {
-            category,
+            selectedCategory,
             title: bookName,
             image: imgData,  // 저장된 이미지 데이터
           },
