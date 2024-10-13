@@ -11,7 +11,7 @@ import logout from '../assets/images/log-out.png';
 import logout2 from '../assets/images/log-out2.png';
 import defaultProfileImage from '../assets/images/signup-icon.png';
 import exit from '../assets/images/x.png';
-import Design from './BookDesignPage';
+import Design from './BookDesignPage.js';
 import signupIcon from '../assets/images/signup-icon.png';
 import leftArrow from '../assets/images/left.png';
 import rightArrow from '../assets/images/right.png';
@@ -648,14 +648,22 @@ useEffect(() => {
 
         </div>
         <div className="input-group name">
-          <input
-            type="text"
-            id="bookName"
-            value={bookName}
-            onChange={(e) => setBookName(e.target.value)}
-            placeholder="책 이름을 입력하세요"
-          />
-        </div>
+        <input
+          type="text"
+          id="bookName"
+          value={bookName}
+          onChange={(e) => {
+            const inputValue = e.target.value;
+            if (inputValue.length > 15) {
+              alert("15자 아래로 적어주세요!");
+              setBookName(""); // 책 이름 초기화
+            } else {
+              setBookName(inputValue); // 정상 입력 처리
+            }
+          }}
+          placeholder="책 이름을 입력하세요"
+        />
+      </div>
       </div>
 
       {/* Book content */}

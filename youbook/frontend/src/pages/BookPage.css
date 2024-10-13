@@ -31,10 +31,14 @@ body, html {
   
   .input-group {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+    gap : 5px;
   }
   
+  #category{
+    height  : 45px;
+  }
   .input-group select,
   .input-group input {
     padding: 12px;
@@ -46,6 +50,7 @@ body, html {
   
   .input-group.name input {
     width: 250px;
+    height : 20px;
   }
   
   .input-group select {
