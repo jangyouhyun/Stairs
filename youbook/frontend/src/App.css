@@ -256,9 +256,8 @@ body {
 
 .popup-container{
   position : relative;
-  top : 0;
-  left : 0;
 }
+
 .add-popup{
   background-color: #f0f0f0;
   padding: 10px;
@@ -266,11 +265,7 @@ body {
   gap: 10px;
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  z-index : 2000;
-}
-
-#firstmake{
-  background-color: rgba(227, 202, 165, 0.9);
+  z-index : 9999;
 }
 
 .add-popup button{
@@ -279,4 +274,8 @@ body {
   border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
+}
+
+#firstmake{
+  background-color: rgba(227, 202, 165, 0.9);
 }
