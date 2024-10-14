@@ -6,7 +6,6 @@ const { v4: uuidv4 } = require('uuid');
 
 // POST /api/print
 router.post('/print', function (req, res) {
-    // Request body에서 가져오는 정보들을 콘솔에 출력
     console.log("Request Body:", req.body);
 
     const book_id = req.body.book_id;
@@ -19,9 +18,9 @@ router.post('/print', function (req, res) {
     console.log("Input Count:", input_count);
     console.log("Category:", category);
 
-    // final_input 테이블에서 해당 book_id, user_id, input_count의 content를 먼저 조회
+    // Query final_input table
     db.query(`
-        SELECT content FROM final_input 
+        SELECT content, big_title, small_title, image_path FROM final_input 
         WHERE book_id = ? AND user_id = ? AND input_count = ?
         ORDER BY content_order
     `, [book_id, user_id, input_count], function (err, finalData) {
@@ -30,9 +29,14 @@ router.post('/print', function (req, res) {
             return res.status(500).json({ message: 'An error occurred while querying final_input' });
         }
 
-        // 만약 final_input에 데이터가 존재하면, content 배열을 반환
+        // If data exists in final_input
         if (finalData && finalData.length > 0) {
-            const contentArray = finalData.map(row => row.content);
+            const contentArray = finalData.map(row => ({
+                title: row.big_title || null,
+                subtitle: row.small_title || null,
+                imageUrl: row.image_path || null,
+                paragraph: row.content
+            }));
 
             console.log("Retrieved Content from final_input:", contentArray);
             return res.status(200).json({
@@ -44,7 +48,7 @@ router.post('/print', function (req, res) {
             });
         }
 
-        // 만약 final_input에 데이터가 없으면 purified_input에서 content를 가져옴
+        // If no data in final_input, query purified_input
         db.query(`
             SELECT content FROM purified_input 
             WHERE book_id = ? AND user_id = ? AND input_count = ?
@@ -62,20 +66,25 @@ router.post('/print', function (req, res) {
             const content = purifiedData[0].content;
             console.log("Retrieved Content from purified_input:", content);
 
-            // content를 개행 기준으로 나눠서 배열로 변환
-            const contentArray = content.split('\n').filter(paragraph => paragraph.trim() !== '');
+            // Split content by line breaks to form an array
+            const contentArray = content.split('\n').filter(paragraph => paragraph.trim() !== '').map(paragraph => ({
+                title: null,          // No title from purified_input
+                subtitle: null,       // No subtitle from purified_input
+                imageUrl: null,       // No image from purified_input
+                paragraph: paragraph  // Actual content
+            }));
 
             console.log("Content Array:", contentArray);
 
-            // 문단마다 content_order를 순차적으로 설정하여 final_input 테이블에 삽입
+            // Insert content into final_input
             let queryCount = 0;
-            contentArray.forEach((paragraph, i) => {
+            contentArray.forEach((item, i) => {
                 const content_order = i + 1;
 
                 db.query(`
                     INSERT INTO final_input (user_id, book_id, input_count, big_title, small_title, content, content_order, category)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                `, [user_id, book_id, input_count, null, null, paragraph, content_order, category], function (err) {
+                `, [user_id, book_id, input_count, null, null, item.paragraph, content_order, category], function (err) {
                     if (err) {
                         console.error("Error inserting into final_input:", err);
                         return res.status(500).json({ message: 'An error occurred while inserting into final_input' });
@@ -89,7 +98,7 @@ router.post('/print', function (req, res) {
                             bookId: book_id,
                             userId: user_id,
                             contentCount: contentArray.length,
-                            contentArray: contentArray // contentArray 반환
+                            contentArray: contentArray
                         });
                     }
                 });
@@ -98,4 +107,4 @@ router.post('/print', function (req, res) {
     });
 });
 
-module.exports = router;
+module.exports = router; 
