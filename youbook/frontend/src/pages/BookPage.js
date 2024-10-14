@@ -50,8 +50,8 @@ function BookPage() {
   const [category, setCategory] = useState(initialCategory || '');
   const [contentArray, setContentArray] = useState([]);
   const [content, setContent] = useState({
-    title: title || '',         // 제목 설정
-    subtitle: subtitle || '',   // 부제 설정
+    title: title || 'Title',         // 제목 설정
+    subtitle: subtitle || 'subTitle',   // 부제 설정
     imageUrl: imageUrl || '',   // 이미지 URL 설정
     paragraph: paragraph || '', // 본문 설정
   });
@@ -588,25 +588,49 @@ const handleDeleteClick = async () => {
   useEffect(() => {
     const $book = $('#book'); // jQuery로 book 요소 선택
   
-    // turn.js 초기화
-    if ($book.length && !$book.data('turn')) {
-      $book.turn({
-        width: 800,
-        height: 500,
-        autoCenter: true,
-        elevation: 50,
-        gradients: true,
-        duration: 1000,
-        pages: Math.max(pages.length * 2, 6),  // 페이지 수 동적으로 설정
-        when: {
-          turned: function (event, page) {
-            const actualPage = Math.floor((page - 2) / 2) + 1; // 실제 페이지 계산
-            setCurrentPage(actualPage >= 0 ? actualPage : 0);  // 현재 페이지 상태 업데이트
+     // Ensure book exists before applying turn.js
+     if ($book.length && !$book.data('turn')) {
+      setTimeout(() => {
+        $book.turn({
+          width: 800,
+          height: 500,
+          autoCenter: true,
+          elevation: 50,
+          gradients: true,
+          duration: 1000,
+          pages: Math.max(pages.length * 2, 6),  // 페이지 수 동적으로 설정
+          when: {
+            turned: function (event, page) {
+              const actualPage = Math.floor((page - 2) / 2) + 1; // 실제 페이지 계산
+              setCurrentPage(actualPage >= 0 ? actualPage : 0);  // 현재 페이지 상태 업데이트
+            },
           },
-        },
-      });
+        });
+      }, 100); // Delay the initialization to ensure DOM is ready
     }
-  
+     // contentArray에서 각 contentItem을 페이지로 추가
+    contentArray.forEach((contentItem, index) => {
+      // pageRef 배열에서 각 페이지 참조를 설정
+      const pageIndex = index + 1; // 페이지 인덱스 설정
+      const pageRef = pageRefs[index] || React.createRef();
+      pageRefs[index] = pageRef;  // 페이지에 대한 참조를 유지
+
+      // 각 페이지를 $book에 추가
+      if (!$book.turn('hasPage', pageIndex)) {
+        $book.turn('addPage', `<div class='page-content' ref=${pageRef}>${generatePageContent(contentItem)}</div>`, pageIndex);
+      }
+    });
+        // 페이지에 추가할 contentItem을 HTML로 생성하는 함수
+    const generatePageContent = (contentItem) => {
+      return `
+        <div class="page-content">
+          <h1 id="editable-title">${contentItem.title}</h1>
+          <h4 id="editable-subtitle">${contentItem.subtitle}</h4>
+          ${contentItem.imageUrl ? `<img src="${contentItem.imageUrl}" alt="Uploaded" style="width: 60%; height: auto;" />` : ''}
+          <p id="editable-paragraph">${contentItem.paragraph}</p>
+        </div>
+      `;
+    };
     // 페이지 업데이트 시 처리 로직
     pages.forEach((pageContent, index) => {
       const pageIndex = index + 1; // 페이지 인덱스
@@ -759,13 +783,9 @@ useEffect(() => {
         <div className="hard">
         <div className = "page-content"></div>
         </div>
-
-        
-        <div className="page">
-          {/* contentArray를 순회하면서 각 요소를 화면에 표시 */}
-          {contentArray.map((contentItem, index) => (
-            <div className="page-content"  key={`page-${index}`} ref={index === pages.length - 1 ? pageRef : null}>
-              {/*타이틀*/}
+        {contentArray.map((contentItem, index) => (
+          <div className="page" key={`page-${index}`}>
+            <div className="page-content">
               <h1
                 id="editable-title"
                 contentEditable={isEditable}
@@ -840,7 +860,21 @@ useEffect(() => {
                 </div>
               )}
               </div>
-        {/*popup */}
+          </div>
+          </div>
+          ))}
+
+        <div className="page">
+          <div className = "page-content"></div>
+        </div>
+        <div className="hard">
+          <div className = "page-content"></div>
+        </div>
+        <div className="hard">
+          <div className = "page-content"></div>
+        </div>
+    </div>
+      {/*popup */}
         {/* main Submenu container */}
         {submenuVisible && (
           <div
@@ -917,14 +951,6 @@ useEffect(() => {
           <button onClick={handleBackClick2}>Back</button>
         </div>
         )}
-      </div>
-      ))}
-        </div>
-      <div className="hard">
-        <div className = "page-content"></div>
-      </div>
-    </div>
-
       {/* Page navigation (left and right arrows) */}
       <div className="page-move">
         <span className="left-button" onClick={handlePrevious}>
