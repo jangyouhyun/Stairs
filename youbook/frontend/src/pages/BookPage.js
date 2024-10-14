@@ -119,7 +119,6 @@ const fetchBookContent = async () => {
       },
       body: JSON.stringify({
         book_id: bookId,
-        userId: userId ,
         input_count: 1,
         category: selectedCategory
       }),
@@ -168,7 +167,7 @@ const handleAIimageUpload = async (image_path, index) => {
   }
 }
 
-const handleImageUpload = async (event, index) => 
+const handleImageUpload = async (event, index) => {
   const formData = new FormData();
   const file = event.target.files[0];
   formData.append('image', file); // Attach the uploaded file
@@ -187,11 +186,6 @@ const handleImageUpload = async (event, index) =>
 
     const result = await response.json();
     if (result.success) {
-      // Update the content with the new image path
-      //setContent((prevContent) => ({
-      //   ...prevContent,
-      //   imageUrl: result.image_path, // Set the image URL from the server response
-      // }));
       alert('이미지가 성공적으로 업로드되었습니다.');
 
       // Fetch the updated book content
@@ -203,7 +197,6 @@ const handleImageUpload = async (event, index) =>
     console.error('이미지 업로드 중 오류가 발생했습니다:', error);
     alert('이미지 업로드 중 오류가 발생했습니다.');
   }
-  fetchBookContent();
 };
 
 
@@ -232,6 +225,7 @@ const handleAIimagecreate = async (promptData) => {
     alert('AI 이미지 생성 중 오류가 발생했습니다.');
   }
 };
+
 
   //제목 삽입
   const handleTitleAdd = () => {
@@ -408,12 +402,6 @@ const handleDeleteClick = async () => {
     setSubmenuVisible(true); // 팝업을 표시
   };
     
-const handleParagraphRightClick = (event) => {
-  event.preventDefault(); // 기본 우클릭 메뉴를 막음
-  setSubmenuPosition({ x: event.pageX, y: event.pageY });
-  setSubmenuVisible(true); // 팝업을 표시
-};
-  
 
   //글 추가 생성 - 저희의 문제는,, 이게 안된다는거예요 ,,
   //(글 추가 생성시 다른 표시 해서 원래의 content 배열에 추가하는 로직 필요)
@@ -492,7 +480,8 @@ const handleParagraphRightClick = (event) => {
 
   const ImageAdd = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.click(); // Trigger the file input to open the dialog
+      console.log("File input found, triggering click");
+      fileInputRef.current.click();
       setAddMenuVisible2(false); // Hide the popup after triggering
     } else {
       console.error("File input reference is not set correctly.");
@@ -507,7 +496,8 @@ const handleParagraphRightClick = (event) => {
 
   const handleCreateImage = () => {
     const promptData = {
-      prompt: `다음은 내 삶의 자서전의 한 문단입니다. 이를 보고, ${imageRequest}이 요청에 알맞은 이미지를 생성해 주세요. : ${contentArray[0].paragraph}`, // 문단 내용을 DALL-E로 전송
+      prompt: `다음은 내 삶의 자서전의 한 문단입니다. 이를 보고, ${imageRequest}이 요청에 알맞은 이미지를 생성해 주세요. `
+      //: ${contentArray[0].paragraph}`, // 문단 내용을 DALL-E로 전송
     };
   
     console.log('Prompt Data:', promptData);
@@ -521,46 +511,47 @@ const handleParagraphRightClick = (event) => {
   const handleBackClick2 = () => {
     setAddMenuVisible2(false);
   };
-
   const handleCompleteClick = async (imageData) => {
-    setSavedCoverImageUrl(imageData);
-    // try {
-    //   const response = await fetch('/api/update_image', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',  // JSON 형식으로 전송
-    //     },
-    //     body: JSON.stringify({
-    //       bookId: bookId,  // 책 ID
-    //       image_path: imageData
-    //     }),
-    //   });
-    //   if (response.ok) {
-    //     const data = await response.json();
-    //     console.log('Data successfully stored in the database:', data);
-    //   } else {
-    //     const errorData = await response.json();
-    //     console.error('Failed to save:', errorData);  // 오류 로그 출력
-    //     alert('자서전 저장에 실패했습니다.');
-    //   }
-    // } catch (error) {
-    //   console.error('Error occurred during the save process:', error);  // 예외 발생 시 오류 출력
-    //   alert('저장 중 오류가 발생했습니다.');
-    // }
-    setIsDesignOpen(false);  // 팝업 닫기
-    alert("표지가 저장되었습니다!");  // 알림
+    try {
+      const base64Data = imageData.split(',')[1]; // base64 인코딩된 데이터만 추출
+      const payload = { image: base64Data }; // base64 데이터를 payload로 설정
+  
+      // 서버로 이미지 데이터 전송
+      const response = await fetch('/api/upload_good', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const data = await response.json();
+      if (data.success) {
+        // 이미지 경로를 상태로 저장
+        setSavedCoverImageUrl(data.path);
+        console.log("이미지 경로: ", data.path);
+        alert("표지가 성공적으로 저장되었습니다!");
+      } else {
+        alert("이미지 저장에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("이미지 업로드 오류:", error);
+      alert("이미지 업로드 중 오류가 발생했습니다.");
+    } finally {
+      setIsDesignOpen(false); // 팝업 닫기
+    }
   };
-
+  
   const handleCompleteClick2 = async () => {
     setIsLoading(true);
     // 생성 날짜 설정
     //const createdDate = new Date().toLocaleDateString();
-    console.log("이미지데이터! : " , imgData)
+    console.log("이미지데이터! : " , savedCoverImageUrl)
     try {
-      const response = await fetch('/api/update_image', {
+      const response = await fetch('/api/store', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',  // JSON 형식으로 전송
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           bookId: bookId,
@@ -569,23 +560,34 @@ const handleParagraphRightClick = (event) => {
           category:selectedCategory,
           image_path:savedCoverImageUrl
           //createdDate : createdDate
-
         }),
       });
       if (response.ok) {
-        const data = await response.json();
-        console.log('Data successfully stored in the database:', data);
       } else {
         const errorData = await response.json();
-        console.error('Failed to save:', errorData);  // 오류 로그 출력
+        console.error('Failed to delete content:', errorData.error);
         alert('자서전 저장에 실패했습니다.');
       }
     } catch (error) {
-      console.error('Error occurred during the save process:', error);  // 예외 발생 시 오류 출력
+      console.error('Error during delete request:', error);
       alert('저장 중 오류가 발생했습니다.');
     }
-    setIsDesignOpen(false);  // 팝업 닫기
-    alert("표지가 저장되었습니다!");  // 알림
+
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsBiographyCreated(true);
+
+      setTimeout(() => {
+        // 페이지 이동 시 데이터를 함께 전달
+        navigate('/my-autobiography', {
+          state: {
+            category,
+            title: bookName,
+            image: imgData,  // 저장된 이미지 데이터
+          },
+        });
+      }, 2500); // 2.5초 후 페이지 이동
+    }, 4000); // 4초 동안 로딩 상태 유지
   };
 
   useEffect(() => {
@@ -707,6 +709,8 @@ return (
         <img src={signupIcon} alt="Profile" className="profile-image" />
       </button>
     </header>
+
+    {/* Sidebar */}
     <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
       <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
       <div className="profile-name">{userName}</div>
@@ -725,13 +729,14 @@ return (
       </nav>
       <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
     </aside>
+
     {/* Book name input and category selection */}
     <div className="book-details">
       <div className="input-group">
         <select
           id="category"
           value={selectedCategory}
-          onChange={handleCategoryChange} // 선택한 값으로 상태 업데이트
+          onChange={handleCategoryChange}
         >
           {categories.map((category) => (
             <option key={category.name} value={category.name}>
@@ -749,55 +754,15 @@ return (
             const inputValue = e.target.value;
             if (inputValue.length > 15) {
               alert("15자 아래로 적어주세요!");
-              setBookName(""); // 책 이름 초기화
+              setBookName("");
             } else {
-              setBookName(inputValue); // 정상 입력 처리
+              setBookName(inputValue);
             }
           }}
           placeholder="책 이름을 입력하세요"
         />
       </div>
-      </div>
-
-      {/* Book content */}
-      <div id="book">
-        <div className="hard">
-          {savedCoverImageUrl && (
-            <img src={savedCoverImageUrl || defaultcover} alt="Book Cover" className="cover-image" />
-          )}
-        </div>
-        <div className="hard">
-        <div className = "page-content"></div>
-        </div>
-        {contentArray.map((contentItem, index) => (
-          <div className="page" key={`page-${index}`}>
-            <div className="page-content">
-              <h1
-                id="editable-title"
-                contentEditable={isEditable}
-                onBlur={handleSaveClick}
-                suppressContentEditableWarning={true}
-                onContextMenu={handleTitleRightClick}
-              >
-                {contentItem.title}
-              </h1>
-              {/*서브*/}
-              <h4
-                id="editable-subtitle"
-                contentEditable={isEditable}
-                onBlur={handleSaveClick}
-                suppressContentEditableWarning={true}
-                onContextMenu={handleSubtitleRightClick}
-              >
-                {contentItem.subtitle}
-              </h4>
-              {/* 업로드된 이미지가 있으면 화면에 표시 */}
-              {contentItem.imageUrl && (
-                <img src={contentItem.imageUrl} alt="Uploaded" 
-                    style={{ width: '60%', height: 'auto' }}
-                    onContextMenu={handleImageRightClick}
-                />
-              )}
+    </div>
 
     {/* Book content */}
     <div id="book">
@@ -821,7 +786,6 @@ return (
             >
               {contentItem.title}
             </h1>
-            {/* 서브 */}
             <h4
               id="editable-subtitle"
               contentEditable={isEditable}
@@ -831,7 +795,6 @@ return (
             >
               {contentItem.subtitle}
             </h4>
-            {/* 업로드된 이미지가 있으면 화면에 표시 */}
             {contentItem.imageUrl && (
               <img
                 src={contentItem.imageUrl}
@@ -840,31 +803,23 @@ return (
                 onContextMenu={(e) => handleImageRightClick(e, index)}
               />
             )}
-
-            {/* 숨겨진 파일 업로드 input */}
             <input
               type="file"
-              ref={fileInputRef} // ref를 통해 이 요소에 접근
-              style={{ display: 'none' }} // 화면에 표시되지 않도록 숨김
-              onChange={(e) => handleImageUpload(e, index)} // 파일 선택 시 핸들러 호출
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              onChange={(e) => handleImageUpload(e, index)}
             />
-            {/* Add Image Delete Popup */}
             {addMenuVisible5 && (
-              <div
-                className="add-popup"
+              <div className="add-popup"
                 style={{
                   position: 'absolute',
-
                   top: `${submenuPosition.y - 600}px`,
                   left: `${submenuPosition.x - 600}px`,
-                }}
-              >
+                }}>
                 <button onClick={(e) => ImageDeleteClick(e, index)}>삭제</button>
               </div>
             )}
-            {/* 글 */}
             <div className="word" onMouseEnter={handleHoverEnter} onMouseLeave={handleHoverLeave}>
-
               <p
                 id="editable-paragraph"
                 contentEditable={isEditable}
@@ -875,253 +830,172 @@ return (
                 {contentItem.paragraph}
               </p>
               {isHovered && (
-                // Hover 시 "+" 아이콘 표시
                 <div className="add-icon" onClick={handleAddIconClick}>
                   <span>+</span>
                 </div>
               )}
-              {/* 글 추가 버튼 클릭 */}
               {addPopupVisible && (
-
-                <div
-                  className="add-popup"
+                <div className="add-popup"
                   style={{
                     position: 'absolute',
                     top: `${submenuPosition.y - 600}px`,
                     left: `${submenuPosition.x - 600}px`,
-                  }}
-                >
-
+                  }}>
                   <button onClick={handleChatbotClick}>Chatbot</button>
                   <button onClick={handleDirectAddClick}>직접 추가</button>
                 </div>
               )}
-
-              </div>
+            </div>
           </div>
-          </div>
-          ))}
-
-        <div className="hard">
-          <div className = "page-content"></div>
         </div>
+      ))}
+      <div className="hard">
+        <div className="page-content"></div>
+      </div>
     </div>
-    <div className = "popup-container">
-       {/*popup */}
-        {/* main Submenu container */}
-        {submenuVisible && (
-          <div
-            className="add-popup"
-            style={{
-              position: 'absolute',
-              top: `${submenuPosition.y-600}px`,
-              left: `${submenuPosition.x-600}px`,
-            }}
-          >
-            <button onClick={handleAddClick}>Add</button>
-            <button>Recreate</button>
-            <button onClick={handleEditClick}>Edit</button>
-            <button onClick={handleDeleteClick}>Delete</button>
-          </div>
-        )}
-        {/* Add Menu Popup */}
-        {addMenuVisible && (
-          <div className="add-popup"
-          style={{
-            position: 'absolute',
-            top: `${submenuPosition.y-600}px`,
-              left: `${submenuPosition.x-600}px`,
-          }}
-          >
-            <button onClick={handleTitleAdd}>Title</button>
-            <button onClick={handleSubtitleAdd}>Subtitle</button>
-            <button onClick={handleImageClick}>Image</button>
-            <button onClick={handleBackClick}>Back</button>
-          </div>
-        )}
-        {/* Title Submenu container */}
-        {submenuVisible3 && (
-          <div
-            className="add-popup"
-            style={{
-              position: 'absolute',
-              top: `${submenuPosition.y-600}px`,
-              left: `${submenuPosition.x-600}px`,
-            }}
-          >
-            <button >AI 추천 받기</button>
-            <button onClick={handleTitleEditClick}>Edit</button>
-            <button onClick={handleTitleDeleteClick}>Delete</button>
-          </div>
-          )}
 
-        {/* subtitle Submenu container */}
-        {submenuVisible4 && (
+    {/* Popup containers */}
+    <div className="popup-container">
+      {submenuVisible && (
         <div
           className="add-popup"
           style={{
             position: 'absolute',
-            top: `${submenuPosition.y-600}px`,
-              left: `${submenuPosition.x-600}px`,
+            top: `${submenuPosition.y - 600}px`,
+            left: `${submenuPosition.x - 600}px`,
           }}
-        > 
-          <button >AI 추천 받기</button>
+        >
+          <button onClick={handleAddClick}>Add</button>
+          <button>Recreate</button>
+          <button onClick={handleEditClick}>Edit</button>
+          <button onClick={handleDeleteClick}>Delete</button>
+        </div>
+      )}
+      {addMenuVisible && (
+        <div className="add-popup"
+          style={{
+            position: 'absolute',
+            top: `${submenuPosition.y - 600}px`,
+            left: `${submenuPosition.x - 600}px`,
+          }}
+        >
+          <button onClick={handleTitleAdd}>Title</button>
+          <button onClick={handleSubtitleAdd}>Subtitle</button>
+          <button onClick={handleImageClick}>Image</button>
+          <button onClick={handleBackClick}>Back</button>
+        </div>
+      )}
+      {submenuVisible3 && (
+        <div
+          className="add-popup"
+          style={{
+            position: 'absolute',
+            top: `${submenuPosition.y - 600}px`,
+            left: `${submenuPosition.x - 600}px`,
+          }}
+        >
+          <button>AI 추천 받기</button>
+          <button onClick={handleTitleEditClick}>Edit</button>
+          <button onClick={handleTitleDeleteClick}>Delete</button>
+        </div>
+      )}
+      {submenuVisible4 && (
+        <div
+          className="add-popup"
+          style={{
+            position: 'absolute',
+            top: `${submenuPosition.y - 600}px`,
+            left: `${submenuPosition.x - 600}px`,
+          }}
+        >
+          <button>AI 추천 받기</button>
           <button onClick={handleTitleEditClick}>Edit</button>
           <button onClick={handleSubtitleDeleteClick}>Delete</button>
         </div>
-        )}
-
-        {/* Add Image Popup */}
-        {addMenuVisible2 && (
+      )}
+      {addMenuVisible2 && (
         <div className="add-popup"
-        style={{
-          position: 'absolute',
-          top: `${submenuPosition.y-600}px`,
-          left: `${submenuPosition.x-600}px`,
-        }}>
+          style={{
+            position: 'absolute',
+            top: `${submenuPosition.y - 600}px`,
+            left: `${submenuPosition.x - 600}px`,
+          }}>
           <button onClick={ImageAIAdd}>AI 추천 받기</button>
           <button onClick={ImageAdd}>직접 삽입</button>
           <button onClick={handleBackClick2}>Back</button>
         </div>
-        )}
-       </div>
-      {/* Page navigation (left and right arrows) */}
-      <div className="page-move">
-        <span className="left-button" onClick={handlePrevious}>
-          <img src={leftArrow} alt="Previous" />
-        </span>
-        <span className="page-indicator">{currentPage} / {totalPages}</span>
-        <span className="right-button" onClick={handleNext}>
-          <img src={rightArrow} alt="Next" />
-        </span>
-      </div>
-    )}
-    {/* Title Submenu container */}
-    {submenuVisible3 && (
-      <div
-        className="add-popup"
-        style={{
-          position: 'absolute',
-          top: `${submenuPosition.y - 600}px`,
-          left: `${submenuPosition.x - 600}px`,
-        }}
-      >
-        <button>AI 추천 받기</button>
-        <button onClick={handleTitleEditClick}>Edit</button>
-        <button onClick={handleTitleDeleteClick}>Delete</button>
-      </div>
-    )}
+      )}
+    </div>
 
-    {/* subtitle Submenu container */}
-    {submenuVisible4 && (
-      <div
-        className="add-popup"
-        style={{
-          position: 'absolute',
-          top: `${submenuPosition.y - 600}px`,
-          left: `${submenuPosition.x - 600}px`,
-        }}
-      >
-        <button>AI 추천 받기</button>
-        <button onClick={handleTitleEditClick}>Edit</button>
-        <button onClick={handleSubtitleDeleteClick}>Delete</button>
+    {/* Page navigation */}
+    <div className="page-move">
+      <span className="left-button" onClick={handlePrevious}>
+        <img src={leftArrow} alt="Previous" />
+      </span>
+      <span className="page-indicator">{currentPage} / {totalPages}</span>
+      <span className="right-button" onClick={handleNext}>
+        <img src={rightArrow} alt="Next" />
+      </span>
+    </div>
+
+    {/* Footer buttons */}
+    <div className="book-footer">
+      <button className="footer-button save-button" onClick={handleSemiSaveClick}>임시 저장</button>
+      <button className="footer-button" onClick={handleOpenDesignPage}>표지 만들기</button>
+      <button className="footer-button" onClick={handleCompleteClick2}>완료</button>
+    </div>
+
+    <div className="fixed-inquiry-icon" onClick={handleInquiryClick}>
+      <img src={askicon} alt="문의하기 아이콘" />
+    </div>
+    {isRectangleVisible && (
+      <div className="vertical-rectangle">
+        <ul>
+          <li onClick={() => window.location.href = 'https://open.kakao.com/o/s9YXw5Sg'}>채팅 상담</li>
+          <li onClick={() => navigate('/customerinquiry')}>1:1 문의</li>
+        </ul>
       </div>
     )}
-
-    {/* Add Image Popup */}
-    {addMenuVisible2 && (
-      <div
-        className="add-popup"
-        style={{
-          position: 'absolute',
-          top: `${submenuPosition.y - 600}px`,
-          left: `${submenuPosition.x - 600}px`,
-        }}
-      >
-        <button onClick={ImageAIAdd}>AI 추천 받기</button>
-        <button onClick={ImageAdd}>직접 삽입</button>
-        <button onClick={handleBackClick2}>Back</button>
+    {isDesignOpen && (
+      <div className="design-popup">
+        <Design onClose={handleCloseDesignPage} onComplete={handleCompleteClick} />
       </div>
     )}
-
-  {/* Page navigation (left and right arrows) */}
-  <div className="page-move">
-    <span className="left-button" onClick={handlePrevious}>
-      <img src={leftArrow} alt="Previous" />
-    </span>
-    <span className="page-indicator">{currentPage} / {totalPages}</span>
-    <span className="right-button" onClick={handleNext}>
-      <img src={rightArrow} alt="Next" />
-    </span>
+    {isWarningVisible && (
+      <div className="warning-popup">
+        <p>창을 닫으면 표지가 초기화 됩니다.<br />그래도 닫겠습니까?</p>
+        <div className="button-container">
+          <button onClick={handleConfirmClose}>Yes</button>
+          <button onClick={handleCancelClose}>No</button>
+        </div>
+      </div>
+    )}
+    {isLoading && (
+      <div className="loading-popup">
+        <img src={loadingIcon} alt="Loading" className="loading-icon" />
+      </div>
+    )}
+    {isBiographyCreated && (
+      <div className="biography-created-popup">
+        <img src={chatbotImage} alt="Chatbot" className="main-icon" />
+        <p>자서전이 생성되었습니다!</p>
+      </div>
+    )}
+    {isPopupOpen && (
+      <div className="dalle-popup">
+        <div className="dalle-popup-content">
+          <p>원하는 이미지를 알려주세요!</p>
+          <textarea
+            value={imageRequest}
+            onChange={(e) => setImageRequest(e.target.value)}
+            placeholder="이미지 설명을 입력하세요"
+          />
+          <button onClick={handleCreateImage} className="dalle-button">만들기</button>
+        </div>
+      </div>
+    )}
   </div>
-
-  {/* Footer buttons */}
-  <div className="book-footer">
-    <button className="footer-button save-button" onClick={handleSemiSaveClick}>임시 저장</button>
-    <button className="footer-button" onClick={handleOpenDesignPage}>표지 만들기</button>
-    <button className="footer-button" onClick={handleCompleteClick2}>완료</button>
-  </div>
-
-  <div className="fixed-inquiry-icon" onClick={handleInquiryClick}>
-    <img src={askicon} alt="문의하기 아이콘" />
-  </div>
-  {isRectangleVisible && (
-    <div className="vertical-rectangle">
-      <ul>
-        <li onClick={() => window.location.href = 'https://open.kakao.com/o/s9YXw5Sg'}>
-          채팅 상담</li>
-        <li onClick={() => navigate('/customerinquiry')}>1:1 문의</li>
-      </ul>
-    </div>
-  )}
-
-  {isDesignOpen && (
-    <div className="design-popup">
-      <Design onClose={handleCloseDesignPage} onComplete={handleCompleteClick} />
-    </div>
-  )}
-
-  {isWarningVisible && (
-    <div className="warning-popup">
-      <p>창을 닫으면 표지가 초기화 됩니다.<br />그래도 닫겠습니까?</p>
-      <div className="button-container">
-        <button onClick={handleConfirmClose}>Yes</button>
-        <button onClick={handleCancelClose}>No</button>
-      </div>
-    </div>
-  )}
-  {/* 로딩 중 팝업 */}
-  {isLoading && (
-    <div className="loading-popup">
-      <img src={loadingIcon} alt="Loading" className="loading-icon" />
-    </div>
-  )}
-
-  {/* 자서전 생성 완료 메시지 팝업 */}
-  {isBiographyCreated && (
-    <div className="biography-created-popup">
-      <img src={chatbotImage} alt="Chatbot" className="main-icon" />
-      <p>자서전이 생성되었습니다!</p>
-    </div>
-  )}
-  {/* 달리 팝업 창 */}
-  {isPopupOpen && (
-    <div className="dalle-popup">
-      <div className="dalle-popup-content">
-        <p>원하는 이미지를 알려주세요!</p>
-        <textarea
-          value={imageRequest}
-          onChange={(e) => setImageRequest(e.target.value)}  // 사용자 입력값 반영
-          placeholder="이미지 설명을 입력하세요"
-        />
-        <button onClick={handleCreateImage} className="dalle-button">
-          만들기
-        </button>
-      </div>
-    </div>
-  )}
-    </div>
-  );
+);
 }
 
 export default BookPage;

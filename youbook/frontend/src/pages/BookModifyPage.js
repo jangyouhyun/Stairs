@@ -104,18 +104,8 @@ function BookModifyPage() {
   useEffect(() => {
     if (bookContent.length > 0) { // bookContent가 업데이트된 후 실행
       console.log(bookContent); // 업데이트된 bookContent 출력
-      convertBookContentToContent(); // bookContent 기반으로 content 생성
-    }
+}
   }, [bookContent]);
-
-  useEffect(() => {
-    if (contentArray.length > 0 && contentArray[0].paragraph) {
-      console.log("content::::::", contentArray[0].paragraph); // 디버깅 문장 추가
-      setContent(contentArray[0]);
-    } else {
-      console.log("contentArray is empty or paragraph is missing");
-    }
-  }, [contentArray]);
 
 // 책 내용 가져오는 함 수 
 const fetchBookContent = async () => {
