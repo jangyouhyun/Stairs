@@ -178,6 +178,7 @@ const handleAIimageUpload = async (image_path) => {
   }
 }
 
+
 const handleImageUpload = async (event = null, imagePath = null) => {
   const formData = new FormData();
   const file = event.target.files[0];

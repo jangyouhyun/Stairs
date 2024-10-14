@@ -1,4 +1,4 @@
-var express = require('express');
+   var express = require('express');
 var router = express.Router();
 var db = require('../db.js');
 const { OpenAI } = require('openai');
@@ -22,7 +22,7 @@ async function getModelResponse(user_input) {
         const response = await client.chat.completions.create({
             model: fineTunedModelId,
             messages: [
-                { role : 'system', content : "당신은 한국인이 입력한 글을 요약해주는 도우미입니다. 기본 컨텐츠와 질의 응답 형식으로 구성된 텍스트에 대해서, 정제된 텍스트로 제공하세요"},
+                { role : 'system', content : "당신은 한국인이 입력한 글을 요약해주는 도우미입니다."},
                 { role: 'user', content: user_input + '을 요약해주세요'}
             ]
         });

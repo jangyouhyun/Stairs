@@ -8,7 +8,7 @@
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1001;
-  width : 700px;
+  width : 900px;
   height : 700px;
 }
 
@@ -20,39 +20,16 @@
   background-color: white;
 }
 
-.book-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  padding : 0;
-  height : 500px;
-}
 
 .book-cover {
-  width: 300px;
-  height: 400px;
+  width: 400px;
+  height: 500px;
   background-color: #E3CAA5;
   object-fit: cover;
-  position: fixed;
-  top : 200px;
+  position: relative;
+  margin: auto;
+  margin-top : -10px;
 }
-
-.add-img {
-  position: absolute;
-  cursor: move;
-  z-index: 10;
-  width : 150px;
-}
-
-
-.book-container input[type="text"] {
-  outline: none;
-  text-align: center;
-  cursor: move;
-  z-index: 10;
-}
-
 
 .footer {
   width: 150px;
@@ -139,7 +116,6 @@
   .text-options-popup {
     padding: 20px;
     background-color: white;
-    border: 1px solid #ccc;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     z-index: 2000;
@@ -165,4 +141,41 @@
   
   .text-options-popup button:hover {
     background-color: #004080;
+  }
+
+  .popup{
+    border : 1px solid #5C401C;
+    border-radius: 10px;
+    padding : 5px 0px;
+    width : 250px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    
+  }
+
+  .popup button{
+    border : none;
+    background-color: white;
+    font-size : 15px;
+  }
+  .image-size-controls {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center; /* 라벨과 입력 필드가 중앙에 정렬되도록 설정 */
+  }
+  
+  .image-size-controls label {
+    margin-bottom: 10px; /* 각 라벨 사이에 간격 추가 */
+    font-size : 12px;
+  }
+  
+  .image-size-controls input {
+    margin-left: 10px;
+    padding: 5px;
+    width: 100px; /* 입력 필드의 크기를 동일하게 설정 */
+    text-align: center; /* 입력 값이 중앙에 정렬되도록 설정 */
+    font-size : 12px;
   }

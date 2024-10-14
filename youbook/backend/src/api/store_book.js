@@ -93,6 +93,7 @@ router.post('/store', function (req, res) {
                     `;
 
                     db.query(updateRealBookQuery, [row.big_title, row.small_title, row.content, row.image_path, book_id, row.content_order], function (error) {
+
                         if (error) {
                             console.error('Error updating real_book:', error);
                             return res.status(500).json({ message: 'Internal server error' });
