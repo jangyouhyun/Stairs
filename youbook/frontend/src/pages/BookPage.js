@@ -18,10 +18,12 @@ import rightArrow from '../assets/images/right.png';
 import askicon from '../assets/images/askicon.png';
 import loadingIcon from '../assets/images/loadingicon.gif';
 import chatbotImage from '../assets/images/chatbot1.png';
-
+import defaultcover from "../assets/images/default.png";
 function BookPage() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
+  const userId = localStorage.getItem('userId') || 'defaultUserId';  // userId를 로컬 스토리지에서 가져오기
+
   const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   const [currentPage, setCurrentPage] = useState(0); // Current page state
   const [totalPages, setTotalPages] = useState(0); // Total page count
@@ -31,7 +33,6 @@ function BookPage() {
   const [isDesignOpen, setIsDesignOpen] = useState(false);  // 팝업 열기 상태
   const [isWarningVisible, setIsWarningVisible] = useState(false);  // 경고 창 상태
   const [submenuVisible, setSubmenuVisible] = useState(false);
-
   const [submenuVisible3, setSubmenuVisible3] = useState(false);
   const [submenuVisible4, setSubmenuVisible4] = useState(false);
   const [addMenuVisible5, setAddMenuVisible5] = useState(false);
@@ -44,7 +45,7 @@ function BookPage() {
   const [imageRequest, setImageRequest] = useState(''); // 입력받은 이미지 요청 데이터
 
   const [savedCoverImageUrl, setSavedCoverImageUrl] = useState(null);
-  const { userId, bookId } = useParams();   // URL에서 bookId 추출
+  const { bookId } = useParams();   // URL에서 bookId 추출
   const location = useLocation();
   const { paragraph, category: initialCategory, title, subtitle, imageUrl } = location.state || {};  // 전달된 데이터를 수신
   const [category, setCategory] = useState(initialCategory || '');
@@ -123,6 +124,7 @@ const fetchBookContent = async () => {
       },
       body: JSON.stringify({
         book_id: bookId,
+        userId: userId ,
         input_count: 1,
         category: selectedCategory
       }),
@@ -384,40 +386,26 @@ const handleDeleteClick = async () => {
   const handleTitleRightClick = (event) => {
     event.preventDefault(); // Prevent the default browser right-click menu
     const rect = event.target.getBoundingClientRect(); // Get the bounding box of the paragraph
-    setSubmenuPosition({
-      x: 30,
-      y: rect.bottom + window.scrollY-100,
-    });
+    setSubmenuPosition({ x: event.pageX, y: event.pageY });
     setSubmenuVisible3(true); // Show the submenu
   };
   const handleSubtitleRightClick = (event) => {
     event.preventDefault(); // Prevent the default browser right-click menu
-    const rect = event.target.getBoundingClientRect(); // Get the bounding box of the paragraph
-    setSubmenuPosition({
-      x: 30,
-      y: rect.bottom + window.scrollY-100,
-    });
+    setSubmenuPosition({ x: event.pageX, y: event.pageY });
     setSubmenuVisible4(true); // Show the submenu
   };
  // Function to handle right-click on the Image
  const handleImageRightClick = (event) => {
   event.preventDefault(); // Prevent the default browser right-click menu
-  const rect = event.target.getBoundingClientRect(); // Get the bounding box of the paragraph
-  setSubmenuPosition({
-    x: 30,
-    y: rect.bottom + window.scrollY - 120,
-  });
+  setSubmenuPosition({ x: event.pageX, y: event.pageY });
   setAddMenuVisible5(true); // Show the submenu
 };
-  const handleParagraphRightClick = (event) => {
-    event.preventDefault(); // Prevent the default browser right-click menu
-    const rect = event.target.getBoundingClientRect(); // Get the bounding box of the paragraph
-    setSubmenuPosition({
-      x: 30,
-      y: rect.bottom + window.scrollY-100,
-    });
-    setSubmenuVisible(true); // Show the submenu
-  };
+const handleParagraphRightClick = (event) => {
+  event.preventDefault(); // 기본 우클릭 메뉴를 막음
+  setSubmenuPosition({ x: event.pageX, y: event.pageY });
+  setSubmenuVisible(true); // 팝업을 표시
+};
+  
 
   //글 추가 생성 - 저희의 문제는,, 이게 안된다는거예요 ,,
   //(글 추가 생성시 다른 표시 해서 원래의 content 배열에 추가하는 로직 필요)
@@ -523,60 +511,51 @@ const handleDeleteClick = async () => {
   const handleBackClick2 = () => {
     setAddMenuVisible2(false);
   };
-  // 완료 버튼을 누를 때 경고창 없이 팝업을 닫는 함수
-  const handleCompleteClick = (imageData) => {
+
+  const handleCompleteClick = async (imageData) => {
     setSavedCoverImageUrl(imageData);
+    try {
+      const response = await fetch('/api/update_image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',  // JSON 형식으로 전송
+        },
+        body: JSON.stringify({
+          bookId: bookId,  // 책 ID
+          image_path: imageData
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Data successfully stored in the database:', data);
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to save:', errorData);  // 오류 로그 출력
+        alert('자서전 저장에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error occurred during the save process:', error);  // 예외 발생 시 오류 출력
+      alert('저장 중 오류가 발생했습니다.');
+    }
     setIsDesignOpen(false);  // 팝업 닫기
     alert("표지가 저장되었습니다!");  // 알림
   };
 
   // 완료 버튼 클릭 시 로딩 중 팝업을 4초 동안 표시하고 자서전 생성 완료 메시지 표시 후 페이지 이동
   const handleCompleteClick2 = async () => {
+    console.log("Book ID:", bookId); 
     setIsLoading(true);
-    // 생성 날짜 설정
-    //const createdDate = new Date().toLocaleDateString();
-    try {
-      const response = await fetch('/api/store', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          bookId: bookId,
-          inputCount: 1,  // 적절한 inputCount 값을 설정
-          title : bookName,
-          category:selectedCategory,
-          //createdDate : createdDate
-        }),
-      });
-      if (response.ok) {
-      } else {
-        const errorData = await response.json();
-        console.error('Failed to delete content:', errorData.error);
-        alert('자서전 저장에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('Error during delete request:', error);
-      alert('저장 중 오류가 발생했습니다.');
-    }
-
+    
     setTimeout(() => {
       setIsLoading(false);
       setIsBiographyCreated(true);
-
+  
       setTimeout(() => {
         // 페이지 이동 시 데이터를 함께 전달
-        navigate('/my-autobiography', {
-          state: {
-            category,
-            title: bookName,
-            image: imgData,  // 저장된 이미지 데이터
-          },
-        });
+        navigate('/my-autobiography');
       }, 2500); // 2.5초 후 페이지 이동
     }, 4000); // 4초 동안 로딩 상태 유지
-  };
- 
+};
   useEffect(() => {
     const $book = $('#book'); // jQuery로 book 요소 선택
   
@@ -588,7 +567,7 @@ const handleDeleteClick = async () => {
           height: 500,
           autoCenter: true,
           elevation: 50,
-          gradients: true,
+          gradients: true, 
           duration: 1000,
           pages: Math.max(pages.length * 2, 6),  // 페이지 수 동적으로 설정
           when: {
@@ -682,7 +661,6 @@ const handleDeleteClick = async () => {
       },
     });
   };
-
 // 외부 클릭 시 팝업 닫기
 useEffect(() => {
   const handleClickOutside = (event) => {
@@ -767,7 +745,7 @@ useEffect(() => {
       <div id="book">
         <div className="hard">
           {savedCoverImageUrl && (
-            <img src={savedCoverImageUrl} alt="Book Cover" className="cover-image" />
+            <img src={savedCoverImageUrl || defaultcover} alt="Book Cover" className="cover-image" />
           )}
         </div>
         <div className="hard">
@@ -815,8 +793,8 @@ useEffect(() => {
                 <div className="add-popup"
                 style={{
                   position: 'absolute',
-                  top: `${submenuPosition.y}px`,
-                  left: `${submenuPosition.x}px`,
+                  top: `${submenuPosition.y-600}px`,
+                  left: `${submenuPosition.x-600}px`,
                 }}>
                   <button onClick={ImageDeleteClick}>삭제</button>
                 </div>
@@ -842,8 +820,8 @@ useEffect(() => {
                 <div className="add-popup"
                 style={{
                   position: 'absolute',
-                  top: `${submenuPosition.y}px`,
-                  left: `${submenuPosition.x}px`,
+                  top: `${submenuPosition.y-600}px`,
+                  left: `${submenuPosition.x-600}px`,
                 }}>
                   <button onClick={handleChatbotClick}>Chatbot</button>
                   <button onClick={handleDirectAddClick}>직접 추가</button>
@@ -858,7 +836,7 @@ useEffect(() => {
           <div className = "page-content"></div>
         </div>
     </div>
-     <div className = "popup-container">
+    <div className = "popup-container">
        {/*popup */}
         {/* main Submenu container */}
         {submenuVisible && (
@@ -866,8 +844,8 @@ useEffect(() => {
             className="add-popup"
             style={{
               position: 'absolute',
-              top: `${submenuPosition.y}px`,
-              left: `${submenuPosition.x}px`,
+              top: `${submenuPosition.y-600}px`,
+              left: `${submenuPosition.x-600}px`,
             }}
           >
             <button onClick={handleAddClick}>Add</button>
@@ -881,8 +859,8 @@ useEffect(() => {
           <div className="add-popup"
           style={{
             position: 'absolute',
-            top: `${submenuPosition.y}px`,
-            left: `${submenuPosition.x}px`,
+            top: `${submenuPosition.y-600}px`,
+              left: `${submenuPosition.x-600}px`,
           }}
           >
             <button onClick={handleTitleAdd}>Title</button>
@@ -897,8 +875,8 @@ useEffect(() => {
             className="add-popup"
             style={{
               position: 'absolute',
-              top: `${submenuPosition.y}px`,
-              left: `${submenuPosition.x}px`,
+              top: `${submenuPosition.y-600}px`,
+              left: `${submenuPosition.x-600}px`,
             }}
           >
             <button >AI 추천 받기</button>
@@ -913,8 +891,8 @@ useEffect(() => {
           className="add-popup"
           style={{
             position: 'absolute',
-            top: `${submenuPosition.y}px`,
-            left: `${submenuPosition.x}px`,
+            top: `${submenuPosition.y-600}px`,
+              left: `${submenuPosition.x-600}px`,
           }}
         > 
           <button >AI 추천 받기</button>
@@ -928,14 +906,15 @@ useEffect(() => {
         <div className="add-popup"
         style={{
           position: 'absolute',
-          top: `${submenuPosition.y}px`,
-          left: `${submenuPosition.x}px`,
+          top: `${submenuPosition.y-600}px`,
+          left: `${submenuPosition.x-600}px`,
         }}>
           <button onClick={ImageAIAdd}>AI 추천 받기</button>
           <button onClick={ImageAdd}>직접 삽입</button>
           <button onClick={handleBackClick2}>Back</button>
         </div>
         )}
+       </div>
       {/* Page navigation (left and right arrows) */}
       <div className="page-move">
         <span className="left-button" onClick={handlePrevious}>
@@ -946,7 +925,6 @@ useEffect(() => {
           <img src={rightArrow} alt="Next" />
         </span>
       </div>
-     </div>
 
       {/* Footer buttons */}
       <div className="book-footer">

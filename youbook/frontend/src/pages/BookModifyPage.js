@@ -135,6 +135,27 @@ const fetchBookContent = async () => {
     const data = await response.json();
     setBookContent(data.contentArray); // 상태 업데이트
 
+    const fetchBookContent = async () => {
+      try {
+        const response = await fetch('/api/print', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            book_id: bookId,
+            input_count: 1,
+            category: selectedCategory
+          }),
+        });
+    
+        const data = await response.json();
+        setBookContent(data.contentArray); // 상태 업데이트
+    
+      } catch (error) {
+        console.error('Failed to fetch book content:', error);
+      }
+    };
   } catch (error) {
     console.error('Failed to fetch book content:', error);
   }
@@ -449,12 +470,27 @@ const handleDeleteClick = async () => {
     setAddMenuVisible2(false);
   };
   // 완료 버튼을 누를 때 경고창 없이 팝업을 닫는 함수
-  const handleCompleteClick = (imageData) => {
-    setSavedCoverImageUrl(imageData);
-    setIsDesignOpen(false);  // 팝업 닫기
-    alert("표지가 저장되었습니다!");  // 알림
-  };
-
+  const handleCompleteClick = async (imageData) => {
+    const coverImageUrl = imageData; // imageData to coverImageUrl
+    
+    try {
+      const result = await fetch('/api/save_cover_image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ bookId, coverImageUrl }), // Send bookId and image URL
+      });
+  
+      // Logic after success...
+      setSavedCoverImageUrl(coverImageUrl); // Update state with cover image URL
+      setIsDesignOpen(false); // Close the design popup
+      alert("표지가 저장되었습니다!");
+    } catch (error) {
+      console.error('Error saving cover image:', error);
+    }
+};
+  
   // 완료 버튼 클릭 시 로딩 중 팝업을 4초 동안 표시하고 자서전 생성 완료 메시지 표시 후 페이지 이동
   const handleCompleteClick2 = async () => {
     setIsLoading(true);
