@@ -17,16 +17,10 @@ import modifyicon from '../assets/images/modify.png';
 function BookContentPage() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
-  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
   const [currentPage, setCurrentPage] = useState(0); // Current page state
   const [totalPages, setTotalPages] = useState(0); // Total page count
-  const [bookName, setBookName] = useState(''); // Book name state
   const [isRectangleVisible, setIsRectangleVisible] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-  const [submenuVisible, setSubmenuVisible] = useState(false);
-
-  const [addMenuVisible, setAddMenuVisible] = useState(false); // For add popup
-  const [addMenuVisible2, setAddMenuVisible2] = useState(false);
   const [savedCoverImageUrl, setSavedCoverImageUrl] = useState(null);
   const { userId, bookId } = useParams();   // URL에서 bookId 추출
   const location = useLocation();
@@ -51,6 +45,7 @@ function BookContentPage() {
   const bookRef = useRef(null);
   const selectedCategory = location.state?.selectedCategory;
 
+  // 카테고리 가져오는 함수
   const fetchCategories = async () => {
     try {
       const response = await fetch('/api/get_category', {
@@ -77,12 +72,6 @@ function BookContentPage() {
   const [pages, setPages] = useState([]); 
   const pageRef = useRef(null);
   const [pageRefs, setPageRefs] = useState([]); 
-  const [isHovered, setIsHovered] = useState(false);
-  const [addPopupVisible, setAddPopupVisible] = useState(false);
-
-
-  const handleHoverEnter = () => setIsHovered(true);
-  const handleHoverLeave = () => setIsHovered(false);
 
   useEffect(() => {
     fetchBookContent();
@@ -96,14 +85,6 @@ function BookContentPage() {
     }
   }, [bookContent]);
 
-  useEffect(() => {
-    if (contentArray.length > 0 && contentArray[0].paragraph) {
-      console.log("content::::::", contentArray[0].paragraph); // 디버깅 문장 추가
-      setContent(contentArray[0]);
-    } else {
-      console.log("contentArray is empty or paragraph is missing");
-    }
-  }, [contentArray]);
 
 // 책 내용 가져오는 함 수 
 const fetchBookContent = async () => {
@@ -128,6 +109,16 @@ const fetchBookContent = async () => {
   }
 };
 
+const convertBookContentToContent = () => {
+  const newContent = bookContent.map((paragraph) => ({
+    title: title || '', // 타이틀이 없을 경우 기본값
+    subtitle: subtitle || '', // 부제가 없을 경우 기본값
+    imageUrl: imageUrl || '', // 이미지 URL 추가
+    paragraph: paragraph || '', // 본문이 없을 경우 기본값
+  }));
+
+  setContentArray(newContent);
+};
 
   // Navigate to the autobiography page
   const handleProfileClick = () => {
@@ -147,16 +138,6 @@ const fetchBookContent = async () => {
   };
   const handleModifyClick = () => {
     navigate('/modifyinfo');
-  };
-
-  const handleAddClick = () => {
-    setAddMenuVisible(true); // Show add menu popup
-    setSubmenuVisible(false); // Hide submenu
-  };
-
-  const handleImageClick = () => {
-    setAddMenuVisible2(true); // Show add menu popup
-    setAddMenuVisible(false); // Hide submenu
   };
 
   useEffect(() => {
@@ -216,18 +197,6 @@ const fetchBookContent = async () => {
     $('#book').turn('next');
   };
 
-  const convertBookContentToContent = () => {
-    const newContent = bookContent.map(paragraph => ({
-      title: null,
-      subtitle: null,
-      imageUrl: null,
-      paragraph: paragraph
-    }));
-
-    console.log('Converted bookContent to content:', newContent);
-    setContentArray(newContent);
-  };
-
   const handleOpenModifyPage = () => {
     navigate('/book-modify/:bookId');
   }
@@ -261,15 +230,12 @@ const fetchBookContent = async () => {
       </aside>
       {/* Book name input and category (백연결 확인 필요) */}
       <div className="book-info">
-        <div className = "category-name"> 
-          {category}
+        <div className="book-name">
+          {name}
         </div>
         <button className="modify-button" onClick={handleOpenModifyPage}>
           <img src={modifyicon} alt="수정하기 아이콘" />
         </button>
-        <div className="book-name">
-          {name}
-        </div>
       </div>
 
       {/* Book content */}
@@ -300,7 +266,7 @@ const fetchBookContent = async () => {
               >
                 {contentItem.subtitle}
               </h4>
-              {/* 업로드된 이미지가 있으면 화면에 표시 */}
+              {/* 이미지 */}
               {content.imageUrl && (
                 <img src={content.imageUrl} alt="Uploaded" 
                     style={{ width: '60%', height: 'auto' }}
@@ -308,9 +274,7 @@ const fetchBookContent = async () => {
               )}
               {/*글*/}
               <div className = "word">
-              <p
-                id="editable-paragraph"
-              >
+              <p>
                 {contentItem.paragraph}
               </p>
               </div>
