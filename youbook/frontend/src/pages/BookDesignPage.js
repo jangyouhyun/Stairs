@@ -84,6 +84,8 @@ const saveBookCoverAsImage = () => {
     allowTaint: false, // 외부 리소스 허용 설정
     logging: true, // 디버깅을 위한 로그 출력
     scale: 2, // 해상도 향상을 위해 배율 설정
+    width: width,  // 요소의 실제 너비 설정
+    height: height // 요소의 실제 높이 설정
   })
     .then((canvas) => {
       const imageData = canvas.toDataURL("image/png"); // 이미지 데이터를 Base64로 변환
@@ -240,7 +242,6 @@ const updateImageSize = (id, newSize) => {
 // 오른쪽 클릭 시 삭제 팝업 표시
 const handleRightClick = (e, id) => {
   e.preventDefault(); // 기본 오른쪽 클릭 동작 막기
-  //setSelectedImageId(id); // 선택된 이미지 ID 저장
   setPopupPosition({ x: e.pageX, y: e.pageY }); // 팝업 위치 설정
   setShowDeletePopup(true); // 삭제 팝업 표시
   setShowResizeInput(false); // 크기 조절 입력창 닫기

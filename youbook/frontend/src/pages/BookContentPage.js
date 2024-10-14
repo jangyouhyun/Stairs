@@ -75,8 +75,6 @@ function BookContentPage() {
   const [pageRefs, setPageRefs] = useState([]); 
 
 
-
-
 // 책 내용 가져오는 함 수 
 const fetchBookContent = async () => {
   try {
@@ -119,7 +117,8 @@ const convertBookContentToContent = () => {
     paragraph: paragraph || '', // 본문이 없을 경우 기본값
   }));
 
-  setContentArray(newContent);
+    setContentArray(newContent);
+    setTotalPages(newContent.length); 
 };
 
   // Navigate to the autobiography page
@@ -189,10 +188,7 @@ const generatePageContent = (contentItem) => {
     </div>
   `;
 };
-  
-    // 페이지가 업데이트될 때마다 총 페이지 수를 설정
-    setTotalPages(Math.max(pages.length, Math.ceil($book.turn('pages') / 2)));
-  
+    
     return () => {
       if ($book.data('turn')) {
         $book.turn('destroy');
@@ -247,7 +243,7 @@ const generatePageContent = (contentItem) => {
         </nav>
         <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
       </aside>
-      {/* Book name input and category (백연결 확인 필요) */}
+      {/* Book name input and category*/}
       <div className="book-info">
         <div className="book-name">
           {name}

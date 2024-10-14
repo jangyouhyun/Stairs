@@ -20,6 +20,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+
 // 문단 내부 이미지 업데이트 API
 router.post('/update_image', upload.single('image'), function (req, res) {
     const book_id = req.body.bookId;
@@ -59,14 +60,13 @@ router.post('/update_image', upload.single('image'), function (req, res) {
         return res.status(400).json({ error: '필수 정보가 없습니다.' });
     }
 
-    // 이미지 경로 업데이트 쿼리
+    // 이미지 경로 업데이트 쿼리 (book_list 테이블)
     const updateImageQuery = `
-        UPDATE final_input
+        UPDATE book_list
         SET image_path = ?
-        WHERE user_id = ? AND book_id = ? AND input_count = ? AND content_order = ?
+        WHERE book_id = ?
     `;
-
-    // 데이터베이스에서 업데이트 수행
+    
     db.query(updateImageQuery, [image, user_id, book_id, input_count, content_order], function (err, results) {
         if (err) {
             console.error('Failed to update image:', err);
@@ -75,10 +75,11 @@ router.post('/update_image', upload.single('image'), function (req, res) {
 
         // 업데이트가 성공적으로 이루어졌는지 확인
         if (results.affectedRows === 0) {
-            console.warn('No matching record found');
+            console.warn('No matching record found:', { book_id });
             return res.status(404).json({ error: 'No matching record found' });
         }
 
+        console.log('Image path updated successfully:', image_path);
         // 성공적으로 업데이트한 경우
         console.log('Image updated successfully:', image);
         return res.status(200).json({ success: true, image_path: image });
