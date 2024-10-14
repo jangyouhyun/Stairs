@@ -75,8 +75,6 @@ function BookContentPage() {
   const [pageRefs, setPageRefs] = useState([]); 
 
 
-
-
 // 책 내용 가져오는 함 수 
 const fetchBookContent = async () => {
   try {
@@ -190,6 +188,7 @@ const generatePageContent = (contentItem) => {
     </div>
   `;
 };
+    
     return () => {
       if ($book.data('turn')) {
         $book.turn('destroy');

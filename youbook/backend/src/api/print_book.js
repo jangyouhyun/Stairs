@@ -34,7 +34,7 @@ router.post('/print', function (req, res) {
             const contentArray = finalData.map(row => ({
                 title: row.big_title || null,
                 subtitle: row.small_title || null,
-                imageUrl: row.image_url || null,
+                imageUrl: row.image_path || null,
                 paragraph: row.content
             }));
 
