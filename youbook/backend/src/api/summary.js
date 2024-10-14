@@ -22,7 +22,7 @@ async function getModelResponse(user_input) {
         const response = await client.chat.completions.create({
             model: fineTunedModelId,
             messages: [
-                { role : 'system', content : "당신은 한국인이 입력한 글을 요약해주는 도우미입니다. 기본 컨텐츠와 질의 응답 형식으로 구성된 텍스트에 대해서, 질의응답 부분을 중심으로 내용을 정리하여 제공하세요"},
+                { role : 'system', content : "당신은 한국인이 입력한 글을 요약해주는 도우미입니다."},
                 { role: 'user', content: user_input + '을 요약해주세요'}
             ]
         });
@@ -66,7 +66,7 @@ router.post('/chatbot/summary', function (request, response) {
                     console.log("Fetched questions and responses from database: ", results); // 디버깅 출력: DB 결과 확인
 
                     // Combine all questions and responses for summarization
-                    let combinedContent = results.map(item => `${item.question}: ${item.response}`).join('\n');
+                    let combinedContent = results.map(item => `User: ${item.question}, Assistant : ${item.response}`).join('\n');
                     console.log("Combined content for OpenAI summarization: ", combinedContent); // 디버깅 출력: 결합된 콘텐츠 확인
 
                     try {

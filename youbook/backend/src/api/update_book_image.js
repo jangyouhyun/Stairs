@@ -8,7 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         // 프로젝트 루트 경로 기준으로 uploads 폴더 설정
-        cb(null, path.join(__dirname, '../../uploads/')); // youbook/uploads/ 경로에 저장
+        cb(null, path.join(__dirname, '../../../uploads/')); // youbook/uploads/ 경로에 저장
     },
     filename: function (req, file, cb) {
         const ext = path.extname(file.originalname); // 파일 확장자 추출

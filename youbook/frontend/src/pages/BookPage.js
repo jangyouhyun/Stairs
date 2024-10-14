@@ -178,22 +178,11 @@ const handleAIimageUpload = async (image_path) => {
   }
 }
 
+
 const handleImageUpload = async (event = null, imagePath = null) => {
   const formData = new FormData();
-
-  // AI로 생성된 이미지 경로가 있을 경우
-  if (imagePath) {
-    formData.append('image', null); // 직접 파일은 없으므로 null
-    formData.append('image_path', imagePath); // AI 이미지 경로 추가
-  } 
-  // 사용자가 직접 업로드한 파일이 있을 경우
-  else if (event && event.target.files[0]) {
-    const file = event.target.files[0];
-    formData.append('image', file); // 업로드된 파일 추가
-  } else {
-    console.error('파일이나 이미지 경로가 없습니다.');
-    return;
-  }
+  const file = event.target.files[0];
+  formData.append('image', file); // 업로드된 파일 추가
 
   // 추가 데이터 설정
   formData.append('bookId', bookId);
