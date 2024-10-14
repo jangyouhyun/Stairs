@@ -11,7 +11,7 @@ router.post('/delete_book_list', function (request, response) {
   }
 
   // 데이터베이스에서 book_id에 해당하는 책들 삭제
-  db.query('DELETE FROM book_list WHERE book_id IN (?)', [bookIds], function (error, result) {
+  db.query('DELETE FROM init_input WHERE book_id IN (?)', [bookIds], function (error, result) {
     if (error) {
       console.error('Error deleting book:', error);
       return response.status(500).json({ error: 'Failed to delete books' });

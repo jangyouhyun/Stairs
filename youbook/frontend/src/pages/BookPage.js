@@ -40,6 +40,9 @@ function BookPage() {
 
   const [addMenuVisible, setAddMenuVisible] = useState(false); // For add popup
   const [addMenuVisible2, setAddMenuVisible2] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 열림 상태 관리
+  const [imageRequest, setImageRequest] = useState(''); // 입력받은 이미지 요청 데이터
+
   const [savedCoverImageUrl, setSavedCoverImageUrl] = useState(null);
   const { userId, bookId } = useParams();   // URL에서 bookId 추출
   const location = useLocation();
@@ -62,7 +65,6 @@ function BookPage() {
   const [bookContent, setBookContent] = useState([]);
   const [categories, setCategories] = useState([]);
   const bookRef = useRef(null);
- // const [selectedCategory, setSelectedCategory] = useState(''); // 선택된 카테고리
   const selectedCategory = location.state?.selectedCategory;
 
   // 카테고리 목록 가져오기
@@ -143,33 +145,54 @@ const fetchBookContent = async () => {
   }
 };
 
-// 이미지 핸들러
-// 이미지 핸들러
-const handleImageUpload = async (event, ImagePath = null) => {
+const handleAIimageUpload = async (image_path) => {
   const formData = new FormData();
+  formData.append('image_path', image_path); // 이미지 파일 추가
 
-  if (ImagePath) {
-    console.log("나는 ai 생성에 성공했어요")
-    // AI에서 생성된 이미지 경로를 바로 전송
-    formData.append('image', null);
-    formData.append('image_path', ImagePath); // 경로 추가
-  } else {
-    console.log("나는 ai 생성에 실패했어요..")
-    // 사용자가 직접 업로드한 파일을 사용
-    const file = event.target.files[0];
-    formData.append('image', file); // 이미지 파일 추가
-    formData.append('image_path', null);
-  }
-
-  formData.append('bookId', bookId); // bookId 추가
+  // 추가 데이터 설정
+  formData.append('bookId', bookId);
   formData.append('inputCount', 1);
   formData.append('content_order', 1);
-
+  formData.append('whatData', 2);
   try {
     // 서버에 이미지 업로드 요청
     const response = await fetch('/api/update_image', {
       method: 'POST',
       body: formData, // FormData 전송
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      // 이미지가 성공적으로 업로드되면 상태 업데이트
+      setContent((prevContent) => ({
+        ...prevContent,
+        imageUrl: result.image_path, // 서버에서 받은 이미지 경로 설정
+      }));
+      alert('이미지가 성공적으로 업로드되었습니다.');
+    } else {
+      alert('이미지 업로드에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('이미지 업로드 중 오류가 발생했습니다:', error);
+    alert('이미지 업로드 중 오류가 발생했습니다.');
+  }
+}
+
+const handleImageUpload = async (event = null, imagePath = null) => {
+  const formData = new FormData();
+  const file = event.target.files[0];
+  formData.append('image', file); // 업로드된 파일 추가
+
+  // 추가 데이터 설정
+  formData.append('bookId', bookId);
+  formData.append('inputCount', 1);
+  formData.append('content_order', 1);
+  formData.append('whatData', 1);
+
+  try {
+    const response = await fetch('/api/update_image', {
+      method: 'POST',
+      body: formData,
     });
 
     const result = await response.json();
@@ -183,19 +206,14 @@ const handleImageUpload = async (event, ImagePath = null) => {
       alert('이미지 업로드에 실패했습니다.');
     }
   } catch (error) {
-    console.error('Error uploading image:', error);
+    console.error('이미지 업로드 중 오류가 발생했습니다:', error);
     alert('이미지 업로드 중 오류가 발생했습니다.');
   }
 };
 
-
   // AI로 이미지 생성하는 함수
-  const handleAIimagecreate = async () => {
+  const handleAIimagecreate = async (promptData) => {
     try {
-      const promptData = {
-        prompt: content.paragraph, // 현재 선택한 문단의 내용을 프롬프트로 전달
-      };
-
       // DALL-E API를 호출하여 이미지 생성
       const dalleResponse = await fetch('/api/create-image', {
         method: 'POST',
@@ -209,7 +227,7 @@ const handleImageUpload = async (event, ImagePath = null) => {
 
       if (dalleData.path) {
         // 생성된 이미지 경로가 있으면 이미지 업로드 함수로 넘김
-        handleImageUpload(dalleData.path);
+        handleAIimageUpload(dalleData.path);
       } else {
         alert('이미지 생성에 실패했습니다.');
       }
@@ -408,16 +426,10 @@ const handleDeleteClick = async () => {
     setSubmenuVisible(true); // Show the submenu
   };
 
-  //글 추가 생성
+  //글 추가 생성 - 저희의 문제는,, 이게 안된다는거예요 ,,
+  //(글 추가 생성시 다른 표시 해서 원래의 content 배열에 추가하는 로직 필요)
   const handleAddIconClick = (event) => {
-    event.preventDefault(); // Prevent the default browser right-click menu
-    const rect = event.target.getBoundingClientRect(); // Get the bounding box of the paragraph
-    setSubmenuPosition({
-      x: 30,
-      y: rect.bottom + window.scrollY-100,
-    });
-    setSubmenuVisible(true);
-    setAddPopupVisible(!addPopupVisible); // 팝업창 열고 닫기
+    navigate('/main');
   };
 
   const handleChatbotClick = () => {
@@ -494,13 +506,22 @@ const handleDeleteClick = async () => {
       fileInputRef.current.click(); // 숨겨진 파일 input 요소 클릭
       setAddMenuVisible2(false);
     }
-    handleAIimagecreate()
     setAddMenuVisible2(false);
   };
   
   const ImageAIAdd = () => {
-    handleAIimagecreate()
+    setIsPopupOpen(true);
     setAddMenuVisible2(false);
+  };
+
+  // 이미지 생성 요청 처리 함수
+  const handleCreateImage = () => {
+    const promptData = {
+      prompt: `다음은 내 삶의 자서전의 한 문단입니다. 이를 보고, ${imageRequest}이 요청에 알맞은 이미지를 생성해 주세요. : ${content.paragraph}`
+    };
+    
+    console.log('Prompt Data:', promptData);
+    handleAIimagecreate(promptData); // AI 이미지 생성 요청
   };
 
   const handleBackClick = () => {
@@ -652,7 +673,10 @@ useEffect(() => {
   const handleClickOutside = (event) => {
     if (!event.target.closest('.add-popup')) {
       setAddMenuVisible5(false);
-      setAddPopupVisible(false); // 팝업 닫기
+      setAddPopupVisible(false);
+    }
+    if (!event.target.closest('.dalle-popup-content')) {
+      setIsPopupOpen(false);
     }
   };
   document.addEventListener('mousedown', handleClickOutside);
@@ -878,17 +902,7 @@ useEffect(() => {
           <button onClick={handleSubtitleDeleteClick}>Delete</button>
         </div>
         )}
-        {addPopupVisible && (
-          <div className="add-popup"
-          style={{
-            position: 'absolute',
-            top: `${submenuPosition.y}px`,
-            left: `${submenuPosition.x}px`,
-          }}>
-            <button onClick={handleChatbotClick}>Chatbot</button>
-            <button onClick={handleDirectAddClick}>직접 추가</button>
-          </div>
-        )}
+
         {/* Add Image Popup */}
         {addMenuVisible2 && (
         <div className="add-popup"
@@ -941,6 +955,7 @@ useEffect(() => {
         </div>
 
       )}
+      
       {isDesignOpen && (
         <div className="design-popup">
           <Design onClose={handleCloseDesignPage}
@@ -972,6 +987,22 @@ useEffect(() => {
           <p>자서전이 생성되었습니다!</p>
         </div>
       )}
+      {/* 달리 팝업 창 */}
+      {isPopupOpen && (
+              <div className="dalle-popup">
+                <div className="dalle-popup-content">
+                  <p>원하는 이미지를 알려주세요!</p>
+                  <textarea
+                    value={imageRequest}
+                    onChange={(e) => setImageRequest(e.target.value)}  // 사용자 입력값 반영
+                    placeholder="이미지 설명을 입력하세요"
+                  />
+                  <button onClick={handleCreateImage} className="dalle-button">
+                    만들기
+                  </button>
+                </div>
+              </div>
+            )}
     </div>
   );
 }

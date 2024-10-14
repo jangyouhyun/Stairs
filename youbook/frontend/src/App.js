@@ -35,7 +35,7 @@ function App() {
         <Route path="/modifyinfo" element={<ModifyInfo />} />
         <Route path="/book-reading/:bookId" element={<BookPage />} />
         <Route path="/book-content/:bookId" element={<BookContentPage />} />
-        <Route path="/book-modfiy/:bookId" element={<BookModifyPage />} />
+        <Route path="/book-modify/:bookId" element={<BookModifyPage />} />
         <Route path="/customerinquiry" element={<CustomerInquiryPage />} />
       </Routes>
     </Router>
