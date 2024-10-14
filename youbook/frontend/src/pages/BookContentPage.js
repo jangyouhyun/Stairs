@@ -139,6 +139,7 @@ const convertBookContentToContent = () => {
   const handleHomeClick = () => {
     navigate('/');
   };
+
   const handleModifyClick = () => {
     navigate('/modifyinfo');
   };
@@ -208,7 +209,12 @@ const generatePageContent = (contentItem) => {
   };
 
   const handleOpenModifyPage = () => {
-    navigate('/book-modify/:bookId');
+    navigate(`/book-modify/${bookId}`,  {
+      state: {
+        contentArray: contentArray,
+        selectedCategory: selectedCategory,
+      },
+    });
   }
 
   return (

@@ -30,7 +30,6 @@ function MainPage() {
   const [items, setItems] = useState([]); // 빈 배열로 초기화
   const [isRectangleVisible, setIsRectangleVisible] = useState(false); 
   const [isChatbotOpen, setIsChatbotOpen] = useState(false); // 챗봇 팝업 상태
-  const [chatbotContent, setChatbotContent] = useState(null);  
   const [isWarningVisible, setIsWarningVisible] = useState(false);
   const location = useLocation();
   const [bookId, setBookId] = useState(null);
@@ -40,32 +39,30 @@ function MainPage() {
   const [isCreatingBook, setIsCreatingBook] = useState(false);
   
   const handleOpenChatbot = () => {
-    setIsLoading(true); // 로딩 상태 활성화
+    setIsLoading(true);
     fetch('/api/write_process/chatbot', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text }), // 서버에 보낼 데이터
+      body: JSON.stringify({ content: text }),
     })
     .then(response => response.json())
     .then(data => {
       if (data.status === 200) {
         const bookId = data.bookId;
         if (bookId) {
-          setIsChatbotOpen(true); // 챗봇 팝업 열기
-          setChatbotContent({ bookId, selectedCategory }); // 챗봇에 필요한 데이터 저장
+          setIsChatbotOpen(true);
+          navigate(`/chatbot/${bookId}`, { state: { selectedCategory } }); 
         } else {
           console.error('bookId is missing in the response:', data);
         }
-      } else {
-        console.error('Unexpected status:', data.status);
       }
-      setIsLoading(false); // 로딩 상태 비활성화
+      setIsLoading(false);
     })
     .catch(error => {
       console.error('Error:', error);
-      setIsLoading(false); // 로딩 상태 비활성화
+      setIsLoading(false);
     });
   };
 

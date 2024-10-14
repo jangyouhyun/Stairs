@@ -106,22 +106,13 @@ function BookPage() {
     fetchBookContent();
   }, []); // 'location'이 변경될 때마다 fetchBookContent 실행
   
-  // bookContent가 업데이트되었을 때 convertBookContentToContent 실행
   useEffect(() => {
-    if (bookContent.length > 0) { // bookContent가 업데이트된 후 실행
-      console.log(bookContent); // 업데이트된 bookContent 출력
-      convertBookContentToContent(); // bookContent 기반으로 content 생성
-    }
-  }, [bookContent]);
-
-  useEffect(() => {
-    if (contentArray.length > 0 && contentArray[0].paragraph) {
-      console.log("content::::::", contentArray[0].paragraph); // 디버깅 문장 추가
-      setContent(contentArray[0]);
-    } else {
-      console.log("contentArray is empty or paragraph is missing");
+    if (contentArray.length > 0) {
+      console.log(bookContent); 
+      //convertBookContentToContent(); // bookContent 기반으로 content 생성
     }
   }, [contentArray]);
+
 
 // 책 내용 가져오는 함 수 
 const fetchBookContent = async () => {
@@ -140,7 +131,7 @@ const fetchBookContent = async () => {
     });
 
     const data = await response.json();
-    setBookContent(data.contentArray); // 상태 업데이트
+    setContentArray(data.contentArray); // 상태 업데이트
 
   } catch (error) {
     console.error('Failed to fetch book content:', error);
@@ -181,7 +172,7 @@ const handleAIimageUpload = async (image_path) => {
 }
 
 
-const handleImageUpload = async (event = null, imagePath = null) => {
+const handleImageUpload = async (event) => {
   const formData = new FormData();
   const file = event.target.files[0];
   formData.append('image', file); // 업로드된 파일 추가
@@ -212,6 +203,7 @@ const handleImageUpload = async (event = null, imagePath = null) => {
     console.error('이미지 업로드 중 오류가 발생했습니다:', error);
     alert('이미지 업로드 중 오류가 발생했습니다.');
   }
+  fetchBookContent();
 };
 
   // AI로 이미지 생성하는 함수
@@ -782,8 +774,8 @@ useEffect(() => {
                 {contentItem.subtitle}
               </h4>
               {/* 업로드된 이미지가 있으면 화면에 표시 */}
-              {content.imageUrl && (
-                <img src={content.imageUrl} alt="Uploaded" 
+              {contentItem.imageUrl && (
+                <img src={contentItem.imageUrl} alt="Uploaded" 
                     style={{ width: '60%', height: 'auto' }}
                     onContextMenu={handleImageRightClick}
                 />
