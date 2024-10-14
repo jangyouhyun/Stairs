@@ -22,7 +22,8 @@ async function getModelResponse(user_input) {
         const response = await client.chat.completions.create({
             model: fineTunedModelId,
             messages: [
-                { role: "user", content: user_input}
+                { role : 'system', content : "당신은 한국인이 입력한 글을 요약해주는 도우미입니다. 기본 컨텐츠와 질의 응답 형식으로 구성된 텍스트에 대해서, 질의응답 부분을 중심으로 내용을 정리하여 제공하세요"},
+                { role: 'user', content: user_input + '을 요약해주세요'}
             ]
         });
         console.log("Received response from OpenAI: ", response); // 디버깅 출력: OpenAI 응답 확인

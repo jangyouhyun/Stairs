@@ -14,7 +14,7 @@ router.post('/store', function (req, res) {
 
     // final_input에서 해당 book_id, user_id, input_count에 부합하는 데이터 조회
     const finalInputQuery = `
-        SELECT big_title, small_title, content, content_order 
+        SELECT big_title, small_title, content, content_order , image_path
         FROM final_input 
         WHERE book_id = ? AND user_id = ? AND input_count = ?
     `;
@@ -88,11 +88,11 @@ router.post('/store', function (req, res) {
                     // real_book에 데이터가 있으면 업데이트
                     const updateRealBookQuery = `
                         UPDATE real_book 
-                        SET big_title = ?, small_title = ?, content = ?
+                        SET big_title = ?, small_title = ?, content = ? , image_path = ?
                         WHERE book_id = ? AND content_order = ?
                     `;
 
-                    db.query(updateRealBookQuery, [row.big_title, row.small_title, row.content, book_id, row.content_order], function (error) {
+                    db.query(updateRealBookQuery, [row.big_title, row.small_title, row.content, book_id, row.content_order, row.image_path], function (error) {
                         if (error) {
                             console.error('Error updating real_book:', error);
                             return res.status(500).json({ message: 'Internal server error' });
@@ -106,11 +106,11 @@ router.post('/store', function (req, res) {
                 } else {
                     // real_book에 데이터가 없으면 삽입
                     const insertRealBookQuery = `
-                        INSERT INTO real_book (book_id, big_title, small_title, content, content_order) 
-                        VALUES (?, ?, ?, ?, ?)
+                        INSERT INTO real_book (book_id, big_title, small_title, image_path, content, content_order) 
+                        VALUES (?, ?, ?, ?, ?, ?)
                     `;
 
-                    db.query(insertRealBookQuery, [book_id, row.big_title, row.small_title, row.content, row.content_order], function (error) {
+                    db.query(insertRealBookQuery, [book_id, row.big_title, row.small_title, row.image_path, row.content, row.content_order], function (error) {
                         if (error) {
                             console.error('Error inserting into real_book:', error);
                             return res.status(500).json({ message: 'Internal server error' });
