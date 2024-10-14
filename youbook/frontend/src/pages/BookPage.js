@@ -637,9 +637,6 @@ const handleDeleteClick = async () => {
       }
     });
   
-    // 페이지가 업데이트될 때마다 총 페이지 수를 설정
-    setTotalPages(Math.max(pages.length, Math.ceil($book.turn('pages') / 2)));
-  
     document.addEventListener('click', handleOutsideClick);
   
     return () => {
@@ -671,6 +668,7 @@ const handleDeleteClick = async () => {
 
     console.log('Converted bookContent to content:', newContent);
     setContentArray(newContent);
+    setTotalPages(newContent.length); 
   };
 
   const handleCategoryChange = (e) => {
@@ -856,17 +854,12 @@ useEffect(() => {
           </div>
           ))}
 
-        <div className="page">
-          <div className = "page-content"></div>
-        </div>
-        <div className="hard">
-          <div className = "page-content"></div>
-        </div>
         <div className="hard">
           <div className = "page-content"></div>
         </div>
     </div>
-      {/*popup */}
+     <div className = "popup-container">
+       {/*popup */}
         {/* main Submenu container */}
         {submenuVisible && (
           <div
@@ -953,6 +946,7 @@ useEffect(() => {
           <img src={rightArrow} alt="Next" />
         </span>
       </div>
+     </div>
 
       {/* Footer buttons */}
       <div className="book-footer">
