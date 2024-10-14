@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import $ from 'jquery';
@@ -73,17 +74,7 @@ function BookContentPage() {
   const pageRef = useRef(null);
   const [pageRefs, setPageRefs] = useState([]); 
 
-  useEffect(() => {
-    fetchBookContent();
-  }, []); // 'location'이 변경될 때마다 fetchBookContent 실행
-  
-  // bookContent가 업데이트되었을 때 convertBookContentToContent 실행
-  useEffect(() => {
-    if (bookContent.length > 0) { // bookContent가 업데이트된 후 실행
-      console.log(bookContent); // 업데이트된 bookContent 출력
-      convertBookContentToContent(); // bookContent 기반으로 content 생성
-    }
-  }, [bookContent]);
+
 
 
 // 책 내용 가져오는 함 수 
@@ -108,6 +99,17 @@ const fetchBookContent = async () => {
     console.error('Failed to fetch book content:', error);
   }
 };
+useEffect(() => {
+  fetchBookContent();
+}, []); // 'location'이 변경될 때마다 fetchBookContent 실행
+
+// bookContent가 업데이트되었을 때 convertBookContentToContent 실행
+useEffect(() => {
+  if (bookContent.length > 0) { // bookContent가 업데이트된 후 실행
+    console.log(bookContent); // 업데이트된 bookContent 출력
+    convertBookContentToContent(); // bookContent 기반으로 content 생성
+  }
+}, [bookContent]);
 
 const convertBookContentToContent = () => {
   const newContent = bookContent.map((paragraph) => ({
@@ -139,42 +141,53 @@ const convertBookContentToContent = () => {
   const handleModifyClick = () => {
     navigate('/modifyinfo');
   };
-
   useEffect(() => {
     const $book = $('#book'); // jQuery로 book 요소 선택
   
-    // turn.js 초기화
+    // Ensure book exists before applying turn.js
     if ($book.length && !$book.data('turn')) {
-      $book.turn({
-        width: 800,
-        height: 500,
-        autoCenter: true,
-        elevation: 50,
-        gradients: true,
-        duration: 1000,
-        pages: Math.max(pages.length * 2, 6),  // 페이지 수 동적으로 설정
-        when: {
-          turned: function (event, page) {
-            const actualPage = Math.floor((page - 2) / 2) + 1; // 실제 페이지 계산
-            setCurrentPage(actualPage >= 0 ? actualPage : 0);  // 현재 페이지 상태 업데이트
+      setTimeout(() => {
+        $book.turn({
+          width: 800,
+          height: 500,
+          autoCenter: true,
+          elevation: 50,
+          gradients: true,
+          duration: 1000,
+          pages: Math.max(pages.length * 2, 6),  // 페이지 수 동적으로 설정
+          when: {
+            turned: function (event, page) {
+              const actualPage = Math.floor((page - 2) / 2) + 1; // 실제 페이지 계산
+              setCurrentPage(actualPage >= 0 ? actualPage : 0);  // 현재 페이지 상태 업데이트
+            },
           },
-        },
-      });
+        });
+      }, 100); // Delay the initialization to ensure DOM is ready
     }
-  
-    // 페이지 업데이트 시 처리 로직
-    pages.forEach((pageContent, index) => {
-      const pageIndex = index + 1; // 페이지 인덱스
-  
-      // 개별 pageRef를 관리하기 위해 ref 배열을 사용
-      const pageRef = pageRefs[index] || React.createRef();
-      pageRefs[index] = pageRef;  // 각 페이지에 대한 참조 유지
-  
-      // 페이지가 이미 추가되어 있는지 확인하고, 추가되지 않았으면 추가
-      if (!$book.turn('hasPage', pageIndex)) {
-        $book.turn('addPage', pageRef.current, pageIndex);
-      }
-    });
+
+ // contentArray에서 각 contentItem을 페이지로 추가
+ contentArray.forEach((contentItem, index) => {
+  // pageRef 배열에서 각 페이지 참조를 설정
+  const pageIndex = index + 1; // 페이지 인덱스 설정
+  const pageRef = pageRefs[index] || React.createRef();
+  pageRefs[index] = pageRef;  // 페이지에 대한 참조를 유지
+
+  // 각 페이지를 $book에 추가
+  if (!$book.turn('hasPage', pageIndex)) {
+    $book.turn('addPage', `<div class='page-content' ref=${pageRef}>${generatePageContent(contentItem)}</div>`, pageIndex);
+  }
+});
+// 페이지에 추가할 contentItem을 HTML로 생성하는 함수
+const generatePageContent = (contentItem) => {
+  return `
+    <div class="page-content">
+      <h1 id="editable-title">${contentItem.title}</h1>
+      <h4 id="editable-subtitle">${contentItem.subtitle}</h4>
+      ${contentItem.imageUrl ? `<img src="${contentItem.imageUrl}" alt="Uploaded" style="width: 60%; height: auto;" />` : ''}
+      <p id="editable-paragraph">${contentItem.paragraph}</p>
+    </div>
+  `;
+};
   
     // 페이지가 업데이트될 때마다 총 페이지 수를 설정
     setTotalPages(Math.max(pages.length, Math.ceil($book.turn('pages') / 2)));
@@ -248,39 +261,22 @@ const convertBookContentToContent = () => {
         <div className="hard">
         <div className = "page-content"></div>
         </div>
-
         
-        <div className="page">
-          {/* contentArray를 순회하면서 각 요소를 화면에 표시 */}
-          {contentArray.map((contentItem, index) => (
-            <div className="page-content"  key={`page-${index}`} ref={index === pages.length - 1 ? pageRef : null}>
-              {/*타이틀*/}
-              <h1
-                id="editable-title"
-              >
-                {contentItem.title}
-              </h1>
-              {/*서브*/}
-              <h4
-                id="editable-subtitle"
-              >
-                {contentItem.subtitle}
-              </h4>
-              {/* 이미지 */}
-              {content.imageUrl && (
-                <img src={content.imageUrl} alt="Uploaded" 
-                    style={{ width: '60%', height: 'auto' }}
-                />
+        {contentArray.map((contentItem, index) => (
+          <div className="page" key={`page-${index}`}>
+            <div className="page-content">
+              <h1>{contentItem.title}</h1>
+              <h4>{contentItem.subtitle}</h4>
+              {contentItem.imageUrl && (
+                <img src={contentItem.imageUrl} alt="Uploaded" style={{ width: '60%', height: 'auto' }} />
               )}
-              {/*글*/}
-              <div className = "word">
-              <p>
-                {contentItem.paragraph}
-              </p>
-              </div>
+              <p>{contentItem.paragraph}</p>
             </div>
-            ))}
-        </div>
+          </div>
+        ))}
+        
+        
+       
       <div className="hard">
         <div className = "page-content"></div>
       </div>
