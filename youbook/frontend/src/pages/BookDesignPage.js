@@ -30,49 +30,66 @@ function BookDesignPage({ onClose, onComplete }) {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [deletePopupPosition, setDeletePopupPosition] = useState({ x: 0, y: 0 });
   const [resizeColor, setResizeColor] = useState('#000');
+  const [images, setImages] = useState([]);
   const imageRef = useRef(null);
+  const [showResizeInput, setShowResizeInput] = useState(false);
+  const [selectedImageId, setSelectedImageId] = useState(null);
   const [resizeEnabled, setResizeEnabled] = useState(false); // 크기 조정 활성화 상태
-
-// 책 표지 이미지로 저장하는 함수
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 열림 상태 관리
+  const [imageRequest, setImageRequest] = useState(''); // 입력받은 이미지 요청 데이터
+  const [showResizePopup, setShowResizePopup] = useState(false);
+  const handleCreateImage = () => {
+    console.log('Requested image:', imageRequest);
+  };
+  const ImageAIAdd = () => {
+    setIsPopupOpen(true);
+    setAddTextMenuVisible(false);
+  };
+  // 이미지 크기 조정 핸들러
+  const handleResize = (id, newSize) => {
+    setImages((prevImages) =>
+      prevImages.map((img) =>
+        img.id === id ? { ...img, width: newSize.width, height: newSize.height } : img
+      )
+    );
+  };
+//외부 클릭시 팝업 닫힘
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.popup')) {
+        setShowDeletePopup(false);
+      }
+      if (!event.target.closest('.add-popup')) {
+        setShowResizePopup(false);
+      }
+      if (!event.target.closest('.dalle-popup-content')) {
+        setIsPopupOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  // 책 표지 이미지로 저장하는 함수
 const saveBookCoverAsImage = () => {
   const bookCover = bookCoverRef.current;
 
-  // 모든 이미지가 로드된 후 html2canvas를 실행하도록 처리
-  const images = bookCover.querySelectorAll('img');
-  const imagePromises = Array.from(images).map((img) => {
-    return new Promise((resolve, reject) => {
-      if (img.complete) {
-        resolve();
-      } else {
-        img.onload = resolve;
-        img.onerror = reject;
-      }
-    });
-  });
-
-  // 모든 이미지가 로드된 후 캡처 실행
-  Promise.all(imagePromises)
-    .then(() => {
-      html2canvas(bookCover, {
-        useCORS: true, // 외부 이미지를 사용할 경우 CORS 설정
-        allowTaint: false, // 외부 리소스 허용 설정
-        logging: true, // 디버깅을 위한 로그 출력
-      })
-        .then((canvas) => {
-          const imageData = canvas.toDataURL('image/png'); // 이미지 데이터를 Base64로 변환
-          
-          // 이미지가 저장된 URL 또는 Base64 데이터
-          onComplete(imageData);  // 이미지 URL을 onComplete 콜백으로 전달
-        })
-        .catch((error) => {
-          console.error("Error capturing the book cover:", error);
-        });
+  // html2canvas로 book-cover 요소 캡처
+  html2canvas(bookCover, {
+    useCORS: true, // 외부 이미지를 사용할 경우 CORS 설정
+    allowTaint: false, // 외부 리소스 허용 설정
+    logging: true, // 디버깅을 위한 로그 출력
+    scale: 2, // 해상도 향상을 위해 배율 설정
+  })
+    .then((canvas) => {
+      const imageData = canvas.toDataURL("image/png"); // 이미지 데이터를 Base64로 변환
+      onComplete(imageData); // 이미지 URL을 onComplete 콜백으로 전달
     })
     .catch((error) => {
-      console.error("Error loading images before capture:", error);
+      console.error("Error capturing the book cover:", error);
     });
 };
-
   // 팝업창 열기/닫기 토글 함수
   const toggleColorPalette = () => {
     setShowColorPicker((prev) => !prev);
@@ -138,6 +155,7 @@ const saveBookCoverAsImage = () => {
   // 이미지 버튼 클릭 시 팝업을 여는 함수
   const handleImageClick = () => {
     setAddImageMenuVisible(true); // 팝업창 열기
+    setShowResizePopup(false);
     setImgSubmenuPosition({ x: 350, y: 150 }); // 팝업 위치 설정 (임의로 설정)
   };
 
@@ -147,42 +165,91 @@ const saveBookCoverAsImage = () => {
   };
   // 이미지 파일 업로드 핸들러
   const handleImageUpload = (event) => {
-    const file = event.target.files[0]; // 첫 번째 파일 선택
+    const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImageSrc(reader.result); // base64 이미지 데이터 설정
+        const newImage = {
+          id: Date.now(),
+          src: reader.result,
+          x: 50,
+          y: 50,
+          width: 150,
+          height: 150,
+        };
+        setImages((prevImages) => [...prevImages, newImage]);
       };
       reader.readAsDataURL(file);
     }
   };
-  // 이미지 크기 조정 핸들러
-  const handleResize = (event, { size }) => {
-    setImageSize(size);
-    // 가로와 세로 중 어느 방향으로 크기가 조정되는지에 따라 색상 변경
-    if (size.width !== imageSize.width) {
-      setResizeColor('blue'); // 가로 조정 시 파란색
-    } else if (size.height !== imageSize.height) {
-      setResizeColor('blue'); // 세로 조정 시 초록색
-    }
-  };
- // 이미지 삭제, 크기 조정 팝업창 열기
- const handleRightClick = (e) => {
-  e.preventDefault();
-  const rect = e.target.getBoundingClientRect();
-  setDeletePopupPosition({
-    x: rect.right + window.scrollX + 10,
-    y: rect.bottom + window.scrollY + 10, 
-  });
-  setResizeEnabled(true);
+// 이미지 드래그 후 위치 업데이트
+const handleDragStop = (id, e, data) => {
+  const bookCoverRect = bookCoverRef.current.getBoundingClientRect();
+  const { x, y } = data;
+
+  // book-cover의 좌표를 기준으로 이미지 좌표 조정
+  const adjustedX = x - bookCoverRect.left; // book-cover의 left 값을 빼줌
+  const adjustedY = y - bookCoverRect.top;  // book-cover의 top 값을 빼줌
+
+  setImages((prevImages) =>
+    prevImages.map((img) =>
+      img.id === id ? { ...img, x: adjustedX, y: adjustedY } : img
+    )
+  );
+};
+
+// 이미지 클릭 시 크기 조정 팝업 표시
+const handleImageClickForEditing = (id) => {
+  const selectedImage = images.find((img) => img.id === id);
+  if (selectedImage) {
+    setSelectedImageId(id); // 선택된 이미지 ID 저장
+    setImageSize({ width: selectedImage.width, height: selectedImage.height }); // 선택된 이미지 크기 저장
+    setShowResizePopup(true); // 크기 조절 팝업 표시
+  }
+};
+
+// 이미지 크기 조정 핸들러 (입력 필드에서 수동으로 크기 조정)
+const handleWidthChange = (e) => {
+  setImageSize((prevSize) => ({
+    ...prevSize,
+    width: parseInt(e.target.value, 10),
+  }));
+  updateImageSize(selectedImageId, { width: parseInt(e.target.value, 10) });
+};
+
+const handleHeightChange = (e) => {
+  setImageSize((prevSize) => ({
+    ...prevSize,
+    height: parseInt(e.target.value, 10),
+  }));
+  updateImageSize(selectedImageId, { height: parseInt(e.target.value, 10) });
+};
+
+// 선택된 이미지의 크기를 업데이트
+const updateImageSize = (id, newSize) => {
+  setImages((prevImages) =>
+    prevImages.map((img) =>
+      img.id === id ? { ...img, ...newSize } : img
+    )
+  );
+};
+
+// 오른쪽 클릭 시 삭제 팝업 표시
+const handleRightClick = (e, id) => {
+  e.preventDefault(); // 기본 오른쪽 클릭 동작 막기
+  setSelectedImageId(id); // 선택된 이미지 ID 저장
+  setPopupPosition({ x: e.pageX, y: e.pageY }); // 팝업 위치 설정
+  setShowDeletePopup(true); // 삭제 팝업 표시
+  setShowResizeInput(false); // 크기 조절 입력창 닫기
   setShowDeletePopup(true);
 };
 
-// 이미지 삭제
-const handleDelete = () => {
-  setImageSrc(null); // 이미지 삭제
-  setShowDeletePopup(false); // 팝업 닫기
-};
+
+  // 이미지 삭제 핸들러
+  const handleDelete = () => {
+    setImages((prevImages) => prevImages.filter((img) => img.id !== selectedImageId));
+    setShowDeletePopup(false);
+  };
 
 // 외부 클릭 시 팝업 닫기
 const handleClickOutside = (e) => {
@@ -203,6 +270,7 @@ useEffect(() => {
   const handleTextBackClick = () => {
     setAddTextMenuVisible(false); // 팝업 닫기
   };
+
   return (
     <div className="book-design-page">
       <img src={back} alt="back" className="back-icon" onClick={onClose} />
@@ -233,7 +301,7 @@ useEffect(() => {
       {addTextMenuVisible && (
           <div className="add-popup"
             style={{
-              position: 'absolute',
+              position: 'relative',
               top: `${TextSubmenuPosition.y}px`,
               left: `${TextSubmenuPosition.x}px`,
             }}>
@@ -246,7 +314,7 @@ useEffect(() => {
           style={{
             position: 'absolute',
             top: `${TextSubmenuPosition.y+130}px`,
-            left: `${TextSubmenuPosition.x+250}px`,
+            left: `${TextSubmenuPosition.x+400}px`,
             }}>
             <h3>텍스트 옵션</h3>
             <div>
@@ -272,9 +340,9 @@ useEffect(() => {
             style={{
               position: 'absolute',
               top: `${ImgSubmenuPosition.y}px`,
-              left: `${ImgSubmenuPosition.x}px`,
+              left: `${ImgSubmenuPosition.x+100}px`,
             }}>
-            <button>AI 추천 받기</button>
+            <button onClick = {ImageAIAdd} >AI 추천 받기</button>
             <button onClick={() => fileInputRef.current.click()}>직접 삽입</button>
             {/* 파일 선택 버튼 */}
             <input
@@ -289,7 +357,7 @@ useEffect(() => {
           </div>
         )}
         
-        <div className = "book-container">
+        
         <div className="book-cover"
               ref={bookCoverRef} 
               style={{ backgroundColor: bookCoverColor }}>
@@ -297,7 +365,7 @@ useEffect(() => {
               <Draggable
                 key={textElement.id}
                 defaultPosition={{ x: textElement.x, y: textElement.y }}
-                bounds=".book-cover"
+                bounds="parent"
               >
                 <div
                   contentEditable
@@ -309,7 +377,6 @@ useEffect(() => {
                     fontSize: `${textElement.fontSize}px`,
                     color: textElement.color,
                     padding: '5px',
-                    border: '1px dashed #ccc',
                     cursor: 'move',
                   }}
                 >
@@ -317,60 +384,112 @@ useEffect(() => {
                 </div>
               </Draggable>
             ))}
-          </div>
+          
           {/* 이미지 추가 */}
-          {imageSrc && (
-            <Draggable bounds=".book-container">
-              <Resizable
-                width={imageSize.width}
-                height={imageSize.height}
-                onResize={(event, { size }) => handleResize(size)}
-                minConstraints={[100, 100]}
-                maxConstraints={[400, 400]}
-                resizeHandles={resizeEnabled ? ['se'] : []}
-                handleStyles={{
-                se: { cursor: 'nwse-resize', backgroundColor: resizeColor },
-            }}
-              >
-                <div
-                  style={{
-                    width: imageSize.width,
-                    height: imageSize.height,
-                    position: 'relative',
-                    border: `${resizeColor}`,
-                  }}
-                  onContextMenu={handleRightClick} // 오른쪽 클릭 시 삭제 팝업 열기
-                  ref={imageRef} // 이미지에 대한 참조 설정
-                >
-                  <img
-                    src={imageSrc}
-                    alt="Selected"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                    }}
-                  />
-                </div>
-              </Resizable>
-            </Draggable>
+          {images.map((image) => (
+          <Draggable 
+                  key={image.id} 
+                  bounds= 'parent'
+                  defaultPosition={{ x: image.x, y: image.y }}
+                  onStop={(e, data) => handleDragStop(image.id, e, data)}
+                  >
+          <Resizable
+            width={image.width}
+            height={image.height}
+            onResize={(event, data) => handleResize(image.id, event, data)}
+            minConstraints={[50, 50]}
+            maxConstraints={[600, 600]}
+          >
+            <div
+              onClick={() => handleImageClickForEditing(image.id)} // 왼쪽 클릭 이벤트로 크기 조정 팝업 표시
+              onContextMenu={(e) => handleRightClick(e, image.id)} // 오른쪽 클릭 이벤트로 삭제 팝업 표시
+              style={{
+                width: image.width,
+                height: image.height,
+                position: 'relative',
+              }}
+            >
+              <img
+                src={image.src}
+                alt={`Image-${image.id}`}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+                crossorigin="anonymous"
+              />
+            </div>
+          </Resizable>
+        </Draggable>
+        ))}
+        </div>
+      {/*이미지 크기 입력창*/}
+      {showResizePopup && selectedImageId &&(
+        <div className = "popup"
+        style={{
+          position: 'absolute',
+          top: `${popupPosition.y}px`,
+          left: `${popupPosition.x-300}px`,
+        }}>
+          {/* 이미지 크기 입력 필드 */}
+          {images.find((img) => img.id === selectedImageId) && (
+            <div className="image-size-controls">
+              <label>
+                가로 크기:
+                <input
+                  type="number"
+                  value={imageSize.width}
+                  onChange={handleWidthChange}
+                  min="50"
+                  max="600"
+                />
+              </label>
+              <label>
+                세로 크기:
+                <input
+                  type="number"
+                  value={imageSize.height}
+                  onChange={handleHeightChange}
+                  min="50"
+                  max="600"
+                />
+              </label>
+            </div>
           )}
-      </div>
+        </div>
+      )}
       {/* 삭제 팝업창 */}
       {showDeletePopup  && (
           <div
             className="popup"
             style={{
               position: 'absolute',
-              top: `${popupPosition.y + 200}px`,
-              left: `${popupPosition.x + 490}px`,
-              backgroundColor: 'gray',
-              radius : '20px',
-              padding: '10px',
-              zIndex: 1000,
+              top: `${popupPosition.y-50}px`,
+              left: `${popupPosition.x-300}px`,
+              width : '80px',
+              height: '30px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
             <button onClick={handleDelete}>삭제</button>
+          </div>
+      )}
+      {/* 달리 팝업 창 */}
+      {isPopupOpen && (
+          <div className="dalle-popup">
+            <div className="dalle-popup-content">
+              <p>원하는 이미지를 알려주세요!</p>
+              <textarea
+                className = "dalle-text"
+                value={imageRequest}
+                onChange={(e) => setImageRequest(e.target.value)}
+                placeholder="이미지 설명을 입력하세요"
+              />
+              <button onClick={handleCreateImage} className = "dalle-button">만들기</button>
+            </div>
           </div>
         )}
       <div className="footer">
@@ -379,5 +498,4 @@ useEffect(() => {
     </div>
   );
 }
-
 export default BookDesignPage;
