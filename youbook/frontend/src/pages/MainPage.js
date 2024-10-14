@@ -1,7 +1,3 @@
-// 메인페이지에서.. 
-// contentArray 에 지속적으로 데이터베이스를 담고 불러오고.. 해야되는데 애가 그러지를 않음
-// 계속해서 저장되는 contentArray를 들고가서 마지막 데이터베이스에 저장예정
-// 안들고 가더라도.. contentArray 에 들은 변수가 mysql 에 계속 저장되고 있음. 
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -105,6 +101,7 @@ function MainPage() {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
+          setUserName(data.nickname); 
           setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로를 상태에 저장
         } else {
           console.error(data.message);

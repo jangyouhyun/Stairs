@@ -24,8 +24,7 @@ function BookPage() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
   const userId = localStorage.getItem('userId') || 'defaultUserId';  // userId를 로컬 스토리지에서 가져오기
-
-  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); // 프로필 이미지를 저장할 상태 변수
+  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); 
   const [currentPage, setCurrentPage] = useState(0); // Current page state
   const [totalPages, setTotalPages] = useState(0); // Total page count
   const [bookName, setBookName] = useState(''); // Book name state
@@ -63,6 +62,21 @@ function BookPage() {
   const bookRef = useRef(null);
   const selectedCategory = location.state?.selectedCategory;
 
+    // 카테고리 및 책 데이터 가져오기
+    useEffect(() => {
+      fetch('/api/get_user_info')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            setUserName(data.nickname); 
+            setProfileImagePath(data.imagePath || defaultProfileImage); 
+          } else {
+            navigate('/');
+          }
+        })
+        .catch(error => console.error('Error fetching user info:', error));
+    }, [navigate]);
+  
   // 카테고리 목록 가져오기
   const fetchCategories = async () => {
     try {
@@ -107,7 +121,6 @@ function BookPage() {
       //convertBookContentToContent(); // bookContent 기반으로 content 생성
     }
   }, [contentArray]);
-
 
 // 책 내용 가져오는 함 수 
 const fetchBookContent = async () => {
@@ -593,50 +606,50 @@ const handleDeleteClick = async () => {
   useEffect(() => {
     const $book = $('#book'); // jQuery로 book 요소 선택
   
-     // Ensure book exists before applying turn.js
-     if ($book.length && !$book.data('turn')) {
+    // 책이 초기화되지 않았다면 초기화
+    if ($book.length && !$book.data('turn')) {
       setTimeout(() => {
         $book.turn({
           width: 800,
           height: 500,
           autoCenter: true,
-          elevation: 50,
-          gradients: true,
-
           duration: 1000,
-          pages: Math.max(pages.length * 2, 6),  // 페이지 수 동적으로 설정
+          pages: Math.max(pages.length * 2, 6),
           when: {
-            turned: function (event, page) {
-              const actualPage = Math.floor((page - 2) / 2) + 1; // 실제 페이지 계산
-              setCurrentPage(actualPage >= 0 ? actualPage : 0);  // 현재 페이지 상태 업데이트
+            turned: (event, page) => {
+              const actualPage = Math.floor((page - 2) / 2) + 1;
+              setCurrentPage(actualPage >= 0 ? actualPage : 0);
             },
           },
         });
-      }, 100); // Delay the initialization to ensure DOM is ready
+      }, 100); // DOM이 완전히 렌더링된 후 실행되도록 타이머 사용
     }
-     // contentArray에서 각 contentItem을 페이지로 추가
-    contentArray.forEach((contentItem, index) => {
-      // pageRef 배열에서 각 페이지 참조를 설정
-      const pageIndex = index + 1; // 페이지 인덱스 설정
-      const pageRef = pageRefs[index] || React.createRef();
-      pageRefs[index] = pageRef;  // 페이지에 대한 참조를 유지
+  
+  // 페이지에 대한 참조 유지 및 동적 추가
+  contentArray.forEach((contentItem, index) => {
+    const pageIndex = index + 1; // 페이지 인덱스 설정
+    const pageRef = pageRefs[index] || React.createRef();
+    pageRefs[index] = pageRef;  // 페이지에 대한 참조를 유지
 
-      // 각 페이지를 $book에 추가
-      if (!$book.turn('hasPage', pageIndex)) {
-        $book.turn('addPage', `<div class='page-content' ref=${pageRef}>${generatePageContent(contentItem)}</div>`, pageIndex);
-      }
-    });
-        // 페이지에 추가할 contentItem을 HTML로 생성하는 함수
-    const generatePageContent = (contentItem) => {
-      return `
-        <div class="page-content">
-          <h1 id="editable-title">${contentItem.title}</h1>
-          <h4 id="editable-subtitle">${contentItem.subtitle}</h4>
-          ${contentItem.imageUrl ? `<img src="${contentItem.imageUrl}" alt="Uploaded" style="width: 60%; height: auto;" />` : ''}
-          <p id="editable-paragraph">${contentItem.paragraph}</p>
-        </div>
-      `;
-    };
+    // 페이지가 이미 추가되어 있는지 확인하고 없으면 추가
+    if (!$book.turn('hasPage', pageIndex)) {
+      const pageContent = generatePageContent(contentItem); // 페이지 컨텐츠 생성 함수 호출
+      const pageElement = `<div class='page-content' ref=${pageRef}>${pageContent}</div>`;
+      $book.turn('addPage', pageElement, pageIndex);
+    }
+  });
+
+  const generatePageContent = (contentItem) => {
+    return `
+      <div class="page-content">
+        <h1 id="editable-title">${contentItem.title}</h1>
+        <h4 id="editable-subtitle">${contentItem.subtitle}</h4>
+        ${contentItem.imageUrl ? `<img src="${contentItem.imageUrl}" alt="Uploaded" style="width: 60%; height: auto;" />` : ''}
+        <p id="editable-paragraph">${contentItem.paragraph}</p>
+      </div>
+    `;
+  };
+  
     // 페이지 업데이트 시 처리 로직
     pages.forEach((pageContent, index) => {
       const pageIndex = index + 1; // 페이지 인덱스
@@ -706,13 +719,13 @@ return (
     <header className="main-header">
       <button className="menu-button" onClick={handleMenuClick}>☰</button>
       <button className="profile-button" onClick={handleProfileClick}>
-        <img src={signupIcon} alt="Profile" className="profile-image" />
+        <img src={profileImagePath} alt="Profile" className="profile-image" />
       </button>
     </header>
 
     {/* Sidebar */}
     <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
-      <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
+      <img src={profileImagePath} alt="Profile" className="profile-image2" />
       <div className="profile-name">{userName}</div>
       <nav className="sidebar-nav">
         <ul>

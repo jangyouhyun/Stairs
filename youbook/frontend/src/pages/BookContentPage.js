@@ -16,7 +16,8 @@ import modifyicon from '../assets/images/modify.png';
 
 function BookContentPage() {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState(''); // 사용자의 이름을 저장할 상태 변수
+  const [userName, setUserName] = useState('');
+  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); 
   const [currentPage, setCurrentPage] = useState(0); // Current page state
   const [totalPages, setTotalPages] = useState(0); // Total page count
   const [isRectangleVisible, setIsRectangleVisible] = useState(false);
@@ -30,6 +31,22 @@ function BookContentPage() {
   const selectedCategory = location.state?.selectedCategory;
   
   const [categories, setCategories] = useState([]);
+
+  // book_list 데이터를 가져오는 함수
+    // 카테고리 및 책 데이터 가져오기
+    useEffect(() => {
+      fetch('/api/get_user_info')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            setUserName(data.nickname); 
+            setProfileImagePath(data.imagePath || defaultProfileImage); 
+          } else {
+            navigate('/');
+          }
+        })
+        .catch(error => console.error('Error fetching user info:', error));
+    }, [navigate]);
 
   // 카테고리 가져오는 함수
   const fetchCategories = async () => {
@@ -54,6 +71,7 @@ function BookContentPage() {
   useEffect(() => {
     fetchCategories();
   }, []);
+
 
   // 책 내용 가져오는 함수
   const fetchBookContent = async () => {
@@ -182,12 +200,12 @@ function BookContentPage() {
       <header className="main-header">
         <button className="menu-button" onClick={handleMenuClick}>☰</button>
         <button className="profile-button" onClick={handleProfileClick}>
-          <img src={signupIcon} alt="Profile" className="profile-image" />
+          <img src={profileImagePath} alt="Profile" className="profile-image" />
         </button>
       </header>
 
       <aside className={`sidebar ${isSidebarVisible ? 'visible' : ''}`}>
-        <img src={defaultProfileImage} alt="Profile" className="profile-image2" />
+        <img src={profileImagePath} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
           <ul>
