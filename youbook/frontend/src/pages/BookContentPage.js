@@ -277,8 +277,6 @@ const generatePageContent = (contentItem) => {
             </div>
           </div>
         ))}
-        
-        
        
       <div className="hard">
         <div className = "page-content"></div>

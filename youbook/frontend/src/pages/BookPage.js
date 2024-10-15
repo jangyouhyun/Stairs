@@ -106,15 +106,7 @@ function BookPage() {
     fetchBookContent();
   }, []); // 'location'이 변경될 때마다 fetchBookContent 실행
   
-  useEffect(() => {
-    if (contentArray.length > 0) {
-      console.log(bookContent); 
-      //convertBookContentToContent(); // bookContent 기반으로 content 생성
-    }
-  }, [contentArray]);
-
-
-// 책 내용 가져오는 함 수 
+  // 책 내용 가져오는 함 수 
 const fetchBookContent = async () => {
   try {
     const response = await fetch('/api/print', {
@@ -137,6 +129,29 @@ const fetchBookContent = async () => {
     console.error('Failed to fetch book content:', error);
   }
 };
+
+  useEffect(() => {
+    if (bookContent.length > 0) { 
+      convertBookContentToContent(); // Convert and update content
+    }
+  }, [bookContent]);
+  
+  useEffect(() => {
+    if (contentArray.length > 0) {
+      setTotalPages(contentArray.length); // Update totalPages
+    }
+  }, [contentArray]);
+  
+  const convertBookContentToContent = () => {
+    const newContent = bookContent.map((paragraph) => ({
+      title: content.title || '', 
+      subtitle: content.subtitle || '', 
+      imageUrl: content.imageUrl || '', 
+      paragraph: paragraph || '', 
+    }));
+    setContentArray(newContent); // Update contentArray
+  };
+
 
 const handleAIimageUpload = async (image_path) => {
   const formData = new FormData();
@@ -514,60 +529,62 @@ const handleParagraphRightClick = (event) => {
 
   const handleCompleteClick = async (imageData) => {
     setSavedCoverImageUrl(imageData);
-    try {
-      const response = await fetch('/api/update_image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',  // JSON 형식으로 전송
-        },
-        body: JSON.stringify({
-          bookId: bookId,  // 책 ID
-          image_path: imageData
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Data successfully stored in the database:', data);
-      } else {
-        const errorData = await response.json();
-        console.error('Failed to save:', errorData);  // 오류 로그 출력
-        alert('자서전 저장에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('Error occurred during the save process:', error);  // 예외 발생 시 오류 출력
-      alert('저장 중 오류가 발생했습니다.');
-    }
+    
     setIsDesignOpen(false);  // 팝업 닫기
     alert("표지가 저장되었습니다!");  // 알림
   };
 
   // 완료 버튼 클릭 시 로딩 중 팝업을 4초 동안 표시하고 자서전 생성 완료 메시지 표시 후 페이지 이동
   const handleCompleteClick2 = async () => {
-    console.log("Book ID:", bookId); 
-    setIsLoading(true);
-    
+    setIsLoading(true); // 로딩 상태 활성화
+  
+    try {
+      const response = await fetch('/api/update_image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // JSON 형식으로 전송
+        },
+        body: JSON.stringify({
+          bookId: bookId, // 책 ID
+          image_path: savedCoverImageUrl, // 이미지 URL
+        }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Data successfully stored in the database:', data);
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to save:', errorData); // 오류 로그 출력
+        alert('자서전 저장에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error occurred during the save process:', error); // 예외 발생 시 오류 출력
+      alert('저장 중 오류가 발생했습니다.');
+    }
+  
     setTimeout(() => {
-      setIsLoading(false);
-      setIsBiographyCreated(true);
+      setIsLoading(false); // 로딩 상태 비활성화
+      setIsBiographyCreated(true); // 자서전 생성 상태 활성화
   
       setTimeout(() => {
-        // 페이지 이동 시 데이터를 함께 전달
+        // 2.5초 후에 페이지 이동
         navigate('/my-autobiography');
       }, 2500); // 2.5초 후 페이지 이동
     }, 4000); // 4초 동안 로딩 상태 유지
-};
+  };
   useEffect(() => {
     const $book = $('#book'); // jQuery로 book 요소 선택
   
-     // Ensure book exists before applying turn.js
-     if ($book.length && !$book.data('turn')) {
+    // Ensure book exists before applying turn.js
+    if ($book.length && !$book.data('turn')) {
       setTimeout(() => {
         $book.turn({
           width: 800,
           height: 500,
           autoCenter: true,
           elevation: 50,
-          gradients: true, 
+          gradients: true,
           duration: 1000,
           pages: Math.max(pages.length * 2, 6),  // 페이지 수 동적으로 설정
           when: {
@@ -579,50 +596,34 @@ const handleParagraphRightClick = (event) => {
         });
       }, 100); // Delay the initialization to ensure DOM is ready
     }
-     // contentArray에서 각 contentItem을 페이지로 추가
-    contentArray.forEach((contentItem, index) => {
-      // pageRef 배열에서 각 페이지 참조를 설정
-      const pageIndex = index + 1; // 페이지 인덱스 설정
-      const pageRef = pageRefs[index] || React.createRef();
-      pageRefs[index] = pageRef;  // 페이지에 대한 참조를 유지
 
-      // 각 페이지를 $book에 추가
-      if (!$book.turn('hasPage', pageIndex)) {
-        $book.turn('addPage', `<div class='page-content' ref=${pageRef}>${generatePageContent(contentItem)}</div>`, pageIndex);
-      }
-    });
-        // 페이지에 추가할 contentItem을 HTML로 생성하는 함수
-    const generatePageContent = (contentItem) => {
-      return `
-        <div class="page-content">
-          <h1 id="editable-title">${contentItem.title}</h1>
-          <h4 id="editable-subtitle">${contentItem.subtitle}</h4>
-          ${contentItem.imageUrl ? `<img src="${contentItem.imageUrl}" alt="Uploaded" style="width: 60%; height: auto;" />` : ''}
-          <p id="editable-paragraph">${contentItem.paragraph}</p>
-        </div>
-      `;
-    };
-    // 페이지 업데이트 시 처리 로직
-    pages.forEach((pageContent, index) => {
-      const pageIndex = index + 1; // 페이지 인덱스
-  
-      // 개별 pageRef를 관리하기 위해 ref 배열을 사용
-      const pageRef = pageRefs[index] || React.createRef();
-      pageRefs[index] = pageRef;  // 각 페이지에 대한 참조 유지
-  
-      // 페이지가 이미 추가되어 있는지 확인하고, 추가되지 않았으면 추가
-      if (!$book.turn('hasPage', pageIndex)) {
-        $book.turn('addPage', pageRef.current, pageIndex);
-      }
-    });
-  
-    document.addEventListener('click', handleOutsideClick);
-  
+ // contentArray에서 각 contentItem을 페이지로 추가
+ contentArray.forEach((contentItem, index) => {
+  // pageRef 배열에서 각 페이지 참조를 설정
+  const pageIndex = index + 1; // 페이지 인덱스 설정
+  const pageRef = pageRefs[index] || React.createRef();
+  pageRefs[index] = pageRef;  // 페이지에 대한 참조를 유지
+
+  // 각 페이지를 $book에 추가
+  if (!$book.turn('hasPage', pageIndex)) {
+    $book.turn('addPage', `<div class='page-content' ref=${pageRef}>${generatePageContent(contentItem)}</div>`, pageIndex);
+  }
+});
+// 페이지에 추가할 contentItem을 HTML로 생성하는 함수
+const generatePageContent = (contentItem) => {
+  return `
+    <div class="page-content">
+      <h1 id="editable-title">${contentItem.title}</h1>
+      <h4 id="editable-subtitle">${contentItem.subtitle}</h4>
+      ${contentItem.imageUrl ? `<img src="${contentItem.imageUrl}" alt="Uploaded" style="width: 60%; height: auto;" />` : ''}
+      <p id="editable-paragraph">${contentItem.paragraph}</p>
+    </div>
+  `;
+};
     return () => {
       if ($book.data('turn')) {
         $book.turn('destroy');
       }
-      document.removeEventListener('click', handleOutsideClick);
     };
   }, [pages, pageRefs]);
 
@@ -637,18 +638,7 @@ const handleParagraphRightClick = (event) => {
     $('#book').turn('next');
   };
 
-  const convertBookContentToContent = () => {
-    const newContent = bookContent.map(paragraph => ({
-      title: null,
-      subtitle: null,
-      imageUrl: null,
-      paragraph: paragraph
-    }));
-
-    console.log('Converted bookContent to content:', newContent);
-    setContentArray(newContent);
-    setTotalPages(newContent.length); 
-  };
+ 
 
   const handleCategoryChange = (e) => {
     const newCategory = e.target.value;

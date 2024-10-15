@@ -93,7 +93,11 @@ const fetchCategories = () => {
 
   // 체크박스 변경 핸들러
   const handleCheckboxChange = (id) => {
-    setItems(items.map(item => (item.id === id ? { ...item, checked: !item.checked } : item)));
+    setItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === id ? { ...item, checked: !item.checked } : item
+      )
+    );
   };
 
   const handleDelete = async () => {
@@ -316,27 +320,41 @@ const fetchCategories = () => {
           <div className="autobiography-item add-new" onClick={handleAddNewItem}>
             <span className="plus-icon">+</span>
           </div>
-          {filteredItems.map(item => (
-            <div className="item-content" onClick={() => navigate(`/book-content/${item.id}`, {
-              state: {
-                category: item.category,
-                name: item.name,
-                image: item.coverImageUrl || defaultcover,
-                date: item.date 
-              }
-            })}>
-              <img 
-                src={item.coverImageUrl || defaultcover}  // Fallback to default cover image
-                alt={item.name}
-                className="item-image"
-                onError={(e) => e.target.src = defaultcover}  // Handle error fallback
-              />
-              <div className="item-details">
-                <div className="item-title">{item.name}</div>
-                <div className="item-date">{item.date}</div>
+          {filteredItems.map((item) => (
+            <div className="item-content" key={item.id}>
+              <div className="checkbox-wrapper">
+                <input
+                  type="checkbox"
+                  checked={item.checked || false}
+                  onChange={() => handleCheckboxChange(item.id)}
+                />
               </div>
-            </div>
-          ))}
+              <div
+                className="content-wrapper"
+                onClick={() =>
+                  navigate(`/book-content/${item.id}`, {
+                    state: {
+                      category: item.category,
+                      name: item.name,
+                      image: item.image_path,
+                      date: item.date,
+                    },
+                  })
+                }
+              >
+      <img
+        src={item.content || defaultcover} // Ensure item.content is defined
+        alt={item.name}
+        className="item-image"
+        onError={(e) => (e.target.src = defaultcover)} // Handle fallback for image
+      />
+      <div className="item-details">
+        <div className="item-title">{item.name}</div>
+        <div className="item-date">{item.date}</div>
+      </div>
+    </div>
+  </div>
+))}
         </div>
       </main>
       <div className="fixed-inquiry-icon" onClick={handleInquiryClick}>

@@ -3,7 +3,7 @@
   width: 100vw;
   font-family: 'MinSans-Regular', sans-serif;
   background-color: white;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .menu-container{
@@ -209,15 +209,31 @@
 
 .item-date {
   font-size: 1.0rem;
-  color: #DFB188;
+  color: black;
   margin-bottom : 50px;
 }
 
-.autobiography-item input[type="checkbox"] {
-  position : relative;
-  top : -60px;
-  left : -120px;
-  
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;  /* 수직 가운데 정렬 */
+  margin-right: 10px;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  z-index: 10;  /* 체크박스가 다른 요소 위에 보이도록 설정 */
+}
+
+.item-content {
+  display: flex;
+  align-items: flex-start;  /* 체크박스와 이미지를 수직으로 정렬 */
+  margin-bottom: 20px;  /* 항목 사이에 간격 추가 */
+  padding: 10px;
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .autobiography-item.add-new .plus-icon {

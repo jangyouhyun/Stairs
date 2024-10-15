@@ -55,7 +55,7 @@ router.post('/update_image', upload.single('image'), function (req, res) {
     }
 
     // 필수 값들이 있는지 확인
-    if (!book_id || !user_id || !input_count || !content_order) {
+    if (!book_id || !user_id) {
         console.error('필수 정보가 누락되었습니다.');
         return res.status(400).json({ error: '필수 정보가 없습니다.' });
     }
@@ -64,7 +64,7 @@ router.post('/update_image', upload.single('image'), function (req, res) {
     const updateImageQuery = `
         UPDATE book_list
         SET image_path = ?
-        WHERE book_id = ?
+        WHERE book_id = ? AND user_id = ?
     `;
     
     db.query(updateImageQuery, [image, user_id, book_id, input_count, content_order], function (err, results) {
