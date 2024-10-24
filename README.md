@@ -1,4 +1,4 @@
-# :memo: U-Book 유북 :books:
+# :memo: YOU-BOOK 유북 :books:
 ### 내가 만드는 나만의 자서전 :pencil2:
 <br>
 
