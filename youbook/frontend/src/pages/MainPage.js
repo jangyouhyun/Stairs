@@ -41,7 +41,7 @@ function MainPage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text }),
+      body: JSON.stringify({ content: text , category:selectedCategory}),
     })
     .then(response => response.json())
     .then(data => {
@@ -50,7 +50,6 @@ function MainPage() {
         if (bookId) {
           setBookId(bookId);
           setIsChatbotOpen(true);
-          //navigate(`/chatbot/${bookId}`, { state: { selectedCategory } }); 
         } else {
           console.error('bookId is missing in the response:', data);
         }
@@ -227,7 +226,7 @@ function MainPage() {
         </div>
       )}
       {/* 챗봇 팝업 창을 조건부로 렌더링 */}
-    {isChatbotOpen && (
+    {isChatbotOpen && bookId && (
         <div className="chatbot-popup">
           <Chatbot bookId={bookId} selectedCategory={selectedCategory} onClose={handleCloseChatbot} /> {/* onClose prop 전달 */}
         </div>
