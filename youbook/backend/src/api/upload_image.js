@@ -4,6 +4,8 @@ var db = require('../db.js');
 const multer = require('multer');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
+
 
 // 업로드 디렉토리 설정
 const storage = multer.diskStorage({
@@ -31,5 +33,22 @@ router.post('/upload', upload.single('image'), (req, res) => {
     });
 });
 
+
+// base64로 받은 이미지를 저장
+router.post('/upload_good', (req, res) => {
+    const { image } = req.body; // base64 인코딩된 이미지 데이터
+    const buffer = Buffer.from(image, 'base64'); // base64 데이터를 버퍼로 변환
+    const filename = `${uuidv4()}.png`; // 파일명 설정
+    const filePath = path.join(__dirname, '../../../uploads/', filename); // 저장 경로 설정
+
+    // 파일 저장
+    fs.writeFile(filePath, buffer, (err) => {
+        if (err) {
+            console.error("파일 저장 오류:", err);
+            return res.status(500).json({ success: false, message: '파일 저장 중 오류가 발생했습니다.' });
+        }
+        res.json({ success: true, path: `/uploads/${filename}` });
+    });
+});
 
 module.exports = router;

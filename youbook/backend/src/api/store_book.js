@@ -11,7 +11,9 @@ router.post('/store', function (req, res) {
     const input_count = req.body.inputCount;
     const category = req.body.category;
     const title = req.body.title ? req.body.title : "제목없는 자서전";
+    const image_path = req.body.image_path;
 
+    console.log("또 널임? : ", image_path);
     // final_input에서 해당 book_id, user_id, input_count에 부합하는 데이터 조회
     const finalInputQuery = `
         SELECT big_title, small_title, content, content_order , image_path
@@ -46,11 +48,11 @@ router.post('/store', function (req, res) {
                 // book_list에 데이터가 있으면 업데이트
                 const updateBookListQuery = `
                     UPDATE book_list 
-                    SET create_date = ?, title = ?, category = ?
+                    SET create_date = ?, title = ?, category = ?, image_path = ?
                     WHERE book_id = ? AND user_id = ?
                 `;
 
-                db.query(updateBookListQuery, [currentDate, title, category, book_id, user_id], function (error) {
+                db.query(updateBookListQuery, [currentDate, title, category, image_path, book_id, user_id], function (error) {
                     if (error) {
                         console.error('Error updating book_list:', error);
                         return res.status(500).json({ message: 'Internal server error' });
@@ -63,7 +65,7 @@ router.post('/store', function (req, res) {
                     VALUES (?, ?, ?, ?, ?, ?)
                 `;
 
-                db.query(insertBookListQuery, [book_id, user_id, currentDate, null, title, category], function (error) {
+                db.query(insertBookListQuery, [book_id, user_id, currentDate, image_path, title, category], function (error) {
                     if (error) {
                         console.error('Error inserting into book_list:', error);
                         return res.status(500).json({ message: 'Internal server error' });

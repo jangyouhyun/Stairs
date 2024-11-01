@@ -20,7 +20,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-
 // 문단 내부 이미지 업데이트 API
 router.post('/update_image', upload.single('image'), function (req, res) {
     const book_id = req.body.bookId;
@@ -42,13 +41,21 @@ router.post('/update_image', upload.single('image'), function (req, res) {
 
     // 업로드된 파일이 있을 경우
     if (data_type == 1 && req.file) {
+        console.log(req.file.filename);
         image = `/uploads/${req.file.filename}`; // 업로드된 이미지 경로
         console.log('Image from file:', image);
     } else if (data_type == 2 && req.body.image_path) {
         // AI로 생성된 이미지 경로가 있을 경우
         image = req.body.image_path;
         console.log('Image from AI:', image);
-    } else if (!req.file && !req.body.image_path) {
+    }
+    else if (data_type == 3 && req.body.image_path)
+    {
+        console.log(req.file.filename);
+        image = `/uploads/${req.file.filename}`;
+        return res.status(302).json({ success : true , image_path : image})
+    }
+    else if(!req.file && !req.body.image_path) {
         // 파일이나 경로가 없을 경우 에러 처리
         console.error('파일이나 이미지 경로가 없습니다.');
         return res.status(400).json({ error: '파일이나 이미지 경로가 없습니다.' });
@@ -60,13 +67,14 @@ router.post('/update_image', upload.single('image'), function (req, res) {
         return res.status(400).json({ error: '필수 정보가 없습니다.' });
     }
 
-    // 이미지 경로 업데이트 쿼리 (book_list 테이블)
+    // 이미지 경로 업데이트 쿼리
     const updateImageQuery = `
-        UPDATE book_list
+        UPDATE final_input
         SET image_path = ?
-        WHERE book_id = ? AND user_id = ?
+        WHERE user_id = ? AND book_id = ? AND input_count = ? AND content_order = ?
     `;
-    
+
+    // 데이터베이스에서 업데이트 수행
     db.query(updateImageQuery, [image, user_id, book_id, input_count, content_order], function (err, results) {
         if (err) {
             console.error('Failed to update image:', err);
@@ -75,11 +83,10 @@ router.post('/update_image', upload.single('image'), function (req, res) {
 
         // 업데이트가 성공적으로 이루어졌는지 확인
         if (results.affectedRows === 0) {
-            console.warn('No matching record found:', { book_id });
+            console.warn('No matching record found');
             return res.status(404).json({ error: 'No matching record found' });
         }
 
-        console.log('Image path updated successfully:', image_path);
         // 성공적으로 업데이트한 경우
         console.log('Image updated successfully:', image);
         return res.status(200).json({ success: true, image_path: image });
