@@ -1,7 +1,3 @@
-// 메인페이지에서.. 
-// contentArray 에 지속적으로 데이터베이스를 담고 불러오고.. 해야되는데 애가 그러지를 않음
-// 계속해서 저장되는 contentArray를 들고가서 마지막 데이터베이스에 저장예정
-// 안들고 가더라도.. contentArray 에 들은 변수가 mysql 에 계속 저장되고 있음. 
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -45,15 +41,15 @@ function MainPage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text }),
+      body: JSON.stringify({ content: text , category:selectedCategory}),
     })
     .then(response => response.json())
     .then(data => {
       if (data.status === 200) {
         const bookId = data.bookId;
         if (bookId) {
+          setBookId(bookId);
           setIsChatbotOpen(true);
-          navigate(`/chatbot/${bookId}`, { state: { selectedCategory } }); 
         } else {
           console.error('bookId is missing in the response:', data);
         }
@@ -105,6 +101,7 @@ function MainPage() {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
+          setUserName(data.nickname); 
           setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로를 상태에 저장
         } else {
           console.error(data.message);
@@ -224,12 +221,12 @@ function MainPage() {
           <ul>
             <li onClick={() => window.location.href = 'https://open.kakao.com/o/s9YXw5Sg'}>
               채팅 상담</li>
-            <li onClick={() => navigate('/customerinquiry')}>1:1 문의</li>
+            <li onClick={() => navigate('/qaboard')}>문의</li>
           </ul>
         </div>
       )}
       {/* 챗봇 팝업 창을 조건부로 렌더링 */}
-    {isChatbotOpen && (
+    {isChatbotOpen && bookId && (
         <div className="chatbot-popup">
           <Chatbot bookId={bookId} selectedCategory={selectedCategory} onClose={handleCloseChatbot} /> {/* onClose prop 전달 */}
         </div>

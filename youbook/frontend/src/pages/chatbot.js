@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import './chatbot.css';
 import chatbotImage from '../assets/images/chatbot1.png';
@@ -7,20 +7,18 @@ import back from '../assets/images/exit.png';
 import BooksIcon from '../assets/images/books.gif';
 
 
-function Chatbot({ onClose }) {
+function Chatbot({ onClose, bookId, selectedCategory}) {
   const [messages, setMessages] = useState([
     { type: 'bot', text: '안녕하세요! 유북 챗봇입니다. 작성해주신 내용을 바탕으로 몇 가지 질문드리겠습니다. 대화를 마치고 싶다면 종료라고 말씀해주세요!' },
   ]);
 
   const [inputValue, setInputValue] = useState('');
-  const { bookId } = useParams();  // URL 파라미터에서 bookId 추출
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
   const [error, setError] = useState(null); // 에러 상태 추가
   const [isConversationEnded, setIsConversationEnded] = useState(false); // 대화 종료 상태 추가
   const [isFinalLoading, setIsFinalLoading] = useState(false);
   const navigate = useNavigate(); // 페이지 이동을 위한 hook
   const location = useLocation();
-  const selectedCategory = location.state?.selectedCategory;
   const messagesEndRef = useRef(null); // 스크롤을 제어할 참조 추가
   const [isCreatingBook, setIsCreatingBook] = useState(false);
 
@@ -104,11 +102,11 @@ function Chatbot({ onClose }) {
 
   // 사용자가 답변을 제출할 때 처리하는 함수
   const handleSend = async () => {
-    if (inputValue.trim()) {
+    if (inputValue.trim() && !isConversationEnded) { // 종료 상태에서 handleSend 실행 막기
       const previousQuestion = messages[messages.length - 1].text;
       setMessages([...messages, { type: 'user', text: inputValue }]);
       setIsLoading(true); // 로딩 상태 시작
-
+  
       try {
         const response = await fetch(`/api/chatbot/ask/${bookId}`, {
           method: 'POST',
@@ -120,23 +118,21 @@ function Chatbot({ onClose }) {
         if (!response.ok) {
           throw new Error('서버에서 질문을 생성하는 데 오류가 발생했습니다.');
         }
-
+  
         const data = await response.json();
-
-        // After the conversation has ended, show the popup and buttons
+  
+        // 대화 종료 메시지를 받으면 종료 상태로 설정
         if (data.message === '대화가 종료되었습니다. 감사합니다!') {
           setMessages(prevMessages => [
             ...prevMessages,
             { type: 'bot', text: data.message }
           ]);
-
-          // 종료 상태 설정
-          setIsConversationEnded(true);
-          setIsCreatingBook(true);  // Show the loading popup
-
-          // Here we initiate the API calls for the summary and content writing
+  
+          setIsConversationEnded(true); // 종료 상태 설정
+          setIsCreatingBook(true);  // 로딩 팝업 표시
+  
+          // 요약 및 자서전 생성 로직 호출
           try {
-            // 요약된 content를 가져오는 API 호출
             const summaryResponse = await fetch(`/api/chatbot/summary`, {
               method: 'POST',
               headers: {
@@ -150,44 +146,48 @@ function Chatbot({ onClose }) {
             if (!summaryResponse.ok) {
               throw new Error('요약 데이터를 가져오는 데 오류가 발생했습니다.');
             }
-
+  
             const summaryData = await summaryResponse.json();
 
-            // 요약된 데이터를 들고 book_reading API로 전송
+            // 요약된 데이터가 빈 문자열일 경우 경고 메시지와 리디렉션
+            if (!summaryData.content || summaryData.content.trim() === '') {
+              alert("자서전을 생성하기에 내용이 너무 적습니다! 다시 생성해주세요");
+              navigate('/main');
+              window.location.reload(); // 페이지 새로고침
+              return;
+            }
+  
+            // 요약된 데이터를 book_reading API로 전송
             const writeResponse = await fetch('/api/write_process/book_reading', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                content: summaryData.content, // 요약된 content 사용
-                bookId: data.bookId, // 서버에서 반환된 bookId 사용
+                content: summaryData.content,
+                bookId: data.bookId,
               }),
             });
             if (!writeResponse.ok) {
               throw new Error('book 데이터를 처리하는 데 오류가 발생했습니다.');
             }
-
-            // 성공적으로 처리되면 페이지 이동
-            // navigate(`/book-reading/${bookId}`, { state: { selectedCategory } });
           } catch (error) {
             console.error('Error:', error);
             setError('book_reading 데이터를 처리하는 중 오류가 발생했습니다.');
           } finally {
             setIsFinalLoading(true);
-            setIsCreatingBook(false);  // Hide the loading popup once the process is done
+            setIsCreatingBook(false);  // 로딩 팝업 숨기기
           }
-          
-          return;  // 종료 시 이후 로직을 실행하지 않음
+  
+          return; // 종료 후 handleSend 이후 로직 실행 중지
         }
-
-
+  
         // 새로운 질문을 받았을 때
         setMessages(prevMessages => [
           ...prevMessages,
           { type: 'bot', text: data.question }
         ]);
-
+  
       } catch (error) {
         console.error('Error:', error);
         setError('질문 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
@@ -200,7 +200,7 @@ function Chatbot({ onClose }) {
         setInputValue(''); 
       }
     }
-  };
+  };  
   
   // 대화 종료 후 '자서전 만들기' 및 '내용 새로 추가' 처리 함수
   const handleCreateBook = () => {

@@ -46,7 +46,7 @@ const fetchBooks = () => {
           return {
             id: book.book_id,
             category: book.category, // 모든 항목의 카테고리를 '카테고리1'로 설정
-            content: book.coverImageUrl, // content 필드에 이미지 경로 설정
+            content: book.image_path, // content 필드에 이미지 경로 설정
             name: book.title,
             date: formattedDate, // 포맷된 날짜 설정
             checked: false,
@@ -93,11 +93,7 @@ const fetchCategories = () => {
 
   // 체크박스 변경 핸들러
   const handleCheckboxChange = (id) => {
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, checked: !item.checked } : item
-      )
-    );
+    setItems(items.map(item => (item.id === id ? { ...item, checked: !item.checked } : item)));
   };
 
   const handleDelete = async () => {
@@ -320,41 +316,27 @@ const fetchCategories = () => {
           <div className="autobiography-item add-new" onClick={handleAddNewItem}>
             <span className="plus-icon">+</span>
           </div>
-          {filteredItems.map((item) => (
-            <div className="item-content" key={item.id}>
-              <div className="checkbox-wrapper">
-                <input
-                  type="checkbox"
-                  checked={item.checked || false}
-                  onChange={() => handleCheckboxChange(item.id)}
-                />
-              </div>
-              <div
-                className="content-wrapper"
-                onClick={() =>
-                  navigate(`/book-content/${item.id}`, {
-                    state: {
-                      category: item.category,
-                      name: item.name,
-                      image: item.image_path,
-                      date: item.date,
-                    },
-                  })
-                }
-              >
-      <img
-        src={item.content || defaultcover} // Ensure item.content is defined
-        alt={item.name}
-        className="item-image"
-        onError={(e) => (e.target.src = defaultcover)} // Handle fallback for image
-      />
-      <div className="item-details">
-        <div className="item-title">{item.name}</div>
-        <div className="item-date">{item.date}</div>
-      </div>
-    </div>
-  </div>
-))}
+          {filteredItems.map(item => (
+          <div className="item-content" onClick={() => navigate(`/book-content/${item.id}`, {
+            state: {
+              category: item.category,
+              name: item.name,
+              image: item.content || defaultcover, // image_path 사용
+              date: item.date 
+            }
+          })}>
+            <img 
+              src={item.content || defaultcover}  // item.content 사용
+              alt={item.name}
+              className="item-image"
+              onError={(e) => e.target.src = defaultcover}  // Handle error fallback
+            />
+            <div className="item-details">
+              <div className="item-title">{item.name}</div>
+              <div className="item-date">{item.date}</div>
+            </div>
+          </div>
+        ))}
         </div>
       </main>
       <div className="fixed-inquiry-icon" onClick={handleInquiryClick}>
@@ -365,7 +347,7 @@ const fetchCategories = () => {
           <ul>
             <li onClick={() => window.location.href = 'https://open.kakao.com/o/s9YXw5Sg'}>
               채팅 상담</li>
-            <li onClick={() => navigate('/customerinquiry')}>1:1 문의</li>
+            <li onClick={() => navigate('/qaboard')}>문의</li>
           </ul>
         </div>
       )}

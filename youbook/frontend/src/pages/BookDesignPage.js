@@ -74,8 +74,10 @@ function BookDesignPage({ onClose, onComplete }) {
   // 책 표지 이미지로 저장하는 함수
 const saveBookCoverAsImage = () => {
   const bookCover = bookCoverRef.current;
+
   const width = bookCover.offsetWidth;
   const height = bookCover.offsetHeight;
+
   // html2canvas로 book-cover 요소 캡처
   html2canvas(bookCover, {
     useCORS: true, // 외부 이미지를 사용할 경우 CORS 설정
