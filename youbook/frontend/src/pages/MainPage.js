@@ -48,8 +48,9 @@ function MainPage() {
       if (data.status === 200) {
         const bookId = data.bookId;
         if (bookId) {
+          setBookId(bookId);
           setIsChatbotOpen(true);
-          navigate(`/chatbot/${bookId}`, { state: { selectedCategory } }); 
+          //navigate(`/chatbot/${bookId}`, { state: { selectedCategory } }); 
         } else {
           console.error('bookId is missing in the response:', data);
         }
