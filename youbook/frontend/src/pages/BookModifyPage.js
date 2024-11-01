@@ -965,7 +965,8 @@ return (
       <div className="vertical-rectangle">
         <ul>
           <li onClick={() => window.location.href = 'https://open.kakao.com/o/s9YXw5Sg'}>채팅 상담</li>
-          <li onClick={() => navigate('/customerinquiry')}>1:1 문의</li>
+          <li onClick={() => navigate('/qaboard')}>문의</li>
+
         </ul>
       </div>
     )}
