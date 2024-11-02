@@ -388,10 +388,16 @@ function BookPage() {
     setSelectedIndex(index + 1);
   };
 
-  //(글 추가 생성시 다른 표시 해서 원래의 content 배열에 추가하는 로직 필요)
   const handleAddIconClick = (event) => {
-    navigate('/main');
+    navigate('/main', {
+      state: {
+        selectedCategory: selectedCategory, 
+        selectedIndex: selectedIndex, 
+        bookId: bookId
+      }
+    });
   };
+  
 
   const handleChatbotClick = () => {
 
