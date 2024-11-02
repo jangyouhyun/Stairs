@@ -26,6 +26,7 @@ const updateTitleRouter = require('./api/update_title.js');
 const updateImageRouter = require('./api/update_book_image.js');
 const storeRouter = require('./api/store_book.js');
 const dalleRouter = require('./api/create_image.js');
+const modifyInfoRouter = require("./api/modify_info.js");
 const app = express();
 
 // 요청 본문 해석
@@ -112,6 +113,7 @@ app.use('/api', insertContentRouter);
 app.use('/api', updateImageRouter);
 app.use('/api', storeRouter);
 app.use('/api', dalleRouter);
+app.use('/api', modifyInfoRouter);
 
 app.use((req, res, next) => {
     res.status(404).send('Not found');

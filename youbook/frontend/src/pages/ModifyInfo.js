@@ -109,7 +109,7 @@ const [profileImage, setProfileImage] = useState(null);
       data.append('profileImage', profileImage); // 이미지 파일 추가
     }
 
-    fetch('/auth/register_process', {
+    fetch('/api/modify_info', {
       method: 'POST',
       body: data
     })

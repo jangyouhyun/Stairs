@@ -200,7 +200,6 @@ const handleImageUpload = async (event, index) => {
     const result = await response.json();
     if (result.success) {
       alert('이미지가 성공적으로 업로드되었습니다.');
-
       // Fetch the updated book content
       await fetchBookContent(); // Call fetchBookContent to reload contentArray
     } else {

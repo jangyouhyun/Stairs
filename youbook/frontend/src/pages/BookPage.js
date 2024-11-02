@@ -61,6 +61,7 @@ function BookPage() {
   const [categories, setCategories] = useState([]);
   const bookRef = useRef(null);
   const selectedCategory = location.state?.selectedCategory;
+  const [selectedIndex, setSelectedIndex] = useState();
 
     // 카테고리 및 책 데이터 가져오기
     useEffect(() => {
@@ -145,14 +146,14 @@ const fetchBookContent = async () => {
   }
 };
 
-const handleAIimageUpload = async (image_path, index) => {
+const handleAIimageUpload = async (image_path) => {
   const formData = new FormData();
   formData.append('image_path', image_path); // 이미지 파일 추가
 
   // 추가 데이터 설정
   formData.append('bookId', bookId);
   formData.append('inputCount', 1);
-  formData.append('content_order', 1);
+  formData.append('content_order', selectedIndex);
   formData.append('whatData', 2);
   try {
     // 서버에 이미지 업로드 요청
@@ -163,11 +164,6 @@ const handleAIimageUpload = async (image_path, index) => {
 
     const result = await response.json();
     if (result.success) {
-      // 이미지가 성공적으로 업로드되면 상태 업데이트
-      //setContent((prevContent) => ({
-      //   ...prevContent,
-      //   imageUrl: result.image_path, // 서버에서 받은 이미지 경로 설정
-      // }));
       alert('이미지가 성공적으로 업로드되었습니다.');
       // Fetch the updated book content
       await fetchBookContent(); // Call fetchBookContent to reload contentArray
@@ -180,7 +176,7 @@ const handleAIimageUpload = async (image_path, index) => {
   }
 }
 
-const handleImageUpload = async (event, index) => {
+const handleImageUpload = async (event) => {
   const formData = new FormData();
   const file = event.target.files[0];
   formData.append('image', file); // Attach the uploaded file
@@ -188,7 +184,7 @@ const handleImageUpload = async (event, index) => {
   // Additional data settings
   formData.append('bookId', bookId);
   formData.append('inputCount', 1);
-  formData.append('content_order', index + 1);
+  formData.append('content_order', selectedIndex);
   formData.append('whatData', 1); // Assuming 1 means it's an image upload
 
   try {
@@ -273,22 +269,10 @@ const handleAIimagecreate = async (promptData) => {
 
           // 어떤 부분이 수정되었는지 확인 후, 각각의 상태 업데이트
     if (event.target.id === 'editable-title') {
-      //setContent((prevContent) => ({
-      //   ...prevContent,
-      //   title: updatedContent,
-      // }));
       whatToChange = 1;
     } else if (event.target.id === 'editable-subtitle') {
-      //setContent((prevContent) => ({
-      //   ...prevContent,
-      //   subtitle: updatedContent,
-      // }));
       whatToChange = 2;
     } else if (event.target.id === 'editable-paragraph') {
-      //setContent((prevContent) => ({
-      //   ...prevContent,
-      //   paragraph: updatedContent,
-      // }));
       whatToChange = 3;
     }
   
@@ -329,7 +313,7 @@ const handleDeleteClick = async () => {
       body: JSON.stringify({
         bookId: bookId,
         inputCount: 1,  // 적절한 inputCount 값을 설정
-        content_order: 1, // 삭제할 문단의 content_order
+        content_order: selectedIndex, // 삭제할 문단의 content_order
       }),
     });
 
@@ -369,54 +353,46 @@ const handleDeleteClick = async () => {
 
   // title 삭제
   const handleTitleDeleteClick = () => {
-    //setContent((prevContent) => {
-    //   const updatedContent = { ...prevContent, title: '' };
-    //   console.log(updatedContent); // 상태가 어떻게 변경되는지 확인
-    //   return updatedContent;
-    // });
     setSubmenuVisible3(false);
     fetchBookContent();
   }
   // subtitle 삭제
   const handleSubtitleDeleteClick = () => {
-    //setContent((prevContent) => ({ ...prevContent, subtitle: '' })); // Clear the paragraph content
     setSubmenuVisible4(false);
     fetchBookContent();
   }
   // image 삭제
   const ImageDeleteClick = () => {
-    //setContent((prevContent) => ({ ...prevContent, ImageUrl: null, }));
     setAddMenuVisible5(false);
   }
 
   //서브 메뉴 클릭
   // Function to handle right-click on the title & subtitle
   const handleTitleRightClick = (event) => {
-    event.preventDefault(); // Prevent the default browser right-click menu
-    const rect = event.target.getBoundingClientRect(); // Get the bounding box of the paragraph
+    event.preventDefault();
+    const rect = event.target.getBoundingClientRect(); 
     setSubmenuPosition({ x: event.pageX, y: event.pageY });
     setSubmenuVisible3(true); // Show the submenu
   };
   const handleSubtitleRightClick = (event) => {
-    event.preventDefault(); // Prevent the default browser right-click menu
+    event.preventDefault(); 
     setSubmenuPosition({ x: event.pageX, y: event.pageY });
-    setSubmenuVisible4(true); // Show the submenu
+    setSubmenuVisible4(true); 
   };
  // Function to handle right-click on the Image
  const handleImageRightClick = (event) => {
-  event.preventDefault(); // Prevent the default browser right-click menu
+  event.preventDefault(); 
   setSubmenuPosition({ x: event.pageX, y: event.pageY });
-  setAddMenuVisible5(true); // Show the submenu
+  setAddMenuVisible5(true); 
 };
 
-  const handleParagraphRightClick = (event) => {
+  const handleParagraphRightClick = (event, index) => {
     event.preventDefault(); // 기본 우클릭 메뉴를 막음
     setSubmenuPosition({ x: event.pageX, y: event.pageY });
     setSubmenuVisible(true); // 팝업을 표시
+    setSelectedIndex(index + 1);
   };
     
-
-  //글 추가 생성 - 저희의 문제는,, 이게 안된다는거예요 ,,
   //(글 추가 생성시 다른 표시 해서 원래의 content 배열에 추가하는 로직 필요)
   const handleAddIconClick = (event) => {
     navigate('/main');
@@ -509,8 +485,7 @@ const handleDeleteClick = async () => {
 
   const handleCreateImage = () => {
     const promptData = {
-      prompt: `다음은 내 삶의 자서전의 한 문단입니다. 이를 보고, ${imageRequest}이 요청에 알맞은 이미지를 생성해 주세요. `
-      //: ${contentArray[0].paragraph}`, // 문단 내용을 DALL-E로 전송
+      prompt: `다음은 내 삶의 자서전의 한 문단입니다. 이를 보고, ${imageRequest}이 요청에 알맞은 이미지를 생성해 주세요. : ${contentArray[selectedIndex - 1].paragraph}`, // 문단 내용을 DALL-E로 전송
     };
   
     console.log('Prompt Data:', promptData);
