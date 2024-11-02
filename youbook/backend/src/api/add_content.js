@@ -148,11 +148,11 @@ router.post('/write_process/chatbot', function (request, response) {
     });
 });
 
-router.post('/write_process/book_reading', function (req, res) {
+router.post('/write_process/book_reading2', function (req, res) {
     console.log('1라우터 진입 시 세션 상태:', req.session); 
     const content = req.body.content;
     const book_id = req.body.bookId ? req.body.bookId : uuidv4();
-    const user_id = req.body.userId ? req.body.userId : req.session.nickname;
+    const user_id = req.session.nickname;
     const category = req.body.category;
 
     if (!content) {
@@ -160,77 +160,107 @@ router.post('/write_process/book_reading', function (req, res) {
         return res.status(400).json({ status: 400, error: '내용이 기입되지 않았습니다!' });
     }
 
-    // 유저 정보 가져오기 (이전 입력 조건적으로 포함)
-    getUserInfoWithOptionalPreviousContent(user_id, book_id, function (error, { userInfo, previousContent }) {
-        if (error) {
-            return res.status(500).json({ status: 500, message: '사용자 정보를 불러오는 데 실패했습니다.' });
-        }
-
-        // OpenAI API 호출
-        getModelResponse(userInfo, previousContent, content).then(modelResponse => {
+    // input_count를 설정하기 위한 로직 추가
+    function determineInputCount(callback) {
+        if (req.body.bookId) {
             db.getConnection(function (err, connection) {
                 if (err) {
                     console.error('DB connection error:', err);
                     return res.status(500).json({ status: 500, error: 'DB connection error' });
                 }
 
-                connection.beginTransaction(function (err) {
-                    if (err) {
-                        connection.release();
-                        console.error('Transaction error:', err);
-                        return res.status(500).json({ status: 500, error: 'Transaction error' });
+                const query = 'SELECT MAX(input_count) AS max_input_count FROM init_input WHERE user_id = ? AND book_id = ?';
+                connection.query(query, [user_id, book_id], function (error, results) {
+                    connection.release();
+                    if (error) {
+                        console.error('Error selecting max input_count:', error);
+                        return res.status(500).json({ status: 500, error: 'Error selecting max input_count' });
                     }
 
-                    // init_input에 포맷된 데이터를 삽입
-                    const formattedUserInput = `이름: ${userInfo.name}, 성별: ${userInfo.gender}, 생일: ${userInfo.birth}, 입력텍스트: ${content}`;
-                    connection.query(
-                        'INSERT INTO init_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE content = ?',
-                        [user_id, book_id, 1, formattedUserInput, category, formattedUserInput],
-                        function (error) {
-                            if (error) {
-                                return connection.rollback(function () {
-                                    connection.release();
-                                    console.error('Insert error:', error);
-                                    return res.status(500).json({ status: 500, error: 'Insert error' });
-                                });
-                            }
+                    const maxInputCount = results[0].max_input_count || 0;
+                    callback(maxInputCount + 1); // max input_count + 1 반환
+                });
+            });
+        } else {
+            callback(1); // bookId가 없을 경우 기본값 1 반환
+        }
+    }
 
-                            // purified_input에 모델의 응답 저장
-                            connection.query(
-                                'INSERT INTO purified_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE content = ?, category = ?',
-                                [user_id, book_id, 1, modelResponse, category, modelResponse, category],
-                                function (error) {
-                                    if (error) {
-                                        return connection.rollback(function () {
-                                            connection.release();
-                                            console.error('Insert/Update error:', error);
-                                            return res.status(500).json({ status: 500, error: 'Insert/Update error' });
-                                        });
-                                    }
+    // 유저 정보 가져오기 및 모델 응답 처리
+    getUserInfoWithOptionalPreviousContent(user_id, book_id, function (error, { userInfo, previousContent }) {
+        if (error) {
+            return res.status(500).json({ status: 500, message: '사용자 정보를 불러오는 데 실패했습니다.' });
+        }
 
-                                    connection.commit(function (err) {
-                                        if (err) {
+        // input_count 결정 후 진행
+        determineInputCount((input_count) => {
+            // OpenAI API 호출
+            getModelResponse(userInfo, previousContent, content).then(modelResponse => {
+                db.getConnection(function (err, connection) {
+                    if (err) {
+                        console.error('DB connection error:', err);
+                        return res.status(500).json({ status: 500, error: 'DB connection error' });
+                    }
+
+                    connection.beginTransaction(function (err) {
+                        if (err) {
+                            connection.release();
+                            console.error('Transaction error:', err);
+                            return res.status(500).json({ status: 500, error: 'Transaction error' });
+                        }
+
+                        // init_input에 포맷된 데이터를 삽입
+                        const formattedUserInput = `이름: ${userInfo.name}, 성별: ${userInfo.gender}, 생일: ${userInfo.birth}, 입력텍스트: ${content}`;
+                        connection.query(
+                            'INSERT INTO init_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE content = ?',
+                            [user_id, book_id, input_count, formattedUserInput, category, formattedUserInput],
+                            function (error) {
+                                if (error) {
+                                    return connection.rollback(function () {
+                                        connection.release();
+                                        console.error('Insert error:', error);
+                                        return res.status(500).json({ status: 500, error: 'Insert error' });
+                                    });
+                                }
+
+                                // purified_input에 모델의 응답 저장
+                                connection.query(
+                                    'INSERT INTO purified_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE content = ?, category = ?',
+                                    [user_id, book_id, input_count, modelResponse, category, modelResponse, category],
+                                    function (error) {
+                                        if (error) {
                                             return connection.rollback(function () {
                                                 connection.release();
-                                                console.error('Commit error:', err);
-                                                return res.status(500).json({ status: 500, error: 'Commit error' });
+                                                console.error('Insert/Update error:', error);
+                                                return res.status(500).json({ status: 500, error: 'Insert/Update error' });
                                             });
                                         }
 
-                                        connection.release();
-                                        return res.status(200).json({ status: 200, bookId: book_id });
-                                    });
-                                }
-                            );
-                        }
-                    );
+                                        connection.commit(function (err) {
+                                            if (err) {
+                                                return connection.rollback(function () {
+                                                    connection.release();
+                                                    console.error('Commit error:', err);
+                                                    return res.status(500).json({ status: 500, error: 'Commit error' });
+                                                });
+                                            }
+
+                                            connection.release();
+                                            return res.status(200).json({ status: 200, bookId: book_id , inputCount:input_count});
+                                        });
+                                    }
+                                );
+                            }
+                        );
+                    });
                 });
+            }).catch(error => {
+                console.error('Model response error:', error);
+                return res.status(500).json({ status: 500, error: 'Model response error' });
             });
-        }).catch(error => {
-            console.error('Model response error:', error);
-            return res.status(500).json({ status: 500, error: 'Model response error' });
         });
     });
 });
 
 module.exports = router;
+

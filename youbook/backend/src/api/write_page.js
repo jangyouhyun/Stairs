@@ -152,7 +152,7 @@ router.post('/write_process/book_reading', function (req, res) {
     console.log('1라우터 진입 시 세션 상태:', req.session); 
     const content = req.body.content;
     const book_id = req.body.bookId ? req.body.bookId : uuidv4();
-    const user_id = req.body.userId ? req.body.userId : req.session.nickname;
+    const user_id = req.session.nickname;
     const category = req.body.category;
     const content_order = req.body.content_order;
 
@@ -211,7 +211,7 @@ router.post('/write_process/book_reading', function (req, res) {
                         }
 
                         // init_input에 포맷된 데이터를 삽입
-                        const formattedUserInput = `이름: ${userInfo.name}, 성별: ${userInfo.gender}, 생일: ${userInfo.birth}, 입력텍스트: ${content}`;
+                        const formattedUserInput = `${content}`;
                         connection.query(
                             'INSERT INTO init_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE content = ?',
                             [user_id, book_id, input_count, formattedUserInput, category, formattedUserInput],
@@ -247,7 +247,7 @@ router.post('/write_process/book_reading', function (req, res) {
                                             }
 
                                             connection.release();
-                                            return res.status(200).json({ status: 200, bookId: book_id });
+                                            return res.status(200).json({ status: 200, bookId: book_id , inputCount: input_count});
                                         });
                                     }
                                 );

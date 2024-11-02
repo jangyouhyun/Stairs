@@ -11,6 +11,7 @@ import BookDesignPage from './pages/BookDesignPage';
 import Chatbot from './pages/chatbot';
 import ModifyInfo from './pages/ModifyInfo';
 import CustomerInquiryPage from './pages/CustomerInquiryPage';
+import MainPage2 from './pages/MainPage2';
 import $ from 'jquery';
 import './assets/js/turn.js';
 
@@ -28,6 +29,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/main" element={<MainPage />} />
+        <Route path="/main2" element={<MainPage2 />} />
         <Route path="/book" element={<BookPage />} />
         <Route path="/my-autobiography" element={<MyAutobiographyPage />} />
         <Route path="/book-design" element={<BookDesignPage />} />

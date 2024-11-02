@@ -60,10 +60,14 @@ function BookPage() {
   const [bookContent, setBookContent] = useState([]);
   const [categories, setCategories] = useState([]);
   const bookRef = useRef(null);
-  const selectedCategory = location.state?.selectedCategory;
+  const selectedCategory = location.state.selectedCategory;
+  var printIndex = location.state.selectedIndex ? location.state.selectedIndex : 0;
+  const input_count = location.state.input_count? location.state.input_count : 0;
   const [selectedIndex, setSelectedIndex] = useState();
   const [titleClickStatus, setTitleClickStatus] = useState(false);
   const [subTitleClickStatus, setSubTitleClickStatus] = useState(false);
+  // 책 내용을 로드하는 동안 로딩 상태 표시를 위한 상태
+const [isArrayLoading, setIsArrayLoading] = useState(true);
 
   // 카테고리 및 책 데이터 가져오기
   useEffect(() => {
@@ -125,8 +129,8 @@ function BookPage() {
     }
   }, [contentArray]);
 
-  // 책 내용 가져오는 함 수 
   const fetchBookContent = async () => {
+    setIsArrayLoading(true); // 로딩 시작
     try {
       const response = await fetch('/api/print', {
         method: 'POST',
@@ -135,18 +139,21 @@ function BookPage() {
         },
         body: JSON.stringify({
           book_id: bookId,
-          input_count: 1,
-          category: selectedCategory
+          input_count: input_count,
+          category: selectedCategory,
+          content_order: printIndex,
         }),
       });
-
+  
       const data = await response.json();
-      setContentArray(data.contentArray); // 상태 업데이트
-
+      setContentArray(data.contentArray);
     } catch (error) {
       console.error('Failed to fetch book content:', error);
+    } finally {
+      setIsArrayLoading(false); // 로딩 완료
     }
   };
+
 
   const handleAIimageUpload = async (image_path) => {
     const formData = new FormData();
@@ -154,7 +161,7 @@ function BookPage() {
 
     // 추가 데이터 설정
     formData.append('bookId', bookId);
-    formData.append('inputCount', 1);
+    formData.append('inputCount', input_count);
     formData.append('content_order', selectedIndex);
     formData.append('whatData', 2);
     try {
@@ -388,16 +395,10 @@ function BookPage() {
     setSelectedIndex(index + 1);
   };
 
-  const handleAddIconClick = (event) => {
-    navigate('/main', {
-      state: {
-        selectedCategory: selectedCategory, 
-        selectedIndex: selectedIndex, 
-        bookId: bookId
-      }
-    });
+  //(글 추가 생성시 다른 표시 해서 원래의 content 배열에 추가하는 로직 필요)
+  const handleAddIconClick = () => {
+    navigate('/main2', { state : {selectedCategory:selectedCategory, bookId:bookId, selectedIndex:1}});
   };
-  
 
   const handleChatbotClick = () => {
 

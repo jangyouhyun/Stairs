@@ -28,6 +28,7 @@ const storeRouter = require('./api/store_book.js');
 const dalleRouter = require('./api/create_image.js');
 const modifyInfoRouter = require("./api/modify_info.js");
 const recreateRouter = require('./api/recreate.js');
+var addRouter = require('./api/add_content.js');
 const app = express();
 
 // 요청 본문 해석
@@ -101,13 +102,14 @@ app.use('/api', storeRouter);
 app.use('/api', dalleRouter);
 app.use('/api', modifyInfoRouter);
 app.use('/api', recreateRouter);
+app.use('/api', addRouter);
 
 app.use((req, res, next) => {
     res.status(404).send('Not found');
 })
 
 // 포트 연결
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT,'0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
