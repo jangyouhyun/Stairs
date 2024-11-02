@@ -33,17 +33,29 @@ async function recreateContentAsSingleParagraph(content) {
 // 라우터: /recreate
 router.post('/recreate', async function (req, res) {
     var content = req.body.content;
-    var user_id = req.session ? req.session.nickname : 'test_user';
-    var book_id = req.body.book_id || uuidv4(); // Location에 book_id가 있으면 사용하고, 없으면 새로 생성
-    var content_order = req.body.order;
+    var user_id = req.session.nickname;
+    var book_id = req.body.bookId;
+    var content_order = req.body.content_order;
+
+    // 로그 추가: 요청된 파라미터 출력
+    console.log('Request received:', {
+        user_id,
+        book_id,
+        content_order,
+        content
+    });
 
     try {
         // OpenAI를 사용하여 콘텐츠를 한 개의 문단으로 재구성
         const recreatedContent = await recreateContentAsSingleParagraph(content);
+        console.log('Recreated content:', recreatedContent);
 
         // final_input에서 book_id, user_id, content_order가 일치하는 레코드를 업데이트 (category는 유지)
         db.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) {
+                console.error('Database connection error:', err);
+                return res.status(500).json({ status: 500, error: 'Database connection error' });
+            }
 
             connection.query(
                 'UPDATE final_input SET content = ? WHERE user_id = ? AND book_id = ? AND content_order = ?',
@@ -58,6 +70,7 @@ router.post('/recreate', async function (req, res) {
                     if (results.affectedRows > 0) {
                         res.status(200).json({ status: 200, message: 'Content recreated and updated successfully.' });
                     } else {
+                        console.log('No matching content found for update.');
                         res.status(404).json({ status: 404, error: 'Matching content not found.' });
                     }
                 }

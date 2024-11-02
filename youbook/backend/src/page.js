@@ -27,6 +27,7 @@ const updateImageRouter = require('./api/update_book_image.js');
 const storeRouter = require('./api/store_book.js');
 const dalleRouter = require('./api/create_image.js');
 const modifyInfoRouter = require("./api/modify_info.js");
+const recreateRouter = require('./api/recreate.js');
 const app = express();
 
 // 요청 본문 해석
@@ -55,21 +56,6 @@ app.use(session({
 	}
   }));
 
-// // 전역 미들웨어로 세션 확인
-// app.use((req, res, next) => {
-//   // 로그인, 회원가입 페이지는 세션 확인 없이 접근 가능
-//   if (req.path === '/' || req.path === '/signup') {
-//     return;
-//   }
-
-//   // 세션이 유효한 경우
-//   if (req.session.is_logined) {
-//     req.session.touch(); // 세션 TTL 갱신
-//     return next();
-//   } else {
-//     return res.redirect('/'); // 세션 만료 시 로그인 페이지로 이동
-//   }
-// });
 
 // 기본루트 get 
 app.get('/', (req, res) => {
@@ -114,6 +100,7 @@ app.use('/api', updateImageRouter);
 app.use('/api', storeRouter);
 app.use('/api', dalleRouter);
 app.use('/api', modifyInfoRouter);
+app.use('/api', recreateRouter);
 
 app.use((req, res, next) => {
     res.status(404).send('Not found');
