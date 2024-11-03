@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
@@ -28,20 +27,20 @@ function MainPage() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false); // 챗봇 팝업 상태
   const [isWarningVisible, setIsWarningVisible] = useState(false);
   const location = useLocation();
-  const [bookId, setBookId] = useState(null);
+  const [bookId, setBookId] = useState(location.state?.bookId);
   const selectedCategory = location.state?.selectedCategory;
-
+  const selectedIndex = location.state?.selectedIndex;
   const [isLoading, setIsLoading] = useState(false);
   const [isCreatingBook, setIsCreatingBook] = useState(false);
   
   const handleOpenChatbot = () => {
     setIsLoading(true);
-    fetch('/api/write_process/chatbot', {
+    fetch('/api/write_process/chatbot2', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text , category:selectedCategory}),
+      body: JSON.stringify({ content: text , category:selectedCategory, bookId: bookId, content_order:selectedIndex, isChatbot:false  }),
     })
     .then(response => response.json())
     .then(data => {
@@ -119,19 +118,20 @@ function MainPage() {
 
   const handleCreateBook = () => {
     setIsCreatingBook(true);
-    fetch('/api/write_process/book_reading', {
+    fetch('/api/write_process/book_reading2', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text, category: selectedCategory, isChatbot:false }),  // 'text'와 'category' 전송
+      body: JSON.stringify({ content: text, category: selectedCategory, bookId: bookId, content_order:selectedIndex, isChatbot:false }),  // 'text'와 'category' 전송
     })
       .then(response => response.json())
       .then(data => {
         console.log('API response:', data);  // 서버 응답 확인
         if (data.status === 200) {
           const bookId = data.bookId;
-          navigate(`/book-reading/${bookId}`, { state: { selectedCategory } });
+          const input_count = data.inputCount;
+          navigate(`/book-reading/${bookId}`, { state: { selectedCategory:selectedCategory, input_count: input_count, selectedIndex:selectedIndex  } });
         }
       })
       .catch(error => {
