@@ -145,7 +145,7 @@
 }
 
 
-.selection-right .delete-button, .selection-right .download-button {
+.selection-right .delete-button, .selection-right .download-button{
   margin-left: 20px;
   padding: 10px 20px;
   border: 1px solid  #AD8B73;
@@ -154,10 +154,43 @@
   color: white;
 }
 
-.selection-right .download-button {
-  background-color:  #AD8B73;
+.save-button {
+  margin-left: 20px;
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color:  #914F1E;
   color: white;
-  border: 1px solid  #AD8B73;
+  border: 1px solid  #914F1E;
+}
+
+.save-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  z-index: 1000;
+}
+
+.save-popup-content {
+  text-align: center;
+}
+
+.save-popup-content ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.save-popup-content button {
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #E3CAA5;
 }
 
 .autobiography-list {

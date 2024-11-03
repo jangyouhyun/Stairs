@@ -33,7 +33,26 @@ function MyAutobiographyPage() {
     const handleModifyClick = () => navigate('/modifyinfo');
     const handleHomeClick = () => navigate('/');
     const handleItemClick = (id) => navigate('/book', { state: { id } });
+    const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 열림 상태
+    const [savedArticles, setSavedArticles] = useState([]); // 임시 저장 글 목록
 
+    // 버튼을 클릭할 때 팝업을 열고 닫는 함수
+    const handleSaveButtonClick = () => {
+      setIsPopupOpen(!isPopupOpen);
+    };
+
+    // 임시 저장 글 개수 가져오기
+    const fetchSavedArticles = async () => {
+      
+      const articles = await fetch('/api/saved-articles').then(res => res.json());
+      // 예: articles 데이터가 [{ title: '글 제목', savedAt: '2024-11-03 10:30' }] 형식으로 가져온다고 가정!
+      setSavedArticles(articles);
+    };
+
+    // 페이지 로드 시 임시 저장 글 개수 불러오기
+    useEffect(() => {
+      fetchSavedArticles();
+    }, []);
 // book_list 데이터를 가져오는 함수
 const fetchBooks = () => {
   fetch('/api/get_books')
@@ -310,6 +329,24 @@ const fetchCategories = () => {
           <div className="selection-right">
             <button className="delete-button" onClick={handleDelete}>영구 삭제</button>
             <button className="download-button">다운로드</button>
+            <button className="save-button" onClick={handleSaveButtonClick}>임시저장 ({savedArticles.length})</button>
+            {isPopupOpen && (
+              <div className="save-popup">
+                <div className="save-popup-content">
+                  <h3>임시 저장 글 목록</h3>
+                  <ul>
+                    {/* 임시 저장 목록 => 데이터 연결 후 css 수정하겠습니다!*/}
+                    {savedArticles.map((article, index) => (
+                      <li key={index}>
+                      <div>{article.title}</div>
+                      <div className="saved-time">{article.savedAt}</div>
+                      </li>
+                    ))}
+                  </ul>
+                  <button onClick={handleSaveButtonClick}>닫기</button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <div className="autobiography-list">
