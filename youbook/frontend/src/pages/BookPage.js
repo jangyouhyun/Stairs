@@ -456,8 +456,30 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
 
   //데베 백 연결 필요!
   // Handle "임시 저장" click event to show a popup
-  const handleSemiSaveClick = () => {
-    alert('임시 저장되었습니다'); // Show popup when "임시 저장" is clicked
+  const handleSemiSaveClick = async () => {
+    try {
+      // API 호출을 통해 수정된 문단 데이터를 서버에 저장
+      const response = await fetch('/api/semi-save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookId: bookId,
+          bookTitle:bookName,
+          coverImg:savedCoverImageUrl,
+        }),
+      });
+
+      if (response.ok) {
+        alert('임시 저장되었습니다');
+        navigate('/my-autobiography');
+      } else {
+        console.error('Failed to save content');
+      }
+    } catch (error) {
+      console.error('Error saving content:', error);
+    }
   };
 
   const handleMenuClick = () => {

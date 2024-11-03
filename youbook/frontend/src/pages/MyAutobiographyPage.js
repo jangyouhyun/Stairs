@@ -11,92 +11,99 @@ import askicon from '../assets/images/askicon.png';
 import defaultcover from "../assets/images/default.png";
 function MyAutobiographyPage() {
   const location = useLocation();
-  const { image, category, title, date } = location.state || {}; 
-  const [categories, setCategories] = useState([]); 
+  const { image, category, title, date } = location.state || {};
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [items, setItems] = useState([]); 
+  const [items, setItems] = useState([]);
   const [userName, setUserName] = useState('');
-  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage); 
+  const [profileImagePath, setProfileImagePath] = useState(defaultProfileImage);
   const [searchQuery, setSearchQuery] = useState(''); // 검색어를 저장할 상태 변수
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [editingCategory, setEditingCategory] = useState(null);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-  const [isRectangleVisible, setIsRectangleVisible] = useState(false); 
+  const [isRectangleVisible, setIsRectangleVisible] = useState(false);
   const navigate = useNavigate();
   const contextMenuRef = useRef(null);
 
-    // 메뉴 관련 핸들러들
-    const handleMenuClick = () => setIsSidebarVisible(true);
-    const handleExitClick = () => setIsSidebarVisible(false);
-    const handleInquiryClick = () => setIsRectangleVisible(!isRectangleVisible);
-    const handleModifyClick = () => navigate('/modifyinfo');
-    const handleHomeClick = () => navigate('/');
-    const handleItemClick = (id) => navigate('/book', { state: { id } });
-    const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 열림 상태
-    const [savedArticles, setSavedArticles] = useState([]); // 임시 저장 글 목록
+  // 메뉴 관련 핸들러들
+  const handleMenuClick = () => setIsSidebarVisible(true);
+  const handleExitClick = () => setIsSidebarVisible(false);
+  const handleInquiryClick = () => setIsRectangleVisible(!isRectangleVisible);
+  const handleModifyClick = () => navigate('/modifyinfo');
+  const handleHomeClick = () => navigate('/');
+  const handleItemClick = (id) => navigate('/book', { state: { id } });
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 열림 상태
+  const [savedArticles, setSavedArticles] = useState([]); // 임시 저장 글 목록
 
-    // 버튼을 클릭할 때 팝업을 열고 닫는 함수
-    const handleSaveButtonClick = () => {
-      setIsPopupOpen(!isPopupOpen);
-    };
-
-    // 임시 저장 글 개수 가져오기
-    const fetchSavedArticles = async () => {
-      
-      const articles = await fetch('/api/saved-articles').then(res => res.json());
-      // 예: articles 데이터가 [{ title: '글 제목', savedAt: '2024-11-03 10:30' }] 형식으로 가져온다고 가정!
-      setSavedArticles(articles);
-    };
-
-    // 페이지 로드 시 임시 저장 글 개수 불러오기
-    useEffect(() => {
-      fetchSavedArticles();
-    }, []);
-// book_list 데이터를 가져오는 함수
-const fetchBooks = () => {
-  fetch('/api/get_books')
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        const fetchedItems = data.books.map((book, index) => {
-          // 날짜를 포맷팅 (시간 제거)
-          const formattedDate = new Date(book.create_date).toISOString().slice(0, 10);
-          return {
-            id: book.book_id,
-            category: book.category, // 모든 항목의 카테고리를 '카테고리1'로 설정
-            content: book.image_path, // content 필드에 이미지 경로 설정
-            name: book.title,
-            date: formattedDate, // 포맷된 날짜 설정
-            checked: false,
-          };
-        });
-        setItems(fetchedItems);
-      } else {
-        console.error(data.message);
-      }
-    })
-    .catch(error => {
-      console.error('Error fetching books:', error);
-    });
-};
-
-// category 데이터를 가져오는 함수
-const fetchCategories = () => {
-  fetch('/api/get_category')
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        const sortedCategories = data.categorys.map(category => category.name).sort((a, b) => a.localeCompare(b));
-        setCategories(sortedCategories);
-        if (sortedCategories.length > 0) {
-        setSelectedCategory(sortedCategories[0]);
-        }
-    }
-    })
-    .catch(error => {console.error('Error fetching categories:', error);});
+  // 버튼을 클릭할 때 팝업을 열고 닫는 함수
+  const handleSaveButtonClick = () => {
+    setIsPopupOpen(!isPopupOpen);
   };
-  
+
+  // 임시 저장 글 개수 가져오기
+  const fetchSavedArticles = async () => {
+    try {
+      const response = await fetch('/api/saved-articles');
+      const data = await response.json();
+
+      // data.articles 배열을 savedArticles에 설정
+      setSavedArticles(Array.isArray(data.articles) ? data.articles : []);
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+      setSavedArticles([]); // 오류가 발생하면 빈 배열로 설정
+    }
+  };
+
+
+  // 페이지 로드 시 임시 저장 글 개수 불러오기
+  useEffect(() => {
+    fetchSavedArticles();
+  }, []);
+  // book_list 데이터를 가져오는 함수
+  const fetchBooks = () => {
+    fetch('/api/get_books')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const fetchedItems = data.books.map((book, index) => {
+            // 날짜를 포맷팅 (시간 제거)
+            const formattedDate = new Date(book.create_date).toISOString().slice(0, 10);
+            return {
+              id: book.book_id,
+              category: book.category, // 모든 항목의 카테고리를 '카테고리1'로 설정
+              content: book.image_path, // content 필드에 이미지 경로 설정
+              name: book.title,
+              date: formattedDate, // 포맷된 날짜 설정
+              checked: false,
+            };
+          });
+          setItems(fetchedItems);
+        } else {
+          console.error(data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching books:', error);
+      });
+  };
+
+  // category 데이터를 가져오는 함수
+  const fetchCategories = () => {
+    fetch('/api/get_category')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const sortedCategories = data.categorys.map(category => category.name).sort((a, b) => a.localeCompare(b));
+          setCategories(sortedCategories);
+          if (sortedCategories.length > 0) {
+            setSelectedCategory(sortedCategories[0]);
+          }
+        }
+      })
+      .catch(error => { console.error('Error fetching categories:', error); });
+  };
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -117,13 +124,13 @@ const fetchCategories = () => {
 
   const handleDelete = async () => {
     const confirmed = window.confirm('정말 삭제하시겠습니까?');
-  
+
     if (confirmed) {
       // checked가 true인 항목들의 id 추출
       const checkedId = items
         .filter(item => item.checked)
         .map(item => item.id); // book_id 대신 id 사용
-    
+
       if (checkedId.length > 0) {
         console.log(checkedId); // 확인을 위해 id 배열 출력
         try {
@@ -135,14 +142,14 @@ const fetchCategories = () => {
             },
             body: JSON.stringify({ book_id: checkedId }), // id들의 배열을 전송
           });
-  
+
           if (!response.ok) {
             throw new Error('Failed to delete items');
           }
-  
+
           const data = await response.json();
           console.log('Server response:', data);
-  
+
           // 성공적으로 삭제된 경우 상태 업데이트
           setItems(items.filter(item => !item.checked));
         } catch (error) {
@@ -153,7 +160,7 @@ const fetchCategories = () => {
       }
     }
   };
-  
+
   // 로그아웃 핸들러
   const handleLogout = async () => {
     try {
@@ -168,7 +175,7 @@ const fetchCategories = () => {
     event.preventDefault();
     setShowContextMenu(true);
     setContextMenuPosition({ x: event.pageX, y: event.pageY });
-    setEditingCategory(category); 
+    setEditingCategory(category);
   };
 
   // 카테고리 이름 변경 핸들러
@@ -226,7 +233,7 @@ const fetchCategories = () => {
       }
     }
   };
-  
+
   //검색 핸들러
   const handleSearch = (event) => {
     setSearchQuery(event.target.value); // 검색어를 업데이트
@@ -249,9 +256,9 @@ const fetchCategories = () => {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          setUserName(data.nickname); 
-          setProfileImagePath(data.imagePath || defaultProfileImage); 
-          fetchBooks(data.user_id); 
+          setUserName(data.nickname);
+          setProfileImagePath(data.imagePath || defaultProfileImage);
+          fetchBooks(data.user_id);
         } else {
           navigate('/');
         }
@@ -272,33 +279,33 @@ const fetchCategories = () => {
         <img src={profileImagePath} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
-        <ul>
-          <li>
-            <img src={book} alt="Book" className="icon book-icon active" />
-          </li>
-          <li>
-            <img src={edit} alt="Edit" className="icon edit-icon" onClick={handleModifyClick}/>
-          </li>
-          <li>
-            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleLogout}/>
-          </li>
-        </ul>
+          <ul>
+            <li>
+              <img src={book} alt="Book" className="icon book-icon active" />
+            </li>
+            <li>
+              <img src={edit} alt="Edit" className="icon edit-icon" onClick={handleModifyClick} />
+            </li>
+            <li>
+              <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleLogout} />
+            </li>
+          </ul>
         </nav>
         <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
       </aside>
       <main className="page-content">
         <div className="menu-container">
-          <div className="menu" onClick={handleMenuClick}style={{ fontSize: '4.0rem', color: '#CEAB93' }}>
+          <div className="menu" onClick={handleMenuClick} style={{ fontSize: '4.0rem', color: '#CEAB93' }}>
             ☰</div>
         </div>
         <header className="header">
           <h1>나의 자서전 <span className="highlighted-number">{filteredItems.length}</span></h1>
           <div className="search-bar">
-            <input 
-              type="text" 
-              placeholder="자서전 제목" 
-              value={searchQuery} 
-              onChange={handleSearch} 
+            <input
+              type="text"
+              placeholder="자서전 제목"
+              value={searchQuery}
+              onChange={handleSearch}
             />
             <img src={search} alt="Search" className="search-image" />
           </div>
@@ -335,11 +342,11 @@ const fetchCategories = () => {
                 <div className="save-popup-content">
                   <h3>임시 저장 글 목록</h3>
                   <ul>
-                    {/* 임시 저장 목록 => 데이터 연결 후 css 수정하겠습니다!*/}
+                    {/* 데이터 연결 했습니다 -> article 에 잘 저장되는 거 같아요 li 클릭했을 때 bookModifyPage 로 연결되게 해주세요 ! */}
                     {savedArticles.map((article, index) => (
                       <li key={index}>
-                      <div>{article.title}</div>
-                      <div className="saved-time">{article.savedAt}</div>
+                        <div>{article.title}</div>
+                        <div className="saved-time">{article.savedAt}</div>
                       </li>
                     ))}
                   </ul>
@@ -354,26 +361,26 @@ const fetchCategories = () => {
             <span className="plus-icon">+</span>
           </div>
           {filteredItems.map(item => (
-          <div className="item-content" onClick={() => navigate(`/book-content/${item.id}`, {
-            state: {
-              category: item.category,
-              name: item.name,
-              image: item.content || defaultcover, // image_path 사용
-              date: item.date 
-            }
-          })}>
-            <img 
-              src={item.content || defaultcover}  // item.content 사용
-              alt={item.name}
-              className="item-image"
-              onError={(e) => e.target.src = defaultcover}  // Handle error fallback
-            />
-            <div className="item-details">
-              <div className="item-title">{item.name}</div>
-              <div className="item-date">{item.date}</div>
+            <div className="item-content" onClick={() => navigate(`/book-content/${item.id}`, {
+              state: {
+                category: item.category,
+                name: item.name,
+                image: item.content || defaultcover, // image_path 사용
+                date: item.date
+              }
+            })}>
+              <img
+                src={item.content || defaultcover}  // item.content 사용
+                alt={item.name}
+                className="item-image"
+                onError={(e) => e.target.src = defaultcover}  // Handle error fallback
+              />
+              <div className="item-details">
+                <div className="item-title">{item.name}</div>
+                <div className="item-date">{item.date}</div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         </div>
       </main>
       <div className="fixed-inquiry-icon" onClick={handleInquiryClick}>
@@ -390,34 +397,34 @@ const fetchCategories = () => {
       )}
       {/* Context menu for categories */}
       {showContextMenu && editingCategory && (
-      <div
-        className="context-menu"
-        ref={contextMenuRef}
-        style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
-      >
         <div
-          className="context-menu-item"
-          onClick={() => {
-            const newName = prompt('카테고리 이름 수정', editingCategory); // Use editingCategory for the prompt
-            if (newName) {
-              handleRenameCategory(newName, editingCategory); // Rename only the editingCategory
-            }
-          }}
+          className="context-menu"
+          ref={contextMenuRef}
+          style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
         >
-          이름 수정
+          <div
+            className="context-menu-item"
+            onClick={() => {
+              const newName = prompt('카테고리 이름 수정', editingCategory); // Use editingCategory for the prompt
+              if (newName) {
+                handleRenameCategory(newName, editingCategory); // Rename only the editingCategory
+              }
+            }}
+          >
+            이름 수정
+          </div>
+          <div
+            className="context-menu-item"
+            onClick={() => {
+              if (window.confirm('정말 카테고리를 삭제하시겠습니까?')) {
+                handleDeleteCategory(editingCategory); // Delete only the editingCategory
+              }
+            }}
+          >
+            삭제
+          </div>
         </div>
-        <div
-          className="context-menu-item"
-          onClick={() => {
-            if (window.confirm('정말 카테고리를 삭제하시겠습니까?')) {
-              handleDeleteCategory(editingCategory); // Delete only the editingCategory
-            }
-          }}
-        >
-          삭제
-        </div>
-      </div>
-    )}
+      )}
     </div>
   );
 }
