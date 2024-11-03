@@ -376,7 +376,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
       y: rect.top + window.scrollY   // 요소의 y 위치 (스크롤 위치 보정)
     });
     setSubmenuVisible3(true); // Show the submenu
-    setTitleClickStatus(true);
+    //setTitleClickStatus(true);
   };
   
   const handleSubtitleRightClick = (event) => {
@@ -387,7 +387,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
       y: rect.top + window.scrollY   // 요소의 y 위치 (스크롤 위치 보정)
     });
     setSubmenuVisible4(true); // Show the submenu
-    setSubTitleClickStatus(true);
+    //setSubTitleClickStatus(true);
   };
   
  // Function to handle right-click on the Image
@@ -758,6 +758,60 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
     };
   }, []);
 
+  const handleRecommendSubClick = async () => {
+    try {
+      const response = await fetch('/api/recommend-title', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content:contentArray[selectedIndex - 1].paragraph,
+          bookId:bookId,
+          index:selectedIndex,
+          title:false
+        }),
+      });
+      if (response.ok) {
+        setSubmenuVisible3(false); // Close submenu
+        setSubmenuVisible4(false); // Close submenu
+        fetchBookContent();
+        alert('AI 추천에 성공했습니다');
+      } else {
+        alert('AI 추천에 실패했습니다.');
+      }
+    } catch (error) {
+      alert('오류가 발생했습니다.');
+    }
+  }
+
+  const handleRecommendBigClick = async () => {
+    try {
+      const response = await fetch('/api/recommend-title', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content:contentArray[selectedIndex - 1].paragraph,
+          bookId:bookId,
+          index:selectedIndex,
+          title:true
+        }),
+      });
+      if (response.ok) {
+        setSubmenuVisible3(false); // Close submenu
+        setSubmenuVisible4(false); // Close submenu
+        fetchBookContent();
+        alert('AI 추천에 성공했습니다');
+      } else {
+        alert('AI 추천에 실패했습니다.');
+      }
+    } catch (error) {
+      alert('오류가 발생했습니다.');
+    }
+  }
+
   return (
     <div className="book-page">
       {/* Header */}
@@ -952,7 +1006,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
               left: `${submenuPosition.x - 600}px`,
             }}
           >
-            <button>AI 추천 받기</button>
+            <button onClick={handleRecommendBigClick}>AI 추천 받기</button>
             <button onClick={handleTitleEditClick}>Edit</button>
             <button onClick={handleTitleDeleteClick}>Delete</button>
           </div>
@@ -966,7 +1020,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
               left: `${submenuPosition.x - 600}px`,
             }}
           >
-            <button>AI 추천 받기</button>
+            <button onClick={handleRecommendSubClick}>AI 추천 받기</button>
             <button onClick={handleTitleEditClick}>Edit</button>
             <button onClick={handleSubtitleDeleteClick}>Delete</button>
           </div>
