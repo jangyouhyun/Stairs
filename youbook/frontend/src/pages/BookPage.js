@@ -396,8 +396,8 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
   };
 
   //(글 추가 생성시 다른 표시 해서 원래의 content 배열에 추가하는 로직 필요)
-  const handleAddIconClick = () => {
-    navigate('/main2', { state : {selectedCategory:selectedCategory, bookId:bookId, selectedIndex:1}});
+  const handleAddIconClick = (event, index) => {
+    navigate('/main2', { state : {selectedCategory:selectedCategory, bookId:bookId, selectedIndex:index}});
   };
 
   const handleChatbotClick = () => {
@@ -849,7 +849,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
                   {contentItem.paragraph}
                 </p>
                 {isHovered && (
-                  <div className="add-icon" onClick={handleAddIconClick}>
+                  <div className="add-icon" onClick={(e) => handleAddIconClick(e, index + 1)}>
                     <span>+</span>
                   </div>
                 )}

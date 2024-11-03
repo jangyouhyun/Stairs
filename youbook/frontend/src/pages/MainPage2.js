@@ -131,8 +131,6 @@ function MainPage() {
         if (data.status === 200) {
           const bookId = data.bookId;
           const input_count = data.inputCount;
-		  alert(bookId);
-		  alert(input_count);
           navigate(`/book-reading/${bookId}`, { state: { selectedCategory:selectedCategory, input_count: input_count, selectedIndex:selectedIndex  } });
         }
       })
