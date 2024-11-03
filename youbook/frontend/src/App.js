@@ -9,6 +9,7 @@ import BookModifyPage from './pages/BookModifyPage';
 import MyAutobiographyPage from './pages/MyAutobiographyPage';
 import BookDesignPage from './pages/BookDesignPage'; 
 import Chatbot from './pages/chatbot';
+import Chatbot2 from './pages/chatbot2';
 import ModifyInfo from './pages/ModifyInfo';
 import CustomerInquiryPage from './pages/CustomerInquiryPage';
 import MainPage2 from './pages/MainPage2';
@@ -34,6 +35,7 @@ function App() {
         <Route path="/my-autobiography" element={<MyAutobiographyPage />} />
         <Route path="/book-design" element={<BookDesignPage />} />
         <Route path="/chatbot/:bookId" element={<Chatbot />} />
+        <Route path="/chatbot2/:bookId" element={<Chatbot2 />} />
         <Route path="/modifyinfo" element={<ModifyInfo />} />
         <Route path="/book-reading/:bookId" element={<BookPage />} />
         <Route path="/book-content/:bookId" element={<BookContentPage />} />

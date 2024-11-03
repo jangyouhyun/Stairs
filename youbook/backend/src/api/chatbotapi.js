@@ -17,7 +17,6 @@ const openaiInstance = new OpenAI({
 
 // 데이터베이스에 질문과 응답을 저장하는 함수
 const saveChatbotData = (userId, bookId, question, response) => {
-    // 첫 번째 쿼리: 현재 bookId와 userId에 해당하는 quest_num의 최대값을 가져옵니다.
     const getMaxQuestNumQuery = `
         SELECT MAX(quest_num) AS max_quest_num 
         FROM chatbot_data 
@@ -30,13 +29,8 @@ const saveChatbotData = (userId, bookId, question, response) => {
             return;
         }
         
-        // 최대 quest_num을 가져옵니다.
         const maxQuestNum = results[0].max_quest_num;
-
-        // 새로운 quest_num을 결정합니다.
         const newQuestNum = maxQuestNum ? maxQuestNum + 1 : 1;
-
-        // 두 번째 쿼리: 새로운 질문과 응답을 데이터베이스에 저장합니다.
         const insertQuery = `
             INSERT INTO chatbot_data (user_id, book_id, input_count, quest_num, question, response) 
             VALUES (?, ?, ?, ?, ?, ?); 

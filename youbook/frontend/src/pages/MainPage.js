@@ -124,7 +124,7 @@ function MainPage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text, category: selectedCategory }),  // 'text'와 'category' 전송
+      body: JSON.stringify({ content: text, category: selectedCategory, isChatbot:false }),  // 'text'와 'category' 전송
     })
       .then(response => response.json())
       .then(data => {

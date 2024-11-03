@@ -158,7 +158,7 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
             }
   
             // 요약된 데이터를 book_reading API로 전송
-            const writeResponse = await fetch('/api/write_process/book_reading', {
+            const writeResponse = await fetch('/api/write_process/book_reading2', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -167,6 +167,7 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
                 content: summaryData.content,
                 bookId: data.bookId,
                 isChatbot: true,
+				isChatbotPurified:false
               }),
             });
             if (!writeResponse.ok) {

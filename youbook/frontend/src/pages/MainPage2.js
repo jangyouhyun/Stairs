@@ -35,12 +35,12 @@ function MainPage() {
   
   const handleOpenChatbot = () => {
     setIsLoading(true);
-    fetch('/api/write_process/chatbot', {
+    fetch('/api/write_process/chatbot2', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text , category:selectedCategory}),
+      body: JSON.stringify({ content: text , category:selectedCategory, bookId: bookId, content_order:selectedIndex, isChatbot:false  }),
     })
     .then(response => response.json())
     .then(data => {
@@ -123,7 +123,7 @@ function MainPage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text, category: selectedCategory, bookId: bookId, content_order:selectedIndex }),  // 'text'와 'category' 전송
+      body: JSON.stringify({ content: text, category: selectedCategory, bookId: bookId, content_order:selectedIndex, isChatbot:false }),  // 'text'와 'category' 전송
     })
       .then(response => response.json())
       .then(data => {
