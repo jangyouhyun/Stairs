@@ -47,11 +47,7 @@
   margin-bottom: 10px;
 }
 
-.chatbot-body {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-}
+
 
 .chatbot-profile {
   width: 50px;
@@ -62,6 +58,12 @@
   background-color: white;
 }
 
+.chatbot-body {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
 .message-container {
   display: flex;
   align-items: flex-start;
@@ -69,19 +71,30 @@
 }
 
 .message {
+  display: inline-block;
   margin: 10px 0;
   padding: 10px;
   border-radius: 5px;
   font-size: 14px;
   max-width: 80%;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 
 .message.bot {
   background-color: #FFFBE9;
   align-self: flex-start;
-  margin-right: auto; /* 왼쪽 여백을 자동으로 설정해서 오른쪽으로 배치 */
+  margin-right: auto;
   margin-left: 0;
-  text-align: left; /* 텍스트는 왼쪽 정렬로 유지 */
+  text-align: left;
+  border-bottom-right-radius: 0;
+}
+.message.user {
+  background-color: #d1e7dd;
+  align-self: flex-end;
+  margin-left: auto;
+  margin-right: 0;
+  text-align: left;
   border-bottom-right-radius: 0;
 }
 
@@ -106,15 +119,6 @@
 
 .conversation-end-buttons button:hover {
   background-color: #0056b3; /* 버튼에 마우스를 올렸을 때 색상 변경 */
-}
-
-.message.user {
-  background-color: #d1e7dd;
-  align-self: flex-end;
-  margin-left: auto; /* 왼쪽 여백을 자동으로 설정해서 오른쪽으로 배치 */
-  margin-right: 0;
-  text-align: left; /* 텍스트는 왼쪽 정렬로 유지 */
-  border-bottom-right-radius: 0;
 }
 
 .chatbot-footer {

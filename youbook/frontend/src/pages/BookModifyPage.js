@@ -393,24 +393,39 @@ const handleDeleteClick = async () => {
   const handleTitleRightClick = (event) => {
     event.preventDefault(); // Prevent the default browser right-click menu
     const rect = event.target.getBoundingClientRect(); // Get the bounding box of the paragraph
-    setSubmenuPosition({ x: event.pageX, y: event.pageY });
+    setSubmenuPosition({
+      x: rect.left + window.scrollX, // 요소의 x 위치 (스크롤 위치 보정)
+      y: rect.top + window.scrollY   // 요소의 y 위치 (스크롤 위치 보정)
+    });
     setSubmenuVisible3(true); // Show the submenu
   };
   const handleSubtitleRightClick = (event) => {
     event.preventDefault(); // Prevent the default browser right-click menu
-    setSubmenuPosition({ x: event.pageX, y: event.pageY });
+    const rect = event.target.getBoundingClientRect();
+    setSubmenuPosition({
+      x: rect.left + window.scrollX, // 요소의 x 위치 (스크롤 위치 보정)
+      y: rect.top + window.scrollY   // 요소의 y 위치 (스크롤 위치 보정)
+    });
     setSubmenuVisible4(true); // Show the submenu
   };
  // Function to handle right-click on the Image
  const handleImageRightClick = (event) => {
   event.preventDefault(); // Prevent the default browser right-click menu
-  setSubmenuPosition({ x: event.pageX, y: event.pageY });
+  const rect = event.target.getBoundingClientRect();
+  setSubmenuPosition({
+      x: rect.left + window.scrollX, // 요소의 x 위치 (스크롤 위치 보정)
+      y: rect.top + window.scrollY   // 요소의 y 위치 (스크롤 위치 보정)
+    });
   setAddMenuVisible5(true); // Show the submenu
 };
 
   const handleParagraphRightClick = (event) => {
     event.preventDefault(); // 기본 우클릭 메뉴를 막음
-    setSubmenuPosition({ x: event.pageX, y: event.pageY });
+    const rect = event.target.getBoundingClientRect();
+    setSubmenuPosition({
+      x: rect.left + window.scrollX, // 요소의 x 위치 (스크롤 위치 보정)
+      y: rect.top + window.scrollY   // 요소의 y 위치 (스크롤 위치 보정)
+    });
     setSubmenuVisible(true); // 팝업을 표시
   };
     

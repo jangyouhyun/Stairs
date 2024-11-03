@@ -369,28 +369,45 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
 
   //서브 메뉴 클릭
   const handleTitleRightClick = (event) => {
-    event.preventDefault();
-    const rect = event.target.getBoundingClientRect();
-    setSubmenuPosition({ x: event.pageX, y: event.pageY });
+    event.preventDefault(); // Prevent the default browser right-click menu
+    const rect = event.target.getBoundingClientRect(); // Get the bounding box of the paragraph
+    setSubmenuPosition({
+      x: rect.left + window.scrollX, // 요소의 x 위치 (스크롤 위치 보정)
+      y: rect.top + window.scrollY   // 요소의 y 위치 (스크롤 위치 보정)
+    });
     setSubmenuVisible3(true); // Show the submenu
     setTitleClickStatus(true);
   };
+  
   const handleSubtitleRightClick = (event) => {
-    event.preventDefault();
-    setSubmenuPosition({ x: event.pageX, y: event.pageY });
-    setSubmenuVisible4(true);
+    event.preventDefault(); // Prevent the default browser right-click menu
+    const rect = event.target.getBoundingClientRect();
+    setSubmenuPosition({
+      x: rect.left + window.scrollX, // 요소의 x 위치 (스크롤 위치 보정)
+      y: rect.top + window.scrollY   // 요소의 y 위치 (스크롤 위치 보정)
+    });
+    setSubmenuVisible4(true); // Show the submenu
     setSubTitleClickStatus(true);
   };
-  // Function to handle right-click on the Image
-  const handleImageRightClick = (event) => {
-    event.preventDefault();
-    setSubmenuPosition({ x: event.pageX, y: event.pageY });
-    setAddMenuVisible5(true);
-  };
+  
+ // Function to handle right-click on the Image
+ const handleImageRightClick = (event) => {
+  event.preventDefault(); // Prevent the default browser right-click menu
+  const rect = event.target.getBoundingClientRect();
+  setSubmenuPosition({
+      x: rect.left + window.scrollX, // 요소의 x 위치 (스크롤 위치 보정)
+      y: rect.top + window.scrollY   // 요소의 y 위치 (스크롤 위치 보정)
+    });
+  setAddMenuVisible5(true); // Show the submenu
+};
 
   const handleParagraphRightClick = (event, index) => {
     event.preventDefault(); // 기본 우클릭 메뉴를 막음
-    setSubmenuPosition({ x: event.pageX, y: event.pageY });
+    const rect = event.target.getBoundingClientRect();
+    setSubmenuPosition({
+      x: rect.left + window.scrollX, // 요소의 x 위치 (스크롤 위치 보정)
+      y: rect.top + window.scrollY   // 요소의 y 위치 (스크롤 위치 보정)
+    });
     setSubmenuVisible(true); // 팝업을 표시
     setSelectedIndex(index + 1);
   };
