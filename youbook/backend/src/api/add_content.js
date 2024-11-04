@@ -88,8 +88,8 @@ function determineInputCount(userId, bookId, callback) {
                 return callback(1); // 에러 발생 시 기본값 1 반환
             }
 
-            const maxInputCount = results[0].max_input_count || 0;
-            callback(maxInputCount + 1); // max input_count + 1 반환
+            const maxInputCount = results[0].max_input_count || 1;
+            callback(maxInputCount); // max input_count + 1 반환
         });
     });
 }
@@ -98,7 +98,7 @@ router.post('/write_process/chatbot2', function (request, response) {
     var content = request.body.content;
     var date = getFormatDate(new Date());
     var user_id = request.session ? request.session.nickname : 'test_user'; // 세션이 없는 경우 test_user 사용
-    var book_id = req.body.bookId ? req.body.bookId : uuidv4();
+    var book_id = request.body.bookId ? request.body.bookId : uuidv4();
     const category = request.body.category;
     console.log("카테고리: ", category);
 
@@ -118,7 +118,7 @@ router.post('/write_process/chatbot2', function (request, response) {
                 // init_input에 content 삽입
                 connection.query(
                     'INSERT INTO init_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?)',
-                    [user_id, book_id, input_count, content, category],
+                    [user_id, book_id, input_count + 1, content, category],
                     function (error, results) {
                         if (error) {
                             return connection.rollback(function () {
@@ -134,7 +134,7 @@ router.post('/write_process/chatbot2', function (request, response) {
                                 });
                             }
                             connection.release();
-                            response.status(200).json({ status: 200, bookId: book_id, inputCount: input_count });
+                            response.status(200).json({ status: 200, bookId: book_id, inputCount: input_count + 1 });
                         });
                     }
                 );
@@ -165,7 +165,7 @@ router.post('/write_process/book_reading2', function (req, res) {
         }
 
         // input_count 결정 후 진행
-        determineInputCount(user_id, book_id, (newInputCount, maxInputCount) => {
+        determineInputCount(user_id, book_id, (maxInputCount) => {
             // OpenAI API 호출
             getModelResponse(userInfo, previousContent, content).then(modelResponse => {
                 db.getConnection(function (err, connection) {
@@ -189,7 +189,7 @@ router.post('/write_process/book_reading2', function (req, res) {
 
                         const params = isChatbot 
                             ? [formattedUserInput, category, user_id, book_id, maxInputCount] 
-                            : [user_id, book_id, newInputCount, formattedUserInput, category, formattedUserInput];
+                            : [user_id, book_id, maxInputCount + 1, formattedUserInput, category, formattedUserInput];
 
                         connection.query(query, params, function (error) {
                             if (error) {
@@ -201,7 +201,7 @@ router.post('/write_process/book_reading2', function (req, res) {
                             }
 
                             // purified_input에 모델의 응답 저장
-                            const purifiedInputCount = isChatbotPurified ? maxInputCount : newInputCount;
+                            const purifiedInputCount = isChatbotPurified ? maxInputCount : maxInputCount + 1;
                             connection.query(
                                 'INSERT INTO purified_input (user_id, book_id, input_count, content, category) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE content = ?, category = ?',
                                 [user_id, book_id, purifiedInputCount, modelResponse, category, modelResponse, category],
@@ -224,7 +224,7 @@ router.post('/write_process/book_reading2', function (req, res) {
                                         }
 
                                         connection.release();
-                                        return res.status(200).json({ status: 200, bookId: book_id, inputCount: newInputCount });
+                                        return res.status(200).json({ status: 200, bookId: book_id, inputCount: purifiedInputCount });
                                     });
                                 }
                             );

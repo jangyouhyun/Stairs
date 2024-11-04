@@ -13,7 +13,7 @@ import edit from '../assets/images/edit.png';
 import edit2 from '../assets/images/edit2.png'; // 활성화 상태일 때의 이미지
 import logout from '../assets/images/log-out.png';
 import logout2 from '../assets/images/log-out2.png';
-import Chatbot from './chatbot';
+import Chatbot2 from './chatbot2';
 import loadingIcon from '../assets/images/loadingicon.gif';
 import BooksIcon from '../assets/images/books.gif';
 
@@ -23,7 +23,7 @@ function MainPage() {
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [text, setText] = useState('');
   const [items, setItems] = useState([]); // 빈 배열로 초기화
-  const [isRectangleVisible, setIsRectangleVisible] = useState(false); 
+  const [isRectangleVisible, setIsRectangleVisible] = useState(false);
   const [isChatbotOpen, setIsChatbotOpen] = useState(false); // 챗봇 팝업 상태
   const [isWarningVisible, setIsWarningVisible] = useState(false);
   const location = useLocation();
@@ -32,7 +32,7 @@ function MainPage() {
   const selectedIndex = location.state?.selectedIndex;
   const [isLoading, setIsLoading] = useState(false);
   const [isCreatingBook, setIsCreatingBook] = useState(false);
-  
+
   const handleOpenChatbot = () => {
     setIsLoading(true);
     fetch('/api/write_process/chatbot2', {
@@ -40,25 +40,25 @@ function MainPage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text , category:selectedCategory, bookId: bookId, content_order:selectedIndex, isChatbot:false  }),
+      body: JSON.stringify({ content: text, category: selectedCategory, bookId: bookId, content_order: selectedIndex, isChatbot: false }),
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.status === 200) {
-        const bookId = data.bookId;
-        if (bookId) {
-          setBookId(bookId);
-          setIsChatbotOpen(true);
-        } else {
-          console.error('bookId is missing in the response:', data);
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 200) {
+          const bookId = data.bookId;
+          if (bookId) {
+            setBookId(bookId);
+            setIsChatbotOpen(true);
+          } else {
+            console.error('bookId is missing in the response:', data);
+          }
         }
-      }
-      setIsLoading(false);
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      setIsLoading(false);
-    });
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        setIsLoading(false);
+      });
   };
 
   const handleOpenChatbot2 = () => {
@@ -80,7 +80,7 @@ function MainPage() {
   const handleInquiryClick = () => {
     setIsRectangleVisible(!isRectangleVisible);
   };
-  
+
   const navigate = useNavigate();
   const handleMenuClick = () => {
     setIsSidebarVisible(true);
@@ -100,7 +100,7 @@ function MainPage() {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          setUserName(data.nickname); 
+          setUserName(data.nickname);
           setProfileImagePath(data.imagePath || defaultProfileImage); // 프로필 이미지 경로를 상태에 저장
         } else {
           console.error(data.message);
@@ -123,7 +123,7 @@ function MainPage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: text, category: selectedCategory, bookId: bookId, content_order:selectedIndex, isChatbot:false }),  // 'text'와 'category' 전송
+      body: JSON.stringify({ content: text, category: selectedCategory, bookId: bookId, content_order: selectedIndex, isChatbot: false }),  // 'text'와 'category' 전송
     })
       .then(response => response.json())
       .then(data => {
@@ -131,7 +131,7 @@ function MainPage() {
         if (data.status === 200) {
           const bookId = data.bookId;
           const input_count = data.inputCount;
-          navigate(`/book-reading/${bookId}`, { state: { selectedCategory:selectedCategory, input_count: input_count, selectedIndex:selectedIndex  } });
+          navigate(`/book-reading/${bookId}`, { state: { selectedCategory: selectedCategory, input_count: input_count, selectedIndex: selectedIndex } });
         }
       })
       .catch(error => {
@@ -151,7 +151,7 @@ function MainPage() {
           'Content-Type': 'application/json',
         },
       });
-  
+
       if (response.ok) {
         navigate('/');  // 로그아웃 성공 후 메인 페이지로 이동
       } else {
@@ -161,7 +161,7 @@ function MainPage() {
       console.error('Error:', error);
     }
   };
-  
+
 
   return (
     <div className="main-page">
@@ -169,7 +169,7 @@ function MainPage() {
         <button className="menu-button" onClick={handleMenuClick}>☰</button>
         <button className="profile-button" onClick={handleProfileClick}>
           <img src={profileImagePath} alt="Profile" className="profile-image"
-           />
+          />
         </button>
       </header>
 
@@ -177,37 +177,37 @@ function MainPage() {
         <img src={profileImagePath} alt="Profile" className="profile-image2" />
         <div className="profile-name">{userName}</div>
         <nav className="sidebar-nav">
-        <ul>
-          <li>
-            <img src={book} alt="Book" className="icon book-icon" onClick={handleProfileClick} />
-          </li>
-          <li>
-            <img src={edit} alt="Edit" className="icon edit-icon" onClick={handleModifyClick}/>
-          </li>
-          <li>
-            <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleLogout}/>
-          </li>
-        </ul>
+          <ul>
+            <li>
+              <img src={book} alt="Book" className="icon book-icon" onClick={handleProfileClick} />
+            </li>
+            <li>
+              <img src={edit} alt="Edit" className="icon edit-icon" onClick={handleModifyClick} />
+            </li>
+            <li>
+              <img src={logout} alt="Logout" className="icon logout-icon" onClick={handleLogout} />
+            </li>
+          </ul>
         </nav>
         <img src={exit} alt="Exit" className="exit" onClick={handleExitClick} />
       </aside>
 
       <div className="main-content">
         <div className="title-image-container">
-        <img src={message} alt="message" className="message" />
+          <img src={message} alt="message" className="message" />
           <h1 className="main-title">자서전에 들어갔으면 하는 내용을 적어주세요!</h1>
           <img src={chatbotImage} alt="Chatbot" className="main-image" />
         </div>
         <div className="text-container">
-        <textarea
-          className="main-textarea"
-          placeholder="내 인생의 사건에 대해서 적어주세요..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        ></textarea>
+          <textarea
+            className="main-textarea"
+            placeholder="내 인생의 사건에 대해서 적어주세요..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          ></textarea>
         </div>
         <div className="button-container">
-        <button className="question-button" onClick={handleOpenChatbot}>입력내용으로 질문받기</button>
+          <button className="question-button" onClick={handleOpenChatbot}>입력내용으로 질문받기</button>
           <button className="create-book-button" onClick={handleCreateBook}>
             자서전 바로 만들기
           </button>
@@ -226,36 +226,42 @@ function MainPage() {
         </div>
       )}
       {/* 챗봇 팝업 창을 조건부로 렌더링 */}
-    {isChatbotOpen && bookId && (
+      {isChatbotOpen && bookId && (
         <div className="chatbot-popup">
-          <Chatbot bookId={bookId} selectedCategory={selectedCategory} onClose={handleCloseChatbot} /> {/* onClose prop 전달 */}
+          <Chatbot2
+            bookId={bookId}
+            selectedCategory={selectedCategory}
+            onClose={handleCloseChatbot}
+            selectedIndex={selectedIndex} // selectedIndex prop 추가
+          />
         </div>
       )}
-    {/* 경고 메시지 창 */}
-    {isWarningVisible && (
+
+      {/* 경고 메시지 창 */}
+      {isWarningVisible && (
         <div className="warning-popup">
-          <p>창을 닫으면 대화 내용이 사라질 수 있습니다.<br/>그래도 닫겠습니까?</p>
+          <p>창을 닫으면 대화 내용이 사라질 수 있습니다.<br />그래도 닫겠습니까?</p>
           <div className="button-container">
             <button onClick={handleConfirmClose}>Yes</button>
             <button onClick={handleCancelClose}>No</button>
           </div>
         </div>
       )}
-    {/* 로딩 중 팝업 */}
-    {isLoading && (
+      {/* 로딩 중 팝업 */}
+      {isLoading && (
         <div className="loading-popup" >
           <img src={loadingIcon} alt="Loading" className="loading-icon" />
         </div>
       )}
       {/* 자서전 생성 중일 때만 로딩 팝업 표시 */}
       {isCreatingBook && (
-        <div className="loading-popup" id = "firstmake">
+        <div className="loading-popup" id="firstmake">
           <img src={BooksIcon} alt="Loading" className="loading-icon" />
           <div className="loading-text">자서전이 만들어지고 있습니다...</div>
         </div>
       )}
     </div>
-    
+
   );
 }
 
