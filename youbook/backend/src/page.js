@@ -30,7 +30,9 @@ const modifyInfoRouter = require("./api/modify_info.js");
 const recreateRouter = require('./api/recreate.js');
 const semisaveRouter = require('./api/semisave.js');
 const recommendRouter = require('./api/recommend_title.js');
+const findIDPWRouter = require('./api/get_idpw.js');
 var addRouter = require('./api/add_content.js');
+
 const app = express();
 
 // 요청 본문 해석
@@ -107,6 +109,8 @@ app.use('/api', recreateRouter);
 app.use('/api', addRouter);
 app.use('/api', semisaveRouter);
 app.use('/api', recommendRouter);
+app.use('/api', findIDPWRouter);
+
 
 app.use((req, res, next) => {
     res.status(404).send('Not found');
