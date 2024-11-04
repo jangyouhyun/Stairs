@@ -7,7 +7,7 @@ import back from '../assets/images/exit.png';
 import BooksIcon from '../assets/images/books.gif';
 
 
-function Chatbot({ onClose, bookId, selectedCategory}) {
+function Chatbot({ onClose, bookId, selectedCategory, selectedIndex }) {
   const [messages, setMessages] = useState([
     { type: 'bot', text: '안녕하세요! 유북 챗봇입니다. 작성해주신 내용을 바탕으로 몇 가지 질문드리겠습니다. 대화를 마치고 싶다면 종료라고 말씀해주세요!' },
   ]);
@@ -21,6 +21,7 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
   const location = useLocation();
   const messagesEndRef = useRef(null); // 스크롤을 제어할 참조 추가
   const [isCreatingBook, setIsCreatingBook] = useState(false);
+  const [inputCount, setInputCount] = useState(1);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -40,7 +41,7 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
         return null; // 오류 시 null 반환
       }
     };
-  
+
     const fetchInitialInput = async (userId) => {
       try {
         const response = await fetch(`/api/get-initial-input/${bookId}/${userId}`);
@@ -54,7 +55,7 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
         return '';  // 오류 발생 시 기본 값
       }
     };
-  
+
     const initiateChat = async () => {
       setIsLoading(true); // 로딩 상태 시작
       try {
@@ -88,17 +89,17 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
         setIsLoading(false); // 로딩 상태 종료
       }
     };
-  
+
     initiateChat();
   }, [bookId]);
 
-    // 새로운 메시지가 추가될 때 스크롤을 맨 아래로 이동시키는 함수
-    const scrollToBottom = () => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
-    useEffect(() => {
-      scrollToBottom(); // 메시지가 업데이트될 때 스크롤을 자동으로 이동
-    }, [messages]);  
+  // 새로운 메시지가 추가될 때 스크롤을 맨 아래로 이동시키는 함수
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+  useEffect(() => {
+    scrollToBottom(); // 메시지가 업데이트될 때 스크롤을 자동으로 이동
+  }, [messages]);
 
   // 사용자가 답변을 제출할 때 처리하는 함수
   const handleSend = async () => {
@@ -106,7 +107,7 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
       const previousQuestion = messages[messages.length - 1].text;
       setMessages([...messages, { type: 'user', text: inputValue }]);
       setIsLoading(true); // 로딩 상태 시작
-  
+
       try {
         const response = await fetch(`/api/chatbot/ask/${bookId}`, {
           method: 'POST',
@@ -118,45 +119,44 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
         if (!response.ok) {
           throw new Error('서버에서 질문을 생성하는 데 오류가 발생했습니다.');
         }
-  
+
         const data = await response.json();
-  
+
         // 대화 종료 메시지를 받으면 종료 상태로 설정
         if (data.message === '대화가 종료되었습니다. 감사합니다!') {
           setMessages(prevMessages => [
             ...prevMessages,
             { type: 'bot', text: data.message }
           ]);
-  
+
           setIsConversationEnded(true); // 종료 상태 설정
           setIsCreatingBook(true);  // 로딩 팝업 표시
-  
+
           // 요약 및 자서전 생성 로직 호출
           try {
-            const summaryResponse = await fetch(`/api/chatbot/summary`, {
+            const summaryResponse = await fetch(`/api/chatbot/summary2`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                bookId: bookId,
-                inputCount: 1
+                bookId: bookId
               }),
             });
             if (!summaryResponse.ok) {
               throw new Error('요약 데이터를 가져오는 데 오류가 발생했습니다.');
             }
-  
+
             const summaryData = await summaryResponse.json();
 
             // 요약된 데이터가 빈 문자열일 경우 경고 메시지와 리디렉션
             if (!summaryData.content || summaryData.content.trim() === '') {
               alert("자서전을 생성하기에 내용이 너무 적습니다! 다시 생성해주세요");
-              navigate('/main');
+              navigate('/main2');
               window.location.reload(); // 페이지 새로고침
               return;
             }
-  
+
             // 요약된 데이터를 book_reading API로 전송
             const writeResponse = await fetch('/api/write_process/book_reading2', {
               method: 'POST',
@@ -167,12 +167,19 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
                 content: summaryData.content,
                 bookId: data.bookId,
                 isChatbot: true,
-				isChatbotPurified:false
+                isChatbotPurified: true
               }),
             });
             if (!writeResponse.ok) {
               throw new Error('book 데이터를 처리하는 데 오류가 발생했습니다.');
             }
+
+            // book_reading2 API 응답에서 inputCount 값을 받아서 설정
+            const writeData = await writeResponse.json();
+            if (writeData.inputCount !== undefined) {
+              setInputCount(writeData.inputCount);
+            }
+
           } catch (error) {
             console.error('Error:', error);
             setError('book_reading 데이터를 처리하는 중 오류가 발생했습니다.');
@@ -180,16 +187,16 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
             setIsFinalLoading(true);
             setIsCreatingBook(false);  // 로딩 팝업 숨기기
           }
-  
+
           return; // 종료 후 handleSend 이후 로직 실행 중지
         }
-  
+
         // 새로운 질문을 받았을 때
         setMessages(prevMessages => [
           ...prevMessages,
           { type: 'bot', text: data.question }
         ]);
-  
+
       } catch (error) {
         console.error('Error:', error);
         setError('질문 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
@@ -199,21 +206,21 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
         ]);
       } finally {
         setIsLoading(false); // 로딩 상태 종료
-        setInputValue(''); 
+        setInputValue('');
       }
     }
-  };  
-  
+  };
+
   // 대화 종료 후 '자서전 만들기' 및 '내용 새로 추가' 처리 함수
   const handleCreateBook = () => {
     setIsCreatingBook(true);
-    navigate(`/book-reading/${bookId}` , { state : {selectedCategory}}); // 자서전 페이지로 이동
+    navigate(`/book-reading/${bookId}`, { state: { selectedCategory: selectedCategory, selectedIndex: selectedIndex, input_count : inputCount} }); // 자서전 페이지로 이동
     setIsCreatingBook(false);
   };
 
   const handleAddContent = () => {
     navigate(`/main/${bookId}`); // 자서전 내용 추가 페이지로 이동
-    };
+  };
 
   // Enter 키를 눌렀을 때도 메시지를 전송할 수 있도록
   const handleKeyPress = (e) => {
@@ -241,7 +248,7 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
       </div>
       <div className="chatbot-body">
         {messages.map((msg, index) => (
-           <div key={index} className={`message-container ${msg.type}`}>
+          <div key={index} className={`message-container ${msg.type}`}>
             {msg.type === 'bot' && (
               <img src={chatbotImage} alt="Chatbot" className="chatbot-profile" />
             )}
@@ -254,9 +261,9 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
                 </div>
               )}
             </div>
-         </div>
+          </div>
         ))}
-         <div ref={messagesEndRef}></div> {/* 스크롤을 이동시키기 위한 참조 */}
+        <div ref={messagesEndRef}></div> {/* 스크롤을 이동시키기 위한 참조 */}
         {(isLoading) && <div className="loading-indicator">로딩 중{'.'.repeat(dotCount)}</div>}
         {error && <div className="error-message">{error}</div>}
       </div>
@@ -277,7 +284,7 @@ function Chatbot({ onClose, bookId, selectedCategory}) {
       )}
       {/* 자서전 생성 중일 때만 로딩 팝업 표시 */}
       {isCreatingBook && (
-        <div className="loading-popup" id = "firstmake">
+        <div className="loading-popup" id="firstmake">
           <img src={BooksIcon} alt="Loading" className="loading-icon" />
           <div className="loading-text">자서전이 만들어지고 있습니다...</div>
         </div>

@@ -36,8 +36,14 @@ router.get('/get_user_info', (req, res) => {
   router.get('/get-initial-input/:bookId/:userId', function (req, res) {
     const { bookId, userId } = req.params;
 
-    // 데이터베이스에서 bookId와 userId에 맞는 데이터를 조회
-    const query = 'SELECT content FROM init_input WHERE book_id = ? AND user_id = ?';
+    // 데이터베이스에서 bookId와 userId에 맞는, input_count가 최대인 content 조회
+    const query = `
+        SELECT content 
+        FROM init_input 
+        WHERE book_id = ? AND user_id = ? 
+        ORDER BY input_count DESC 
+        LIMIT 1;
+    `;
 
     db.query(query, [bookId, userId], function (error, results) {
         if (error) {
@@ -56,6 +62,5 @@ router.get('/get_user_info', (req, res) => {
     });
 });
 
-  
 
 module.exports = router;
