@@ -126,7 +126,6 @@ function HomePage() {
 
       {/* Popup for finding ID */}
       {isFindIDPopupVisible && (
-        <div className="popup-overlay">
           <div className="findpopup">
             <h2>아이디 찾기</h2>
             <form onSubmit={handleFindIDSubmit}>
@@ -154,12 +153,10 @@ function HomePage() {
               </div>
             </form>
           </div>
-        </div>
       )}
 
       {/* Popup for finding Password */}
       {isFindPWPopupVisible && (
-        <div className="popup-overlay">
           <div className="findpopup">
             <h2>비밀번호 찾기</h2>
             <form onSubmit={handleFindPWSubmit}>
@@ -176,6 +173,7 @@ function HomePage() {
                 <label>이름</label>
                 <input
                   type="text"
+                  className = "input-field"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -185,6 +183,7 @@ function HomePage() {
                 <label>전화번호</label>
                 <input
                   type="text"
+                  className = "input-field"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   required
@@ -196,7 +195,6 @@ function HomePage() {
               </div>
             </form>
           </div>
-        </div>
       )}
     </div>
     </div>

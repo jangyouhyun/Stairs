@@ -15,7 +15,7 @@
 .login-container h1{
   color : #00462A;
   font-size : 2.6rem;
-  margin-bottom : 20px;
+  margin-bottom : 10px;
 }
 /* 로그인 박스 중앙 정렬 */
 .login-box {
@@ -73,21 +73,23 @@
 /* 로그인 컨텐츠 위치 조정 */
 .login-content {
   position: relative;
-  width: 100%;
-  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width : 600px;
+  margin: 0 auto;
   color: #00462A;
 }
 
 /* 로그인 폼 정렬 */
 .login-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  width : 400px;
+  margin: 0 auto;
 }
 
 /* 입력 필드 스타일 */
 .input-field {
-  width: 80%;
+  max-width: 200px;
   padding: 10px;
   margin-bottom: 10px;
   border: 1px solid #CEAB93;
@@ -126,47 +128,46 @@
   text-decoration: underline;
 }
 
-/* 팝업 오버레이 스타일 */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
 
 /* 팝업 박스 스타일 */
 .findpopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: white;
   padding: 20px;
   border-radius: 10px;
-  width: 300px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
+  width : 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index : 1000;
 }
 
 /* 폼 필드 스타일 */
 .form-group {
-  margin-bottom: 15px;
-  width: 80%;
+  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
+  margin: 0px auto;
   font-weight: bold;
 }
-
-.form-group input {
-  width: 80%;
-  padding: 8px;
-  border: 1px solid #00462A;
-  border-radius: 4px;
+.form-group input{
+  max-width: 50px;
+  padding: 10px;
+  margin-bottom: 0px;
+  border: 1px solid #CEAB93;
+  border-radius: 5px;
+  color: #DFB188;
 }
 
 /* 버튼 그룹 스타일 */
@@ -185,8 +186,12 @@
 }
 
 .button-group button[type="submit"] {
-  background-color: #333;
+  background-color: #00462A;
   color: white;
+}
+
+.button-group button:hover {
+  background-color: #E3CAA5;
 }
 
 .button-group button[type="button"] {
@@ -198,15 +203,29 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  
 }
 
 .welcome-image {
   width: 200px;
   height: 200px;
   margin-bottom: 30px;
+  animation: floating 3s ease-in-out infinite;
 }
 
 .welcome-text {
   font-size: 2.0rem;
   color: #5C401C;
+}
+
+@keyframes floating {
+  0% {
+    transform: translateY(0); /* Starting position */
+  }
+  50% {
+    transform: translateY(-10px); /* Move up 10px */
+  }
+  100% {
+    transform: translateY(0); /* Back to starting position */
+  }
 }
