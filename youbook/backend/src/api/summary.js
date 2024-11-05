@@ -34,6 +34,50 @@ async function getModelResponse(user_input) {
     }
 }
 
+/**
+ * @swagger
+ * tags:
+ *   name: Chatbot
+ *   description: Chatbot summary 생성 API
+ */
+
+/**
+ * @swagger
+ * /chatbot/summary:
+ *   post:
+ *     summary: 챗봇 대화 내용을 요약하여 데이터베이스에 저장
+ *     tags: [Chatbot]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID
+ *               inputCount:
+ *                 type: integer
+ *                 description: 입력 횟수
+ *     responses:
+ *       200:
+ *         description: 요약 내용이 성공적으로 데이터베이스에 저장됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 content:
+ *                   type: string
+ *                   description: 요약된 내용
+ *       500:
+ *         description: 서버 오류 또는 OpenAI 요청 오류
+ */
 // The API endpoint to handle chatbot summary
 router.post('/chatbot/summary', function (request, response) {
     console.log('55라우터 진입 시 세션 상태:', request.session);
@@ -129,6 +173,40 @@ router.post('/chatbot/summary', function (request, response) {
     });
 });
 
+/**
+ * @swagger
+ * /chatbot/summary2:
+ *   post:
+ *     summary: 챗봇 대화 내용을 요약하여 최신 input_count와 함께 데이터베이스에 저장
+ *     tags: [Chatbot]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID
+ *     responses:
+ *       200:
+ *         description: 요약 내용이 성공적으로 데이터베이스에 저장됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 content:
+ *                   type: string
+ *                   description: 요약된 내용
+ *       500:
+ *         description: 서버 오류 또는 OpenAI 요청 오류
+ */
 // The API endpoint to handle chatbot summary
 router.post('/chatbot/summary2', function (request, response) {
     console.log('라우터 진입 시 세션 상태:', request.session);

@@ -575,7 +575,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
       const payload = { image: base64Data }; // base64 데이터를 payload로 설정
 
       // 서버로 이미지 데이터 전송
-      const response = await fetch('/api/upload_good', {
+      const response = await fetch('/api/upload_base64', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

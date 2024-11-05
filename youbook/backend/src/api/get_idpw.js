@@ -2,7 +2,49 @@ const express = require('express');
 const router = express.Router();
 var db = require('../db.js');
 
-// 사용자 id 정보 가져오기
+/**
+ * @swagger
+ * tags:
+ *   name: User
+ *   description: 유저 관련 API
+ */
+
+/**
+ * @swagger
+ * /get_id:
+ *   post:
+ *     summary: 사용자 ID 정보 가져오기
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: 사용자 이름
+ *               phoneNum:
+ *                 type: string
+ *                 description: 사용자 전화번호
+ *     responses:
+ *       200:
+ *         description: 사용자 ID 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 userId:
+ *                   type: string
+ *       401:
+ *         description: 입력 값 누락
+ *       500:
+ *         description: 서버 오류
+ */
 router.post('/get_id', (req, res) => {
 	const userName = req.body.name;
 	const phoneNum = req.body.phoneNum;
@@ -18,7 +60,6 @@ router.post('/get_id', (req, res) => {
 		}
 
 		if (results.length > 0) {
-			// id만 추출하여 반환
 			res.json({ success: true, userId: results[0].id });
 		} else {
 			res.json({ success: false, message: 'User not found' });
@@ -26,7 +67,45 @@ router.post('/get_id', (req, res) => {
 	});
 });
 
-// 존재하는 사용자인지 확인
+/**
+ * @swagger
+ * /confirm_user:
+ *   post:
+ *     summary: 사용자 존재 여부 확인
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: 사용자 ID
+ *               name:
+ *                 type: string
+ *                 description: 사용자 이름
+ *               phoneNum:
+ *                 type: string
+ *                 description: 사용자 전화번호
+ *     responses:
+ *       200:
+ *         description: 사용자 정보 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 user:
+ *                   type: object
+ *       401:
+ *         description: 입력 값 누락
+ *       500:
+ *         description: 서버 오류
+ */
 router.post('/confirm_user', (req, res) => {
 	const userId = req.body.userId;
 	const userName = req.body.name;
@@ -50,7 +129,48 @@ router.post('/confirm_user', (req, res) => {
 	});
 });
 
-// 패스워드 재설정
+/**
+ * @swagger
+ * /reset_pw:
+ *   post:
+ *     summary: 사용자 비밀번호 재설정
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: 사용자 ID
+ *               name:
+ *                 type: string
+ *                 description: 사용자 이름
+ *               phoneNum:
+ *                 type: string
+ *                 description: 사용자 전화번호
+ *               newPW:
+ *                 type: string
+ *                 description: 새 비밀번호
+ *     responses:
+ *       200:
+ *         description: 비밀번호 재설정 성공 여부 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 userId:
+ *                   type: string
+ *       401:
+ *         description: 입력 값 누락
+ *       500:
+ *         description: 서버 오류
+ */
 router.post('/reset_pw', (req, res) => {
 	const userId = req.body.userId;
 	const userName = req.body.name;
@@ -60,14 +180,13 @@ router.post('/reset_pw', (req, res) => {
 	if (!userName || !phoneNum) {
 		return res.status(401).json({ success: false, message: 'noInput' });
 	}
-	db.query('UPDATE user_info SET pw = ? WHERE id = ? AND name = ? AND phoneNum = ? AND name = ?', [newPW, userId, userName, phoneNum], (error, results) => {
+	db.query('UPDATE user_info SET pw = ? WHERE id = ? AND name = ? AND phone_number = ?', [newPW, userId, userName, phoneNum], (error, results) => {
 		if (error) {
 			console.error('Database query error:', error);
 			return res.status(500).json({ success: false, message: 'Internal server error' });
 		}
-		res.json({ success: true, userId: results });
+		res.json({ success: true, userId: userId });
 	});
-	res.json({ success: true, userId: results });
 });
 
 module.exports = router;

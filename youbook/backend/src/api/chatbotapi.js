@@ -68,6 +68,51 @@ const getInputCount = (bookId, callback) => {
     });
 };
 
+/**
+ * @swagger
+ * tags:
+ *   name: Chatbot
+ *   description: Chatbot과의 대화 관련 API
+ */
+
+/**
+ * @swagger
+ * /chatbot/initiate/{book_id}:
+ *   post:
+ *     summary: 사용자 초기 입력을 기반으로 첫 질문 생성
+ *     tags: [Chatbot]
+ *     parameters:
+ *       - in: path
+ *         name: book_id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: 책 ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               initialInput:
+ *                 type: string
+ *                 description: 사용자 초기 입력
+ *     responses:
+ *       200:
+ *         description: 첫 질문 생성 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 question:
+ *                   type: string
+ *                   description: 생성된 첫 질문
+ *       500:
+ *         description: 서버 오류
+ */
+
 // 초기 사용자 입력을 받아서 첫 질문 생성하는 라우트
 router.post('/chatbot/initiate/:book_id', (req, res) => {
     const userId = req.session.nickname;
@@ -102,6 +147,47 @@ router.post('/chatbot/initiate/:book_id', (req, res) => {
         }
     });
 });
+
+/**
+ * @swagger
+ * /chatbot/ask/{book_id}:
+ *   post:
+ *     summary: 이전 질문과 사용자 입력을 바탕으로 새로운 질문 생성
+ *     tags: [Chatbot]
+ *     parameters:
+ *       - in: path
+ *         name: book_id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: 책 ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userInput:
+ *                 type: string
+ *                 description: 사용자의 입력
+ *               previousQuestion:
+ *                 type: string
+ *                 description: 이전 질문
+ *     responses:
+ *       200:
+ *         description: 새로운 질문 생성 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 question:
+ *                   type: string
+ *                   description: 생성된 새로운 질문
+ *       500:
+ *         description: 서버 오류
+ */
 
 router.post('/chatbot/ask/:book_id', (req, res) => {
     console.log('2라우터 진입 시 세션 상태:', req.session); 

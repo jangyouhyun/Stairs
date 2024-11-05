@@ -11,6 +11,49 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,  // 환경변수에 API 키를 저장하고 불러옴
 });
 
+/**
+ * @swagger
+ * tags:
+ *   name: DALL-E
+ *   description: DALL-E 이미지 생성 API
+ */
+
+/**
+ * @swagger
+ * /create-image:
+ *   post:
+ *     summary: DALL-E 모델을 이용해 이미지 생성
+ *     tags: [DALL-E]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               prompt:
+ *                 type: string
+ *                 description: 이미지 생성을 위한 텍스트 프롬프트
+ *     responses:
+ *       200:
+ *         description: 이미지가 성공적으로 생성되어 저장됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: 성공 메시지
+ *                 path:
+ *                   type: string
+ *                   description: 생성된 이미지의 파일 경로
+ *       400:
+ *         description: 요청 프롬프트가 없을 경우 발생
+ *       500:
+ *         description: 이미지 생성 중 서버 오류 발생
+ */
+
 // DALL-E image generation endpoint
 router.post('/create-image', async (req, res) => {
   try {

@@ -4,6 +4,61 @@ var db = require('../db.js');
 var moment = require('moment'); // 현재 시간 생성용
 require('dotenv').config();
 
+/**
+ * @swagger
+ * tags:
+ *   name: SemiSave
+ *   description: 자서전 임시 저장 API
+ */
+
+/**
+ * @swagger
+ * /semi-save:
+ *   post:
+ *     summary: 자서전 책 정보를 임시 저장하거나 업데이트
+ *     tags: [SemiSave]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID
+ *               bookTitle:
+ *                 type: string
+ *                 description: 책 제목 (기본값 "제목없는 자서전")
+ *               coverImg:
+ *                 type: string
+ *                 description: 커버 이미지 경로
+ *     responses:
+ *       200:
+ *         description: 기존 레코드가 성공적으로 업데이트됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *       201:
+ *         description: 새 레코드가 성공적으로 삽입됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: 서버 오류 또는 DB 오류
+ */
 router.post('/semi-save', function (req, res) {
     const book_id = req.body.bookId;
     const user_id = req.session.nickname;
@@ -66,6 +121,36 @@ router.post('/semi-save', function (req, res) {
     });
 });
 
+/**
+ * @swagger
+ * /saved-articles:
+ *   get:
+ *     summary: 사용자의 모든 임시 저장된 자서전 책 정보 가져오기
+ *     tags: [SemiSave]
+ *     responses:
+ *       200:
+ *         description: 임시 저장된 자서전 목록을 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 articles:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       title:
+ *                         type: string
+ *                         description: 자서전 제목
+ *                       savedAt:
+ *                         type: string
+ *                         description: 저장된 날짜와 시간
+ *       500:
+ *         description: 서버 오류 또는 DB 오류
+ */
 router.get('/saved-articles', function (req, res) { 
     const user_id = req.session.nickname; // 세션에서 user_id 가져오기
 

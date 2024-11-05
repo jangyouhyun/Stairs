@@ -9,6 +9,48 @@ const authCheck = require('./authCheck');
 
 router.use(express.json());
 
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: 사용자 인증 및 관리 API
+ */
+
+/**
+ * @swagger
+ * /check_id:
+ *   post:
+ *     summary: 아이디 중복 확인
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: 확인할 사용자 아이디
+ *     responses:
+ *       200:
+ *         description: 아이디 중복 확인 결과
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                 message:
+ *                   type: string
+ *                   description: 중복 확인 메시지
+ *       400:
+ *         description: 아이디 미입력
+ *       500:
+ *         description: 서버 오류
+ */
 // 아이디 중복 확인
 router.post('/check_id', function (request, response) {
     var id = request.body.id;
@@ -30,7 +72,42 @@ router.post('/check_id', function (request, response) {
     }
 });
 
-
+/**
+ * @swagger
+ * /login_process:
+ *   post:
+ *     summary: 사용자 로그인
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: 사용자 아이디
+ *               pw:
+ *                 type: string
+ *                 description: 사용자 비밀번호
+ *     responses:
+ *       200:
+ *         description: 로그인 성공 여부 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 로그인 성공 여부
+ *                 message:
+ *                   type: string
+ *                   description: 로그인 메시지
+ *       500:
+ *         description: 서버 오류
+ */
 router.post('/login_process', function (request, response) {
     var id = request.body.id;
     var pw = request.body.pw;
@@ -55,6 +132,16 @@ router.post('/login_process', function (request, response) {
     }
 });
 
+/**
+ * @swagger
+ * /logout:
+ *   get:
+ *     summary: 사용자 로그아웃
+ *     tags: [Auth]
+ *     responses:
+ *       302:
+ *         description: 홈 화면으로 리다이렉트
+ */
 // 로그아웃
 router.get('/logout', function (request, response) {
     request.session.destroy(function (err) {
@@ -77,6 +164,67 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+/**
+ * @swagger
+ * /register_process:
+ *   post:
+ *     summary: 사용자 회원가입
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: 사용자 아이디
+ *               pw:
+ *                 type: string
+ *                 description: 비밀번호
+ *               pw2:
+ *                 type: string
+ *                 description: 비밀번호 확인
+ *               username:
+ *                 type: string
+ *                 description: 사용자 이름
+ *               email:
+ *                 type: string
+ *                 description: 이메일 주소
+ *               phone_num:
+ *                 type: string
+ *                 description: 전화번호
+ *               birth:
+ *                 type: string
+ *                 format: date
+ *                 description: 생일
+ *               gender:
+ *                 type: string
+ *                 description: 성별
+ *               profileImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: 프로필 이미지 파일
+ *     responses:
+ *       200:
+ *         description: 회원가입 성공 여부 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                 message:
+ *                   type: string
+ *                   description: 성공 또는 오류 메시지
+ *       400:
+ *         description: 잘못된 요청 데이터
+ *       500:
+ *         description: 서버 오류
+ */
 // 회원가입프로세스
 router.post('/register_process', upload.single('profileImage'), function (request, response) {    
     const { id, pw, pw2, username, email, phone_num, birth, gender } = request.body;
@@ -111,6 +259,24 @@ router.post('/register_process', upload.single('profileImage'), function (reques
     }
 });
 
+/**
+ * @swagger
+ * /check_login:
+ *   get:
+ *     summary: 로그인 상태 확인
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: 로그인 상태 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 loggedIn:
+ *                   type: boolean
+ *                   description: 로그인 여부
+ */
 router.get('/check_login', (req, res) => {
   if (authCheck.isOwner(req, res)) {
     res.json({ loggedIn: true });

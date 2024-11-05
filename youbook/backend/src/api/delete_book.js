@@ -2,6 +2,50 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db.js');
 
+/**
+ * @swagger
+ * tags:
+ *   name: Book
+ *   description: 책 리스트 삭제 API
+ */
+
+/**
+ * @swagger
+ * /delete_book_list:
+ *   post:
+ *     summary: 다수의 책 ID를 받아서 해당 책들을 삭제
+ *     tags: [Book]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               book_id:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: 삭제할 책들의 ID 배열
+ *     responses:
+ *       200:
+ *         description: 선택한 책들이 성공적으로 삭제됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: 성공 메시지
+ *       400:
+ *         description: 요청 데이터가 유효하지 않음 (book_id가 배열이 아닌 경우)
+ *       404:
+ *         description: 삭제할 책을 찾을 수 없음
+ *       500:
+ *         description: 데이터베이스 오류 또는 서버 오류
+ */
+
 router.post('/delete_book_list', function (request, response) {
   const bookIds = request.body.book_id; // request.body.book_id에서 배열 추출
 

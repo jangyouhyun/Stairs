@@ -2,6 +2,57 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db.js');
 
+/**
+ * @swagger
+ * tags:
+ *   name: Content
+ *   description: 문단 삽입 API
+ */
+
+/**
+ * @swagger
+ * /insert_content:
+ *   post:
+ *     summary: 특정 책에 새 문단 삽입
+ *     tags: [Content]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID
+ *               inputCount:
+ *                 type: integer
+ *                 description: 문단의 입력 횟수
+ *               category:
+ *                 type: string
+ *                 description: 문단 카테고리
+ *               content_order:
+ *                 type: integer
+ *                 description: 삽입할 문단의 순서
+ *               content:
+ *                 type: string
+ *                 description: 새로 삽입할 문단 내용
+ *     responses:
+ *       200:
+ *         description: 문단이 성공적으로 삽입됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: 성공 메시지
+ *       400:
+ *         description: 요청 데이터가 유효하지 않음
+ *       500:
+ *         description: 데이터베이스 오류 또는 서버 오류
+ */
 // 문단 삽입 API
 router.post('/insert_content', function (req, res) {
     const book_id = req.body.bookId;

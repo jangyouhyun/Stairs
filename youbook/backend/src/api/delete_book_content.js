@@ -2,6 +2,54 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db.js');
 
+/**
+ * @swagger
+ * tags:
+ *   name: Content
+ *   description: 컨텐츠 삭제 및 업데이트 API
+ */
+
+/**
+ * @swagger
+ * /delete_content:
+ *   post:
+ *     summary: 문단 삭제 또는 특정 필드 NULL로 업데이트
+ *     tags: [Content]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID
+ *               inputCount:
+ *                 type: integer
+ *                 description: 문단의 입력 횟수
+ *               content_order:
+ *                 type: integer
+ *                 description: 삭제 또는 업데이트할 문단 순서
+ *               whatToChange:
+ *                 type: integer
+ *                 description: 변경 사항 (1 = big_title NULL, 2 = small_title NULL, 3 = 문단 삭제)
+ *     responses:
+ *       200:
+ *         description: 문단 삭제 또는 업데이트 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: 성공 메시지
+ *       400:
+ *         description: 요청 데이터가 유효하지 않음
+ *       500:
+ *         description: 데이터베이스 오류 또는 서버 오류
+ */
 // 문단 삭제 또는 업데이트 API
 router.post('/delete_content', function (req, res) {
     const book_id = req.body.bookId;

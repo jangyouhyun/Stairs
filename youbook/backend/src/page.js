@@ -34,6 +34,11 @@ const findIDPWRouter = require('./api/get_idpw.js');
 var addRouter = require('./api/add_content.js');
 
 const app = express();
+const cors = require('cors');
+app.use(cors());
+
+const { swaggerUi, specs } = require("./swagger/swagger.js")
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs))
 
 // 요청 본문 해석
 app.use(bodyParser.json());
@@ -110,6 +115,7 @@ app.use('/api', addRouter);
 app.use('/api', semisaveRouter);
 app.use('/api', recommendRouter);
 app.use('/api', findIDPWRouter);
+
 
 
 app.use((req, res, next) => {
