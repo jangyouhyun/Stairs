@@ -63,18 +63,52 @@ function HomePage() {
     setIsFindIDPopupVisible(false);
     setIsFindPWPopupVisible(false);
   };
-
-  const handleFindIDSubmit = (e) => {
+  const handleFindIDSubmit = async (e) => {
     e.preventDefault();
-    // Logic for finding ID based on name and phone
-    console.log(`Finding ID for Name: ${name}, Phone: ${phone}`);
+    try {
+      const response = await fetch('/auth/find-id', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, phone }),
+      });
+      
+      //팝업창에 찾은 아이디 뜨게 함 -> 데베 연결 필요
+      const data = await response.json();
+      if (data.success) {
+        alert(`사용자님의 아이디는 ${data.id} 입니다.`);
+      } else {
+        alert('해당 정보로 아이디를 찾을 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('Error finding ID:', error);
+      alert('아이디 찾기 중 오류가 발생했습니다.');
+    }
     setIsFindIDPopupVisible(false);
   };
-
-  const handleFindPWSubmit = (e) => {
+  
+  const handleFindPWSubmit = async (e) => {
     e.preventDefault();
-    // Logic for finding password based on ID, name, and phone
-    console.log(`Finding Password for ID: ${idForPW}, Name: ${name}, Phone: ${phone}`);
+    try {
+      const response = await fetch('/auth/find-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: idForPW, name, phone }),
+      });
+      //팝업창에 찾은 비번 뜨게 함 -> 데베 연결 필요
+      const data = await response.json();
+      if (data.success) {
+        alert(`사용자님의 아이디는 ${data.pw} 입니다.`);
+      } else {
+        alert('해당 정보로 비밀번호를 찾을 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('Error finding password:', error);
+      alert('비밀번호 찾기 중 오류가 발생했습니다.');
+    }
     setIsFindPWPopupVisible(false);
   };
 
@@ -127,8 +161,8 @@ function HomePage() {
       {/* Popup for finding ID */}
       {isFindIDPopupVisible && (
           <div className="findpopup">
+          <form onSubmit={handleFindIDSubmit}>
             <h2>아이디 찾기</h2>
-            <form onSubmit={handleFindIDSubmit}>
               <div className="form-group">
                 <label>이름</label>
                 <input

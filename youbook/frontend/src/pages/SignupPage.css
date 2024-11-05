@@ -35,14 +35,13 @@
 }
 
 .input-field {
-  width: 400px;
+  width: 500px;
   padding: 10px;
   margin-top: 10px;
   margin-bottom: 10px;
   border: 1px solid #AD8B73;
   color : #AD8B73;
   border-radius: 5px;
-  font-family: 'MinSans-Regular', sans-serif;
 }
 
 .input-group {
@@ -50,7 +49,8 @@
   width: 420px;
   padding: 0px;
   align-items: center;
-  justify-content: space-between; /* 같은 가로선상에 두기 위해 추가 */
+  align-content: center;
+  justify-content: space-between;
 }
 
 .input-group .input-field {
@@ -59,19 +59,17 @@
 
 .input-group .check-button {
   flex: 1;
-  margin-top: 10px; /* 중복확인 버튼을 더 위로 올림 */
 }
 
 .check-button {
-  width: 100%;
-  padding: 10px;
+  width: 50%;
+  padding: 13px;
   background-color: #914F1E;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   text-align: center;
-  margin-top: 10px;
 }
 
 .check-button:hover {
