@@ -103,17 +103,17 @@ margin-bottom: 30px;
 
 /* Page and content styling */
 .page, .hard {
-width: 100%; /* Full width for the single visible page */
-height: 100%;
-background-color: white;
-z-index: 1;
-box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 20px;
-padding : 5px;
-}
+  width: 100%; /* Full width for the single visible page */
+  height: 90%;
+  background-color: white;
+  z-index: 1;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding : 5px;
+  }
 
 .hard {
 background-color: #5C401C;
@@ -129,7 +129,10 @@ object-fit: cover; /* 이미지가 책 커버에 맞게 크기 조정 */
 
 /* Page content */
 .page-content {
-  box-sizing: border-box; 
+  box-sizing: border-box;
+  display : flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .page-content h1{
@@ -144,10 +147,10 @@ margin-bottom: 10px;
 }
 
 .word{
-display : flex;
-flex-direction: column;
-align-items: center;
-}
+  display : flex;
+  flex-direction: column;
+  align-items: center;
+  }
 
 .page-content p {
 width : 360px;
@@ -165,8 +168,12 @@ text-align : justify;
 }
 
 .add-icon:hover {
-background-color: rgb(235, 235, 235); /* Hover 시 진한 회색 */
-width : 360px;
+  background-color: rgb(235, 235, 235); /* Hover 시 진한 회색 */
+  width : 360px;
+  display : flex;
+  flex-direction: column;
+  align-items: center;
+
 }
 /* Footer Styling */
 .book-footer {

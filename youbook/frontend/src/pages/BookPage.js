@@ -125,7 +125,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
   useEffect(() => {
     if (contentArray.length > 0) {
       console.log(bookContent);
-      //convertBookContentToContent(); // bookContent 기반으로 content 생성
+      setTotalPages(contentArray.length);
     }
   }, [contentArray]);
 
@@ -667,7 +667,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
             },
           },
         });
-      }, 100); // DOM이 완전히 렌더링된 후 실행되도록 타이머 사용
+      }, 100);
     }
 
     // 페이지에 대한 참조 유지 및 동적 추가

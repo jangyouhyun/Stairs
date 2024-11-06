@@ -71,16 +71,12 @@
 }
 
 .message {
-  display: inline-block;
+  display: block;
   margin: 10px 0;
   padding: 10px;
   border-radius: 5px;
   font-size: 14px;
   max-width: 80%;
-  word-break: break-word;
-  white-space: pre-wrap;
-  flex-grow: 1;
-  position: relative;
 }
 
 .message.bot {
@@ -107,11 +103,8 @@
   gap: 8px; /* 버튼 사이의 간격 조절 */
   margin-top: 12px; /* 버튼과 메시지 사이의 간격 */
   align-items : center;
-  position: absolute;
-  bottom: -60px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 20px);
+  position: relative;
+  width: 100%;
 }
 
 .conversation-end-buttons button {

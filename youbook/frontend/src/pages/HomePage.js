@@ -84,10 +84,10 @@ function HomePage() {
       if (data.success) {
         setUserId(data.userId); // 서버에서 가져온 ID를 상태에 저장
         console.log(`User ID: ${data.userId}`);
-        alert(`User ID: ${data.userId}`); // ID 직접 표시
+        alert(`사용자님의 아이디는 ${data.id} 입니다.`);
       } else {
         console.log(`Error: ${data.message}`);
-        alert(`Error: ${data.message}`);
+        aalert('해당 정보로 아이디를 찾을 수 없습니다.');
       }
     } catch (error) {
       console.error('Error fetching user ID:', error);
@@ -111,22 +111,19 @@ function HomePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId: idForPW, name, phoneNum: phone }),
+        body: JSON.stringify({ id: idForPW, name, phone }),
       });
+      //팝업창에 찾은 비번 뜨게 함 -> 데베 연결 필요
       const data = await response.json();
-
       if (data.success) {
-        console.log("User confirmed:", data.user);
-        alert("굿 ~");
-        // 사용자 존재 확인 후 추가 로직
+        alert(`사용자님의 아이디는 ${data.pw} 입니다.`);
       } else {
-        console.log("User not found:", data.message);
-        alert("해당하는 사용자가 없습니다");
+        alert('해당 정보로 비밀번호를 찾을 수 없습니다.');
       }
     } catch (error) {
-      console.error('Error confirming user:', error);
+      console.error('Error finding password:', error);
+      alert('비밀번호 찾기 중 오류가 발생했습니다.');
     }
-
     setIsFindPWPopupVisible(false);
   };
 
@@ -180,8 +177,8 @@ function HomePage() {
         {/* Popup for finding ID */}
         {isFindIDPopupVisible && (
           <div className="findpopup">
+          <form onSubmit={handleFindIDSubmit}>
             <h2>아이디 찾기</h2>
-            <form onSubmit={handleFindIDSubmit}>
               <div className="form-group">
                 <label>이름</label>
                 <input
