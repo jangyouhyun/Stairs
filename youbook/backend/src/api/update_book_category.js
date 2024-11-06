@@ -2,6 +2,56 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db.js');
 
+/**
+ * @swagger
+ * tags:
+ *   name: Content
+ *   description: 문단의 카테고리를 업데이트하는 API
+ */
+
+/**
+ * @swagger
+ * /update_category:
+ *   post:
+ *     summary: 문단의 카테고리를 업데이트
+ *     tags: [Content]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID
+ *               inputCount:
+ *                 type: integer
+ *                 description: 입력 횟수
+ *               content_order:
+ *                 type: integer
+ *                 description: 업데이트할 레코드의 content_order
+ *               category:
+ *                 type: string
+ *                 description: 새롭게 업데이트할 카테고리 내용
+ *     responses:
+ *       200:
+ *         description: 카테고리가 성공적으로 업데이트됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: 해당하는 레코드가 없음
+ *       400:
+ *         description: 요청 데이터가 잘못됨
+ *       500:
+ *         description: 서버 오류
+ */
+
 // 문단 내부 내용 변경 API 
 router.post('/update_category', function (req, res) {
     const book_id = req.body.bookId;

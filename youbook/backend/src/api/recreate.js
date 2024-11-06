@@ -30,6 +30,53 @@ async function recreateContentAsSingleParagraph(content) {
     return response.choices[0].message.content.trim();
 }
 
+/**
+ * @swagger
+ * tags:
+ *   name: Content
+ *   description: 콘텐츠 재구성 API
+ */
+
+/**
+ * @swagger
+ * /recreate:
+ *   post:
+ *     summary: 문단 내용을 openAI api 를 이용해 재구성하고 DB 업데이트
+ *     tags: [Content]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: 재구성할 원본 콘텐츠
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID
+ *               content_order:
+ *                 type: integer
+ *                 description: 콘텐츠 순서
+ *     responses:
+ *       200:
+ *         description: 콘텐츠가 성공적으로 재구성되고 업데이트됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: 지정된 조건에 맞는 콘텐츠를 찾을 수 없음
+ *       500:
+ *         description: 서버 오류 또는 콘텐츠 재구성 중 오류
+ */
+
 // 라우터: /recreate
 router.post('/recreate', async function (req, res) {
     var content = req.body.content;

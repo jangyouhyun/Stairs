@@ -94,6 +94,54 @@ function determineInputCount(userId, bookId, callback) {
     });
 }
 
+/**
+ * @swagger
+ * tags:
+ *   name: Autobiography_ADD
+ *   description: 자서전 추가 작성 관련 API
+ */
+
+/**
+ * @swagger
+ * /write_process/chatbot2:
+ *   post:
+ *     summary: 내용 추가시 (자서전 수정, 임시 저장 자서전 작성시), 챗봇으로 추가할 때 사용자 입력을 임시로 저장함
+ *     tags: [Autobiography_ADD]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: 입력할 내용
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID (선택 사항, 기본값은 새 UUID)
+ *               category:
+ *                 type: string
+ *                 description: 카테고리
+ *     responses:
+ *       200:
+ *         description: 성공적으로 데이터가 저장됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 bookId:
+ *                   type: string
+ *                 inputCount:
+ *                   type: integer
+ *       400:
+ *         description: 입력된 내용이 없는 경우
+ *       500:
+ *         description: DB 오류 또는 서버 오류
+ */
 router.post('/write_process/chatbot2', function (request, response) {
     var content = request.body.content;
     var date = getFormatDate(new Date());
@@ -143,7 +191,53 @@ router.post('/write_process/chatbot2', function (request, response) {
     });
 });
 
-
+/**
+ * @swagger
+ * /write_process/book_reading2:
+ *   post:
+ *     summary: 내용 추가시 (자서전 수정, 임시 저장 자서전 작성시), 사용자 입력을 저장하고, 사용자 입력에 대한 AI 모델 응답을 반환받아 저장함
+ *     tags: [Autobiography_ADD]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: 사용자 입력 내용
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID (선택 사항, 기본값은 새 UUID)
+ *               category:
+ *                 type: string
+ *                 description: 카테고리
+ *               isChatbot:
+ *                 type: boolean
+ *                 description: Chatbot으로부터 입력 여부
+ *               isChatbotPurified:
+ *                 type: boolean
+ *                 description: Chatbot에서 정제된 데이터 여부
+ *     responses:
+ *       200:
+ *         description: 입력 및 응답이 성공적으로 저장됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 bookId:
+ *                   type: string
+ *                 inputCount:
+ *                   type: integer
+ *       400:
+ *         description: 입력된 내용이 없는 경우
+ *       500:
+ *         description: DB 오류 또는 서버 오류
+ */
 router.post('/write_process/book_reading2', function (req, res) {
     console.log('1라우터 진입 시 세션 상태:', req.session); 
     const content = req.body.content;

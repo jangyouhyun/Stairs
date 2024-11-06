@@ -3,6 +3,56 @@ const router = express.Router();
 var db = require('../db.js'); 
 const path = require('path');
 
+/**
+ * @swagger
+ * tags:
+ *   name: User
+ *   description: 사용자 정보 API
+ */
+
+/**
+ * @swagger
+ * /get_user_info:
+ *   get:
+ *     summary: 사용자 정보 가져오기
+ *     tags: [User]
+ *     responses:
+ *       200:
+ *         description: 사용자의 정보 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 id:
+ *                   type: string
+ *                   description: 사용자 ID
+ *                 nickname:
+ *                   type: string
+ *                   description: 사용자 이름
+ *                 email:
+ *                   type: string
+ *                   description: 사용자 이메일
+ *                 phone_number:
+ *                   type: string
+ *                   description: 사용자 전화번호
+ *                 birth:
+ *                   type: string
+ *                   format: date
+ *                   description: 사용자 생년월일
+ *                 gender:
+ *                   type: string
+ *                   description: 사용자 성별
+ *                 imagePath:
+ *                   type: string
+ *                   description: 사용자 이미지 경로
+ *       404:
+ *         description: 사용자를 찾을 수 없음
+ *       500:
+ *         description: 서버 오류
+ */
 // 사용자 정보 가져오기
 router.get('/get_user_info', (req, res) => {
 	const userId = req.session.nickname;
@@ -33,6 +83,44 @@ router.get('/get_user_info', (req, res) => {
 	);
   });
 
+
+  /**
+ * @swagger
+ * /get-initial-input/{bookId}/{userId}:
+ *   get:
+ *     summary: 특정 책과 사용자에 대한 초기 입력 가져오기
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: bookId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 책 ID
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 사용자 ID
+ *     responses:
+ *       200:
+ *         description: 초기 입력 내용을 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 content:
+ *                   type: string
+ *                   description: 초기 입력 내용
+ *       404:
+ *         description: 초기 입력을 찾을 수 없음
+ *       500:
+ *         description: 서버 오류
+ */
   router.get('/get-initial-input/:bookId/:userId', function (req, res) {
     const { bookId, userId } = req.params;
 

@@ -188,13 +188,11 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
   const handleImageUpload = async (event) => {
     const formData = new FormData();
     const file = event.target.files[0];
-    formData.append('image', file); // Attach the uploaded file
-
-    // Additional data settings
+    formData.append('image', file);
     formData.append('bookId', bookId);
     formData.append('inputCount', 1);
     formData.append('content_order', selectedIndex);
-    formData.append('whatData', 1); // Assuming 1 means it's an image upload
+    formData.append('whatData', 1); 
 
     try {
       const response = await fetch('/api/update_image', {
@@ -206,8 +204,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
       if (result.success) {
         alert('이미지가 성공적으로 업로드되었습니다.');
 
-        // Fetch the updated book content
-        await fetchBookContent(); // Call fetchBookContent to reload contentArray
+        await fetchBookContent();
       } else {
         alert('이미지 업로드에 실패했습니다.');
       }
@@ -575,7 +572,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
       const payload = { image: base64Data }; // base64 데이터를 payload로 설정
 
       // 서버로 이미지 데이터 전송
-      const response = await fetch('/api/upload_good', {
+      const response = await fetch('/api/upload_base64', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

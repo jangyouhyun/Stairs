@@ -30,6 +30,60 @@ async function getModelResponse(userInput) {
     return response.choices[0].message.content.trim();
 }
 
+/**
+ * @swagger
+ * tags:
+ *   name: Title
+ *   description: 자서전 챕터 소제목 추천 API
+ */
+
+/**
+ * @swagger
+ * /recommend-title:
+ *   post:
+ *     summary: OpenAI 모델을 이용하여 자서전 챕터의 소제목 추천
+ *     tags: [Title]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: 챕터 내용
+ *               index:
+ *                 type: integer
+ *                 description: 챕터의 순서
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID
+ *               title:
+ *                 type: boolean
+ *                 description: true일 경우 big_title, false일 경우 small_title 업데이트
+ *     responses:
+ *       200:
+ *         description: 소제목이 성공적으로 업데이트됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 recommendedTitle:
+ *                   type: string
+ *                   description: 추천된 소제목
+ *       400:
+ *         description: 필수 데이터가 제공되지 않음
+ *       404:
+ *         description: 해당 book_id와 index에 맞는 레코드가 없음
+ *       500:
+ *         description: 서버 오류 또는 모델 응답 생성 중 오류
+ */
 router.post('/recommend-title', async function (request, response) { 
     const content = request.body.content;
     const index = request.body.index;

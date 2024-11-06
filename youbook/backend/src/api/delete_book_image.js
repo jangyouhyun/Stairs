@@ -2,7 +2,52 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db.js');
 
-// 문단 삭제 API
+/**
+ * @swagger
+ * tags:
+ *   name: Image
+ *   description: 이미지 삭제 API
+ */
+
+/**
+ * @swagger
+ * /delete_image:
+ *   post:
+ *     summary: 특정 문단의 이미지 경로를 삭제 (NULL로 업데이트)
+ *     tags: [Image]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID
+ *               inputCount:
+ *                 type: integer
+ *                 description: 문단의 입력 횟수
+ *               content_order:
+ *                 type: integer
+ *                 description: 삭제할 이미지의 문단 순서
+ *     responses:
+ *       200:
+ *         description: 이미지 경로가 성공적으로 삭제됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: 성공 메시지
+ *       400:
+ *         description: 요청 데이터가 유효하지 않음
+ *       500:
+ *         description: 데이터베이스 오류 또는 서버 오류
+ */
+// 이미지 삭제 API
 router.post('/delete_image', function (req, res) {
     const book_id = req.body.bookId;
     const user_id = req.session.nickname;  // 세션에서 사용자 아이디 가져옴

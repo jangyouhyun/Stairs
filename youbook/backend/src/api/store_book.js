@@ -4,6 +4,57 @@ var db = require('../db.js');
 var moment = require('moment'); // 현재 시간 생성용
 require('dotenv').config();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Book
+ *   description: 책 데이터를 저장하거나 업데이트하는 API
+ */
+
+/**
+ * @swagger
+ * /store:
+ *   post:
+ *     summary: 책의 데이터를 `book_list` 및 `real_book` 테이블에 저장하거나 혹은 이미 저장된 책에 대해서 업데이트
+ *     tags: [Book]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID
+ *               inputCount:
+ *                 type: integer
+ *                 description: 입력 횟수
+ *               category:
+ *                 type: string
+ *                 description: 카테고리
+ *               title:
+ *                 type: string
+ *                 description: 책 제목 (기본값: 제목없는 자서전)
+ *               image_path:
+ *                 type: string
+ *                 description: 커버 이미지 경로
+ *     responses:
+ *       200:
+ *         description: 책 데이터가 성공적으로 업데이트됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: 성공 메시지
+ *       404:
+ *         description: 지정된 `final_input` 데이터가 없음
+ *       500:
+ *         description: 서버 오류 또는 DB 오류
+ */
 // final_input => book-list / real-book 에 저장하거나 업데이트
 router.post('/store', function (req, res) {
     const book_id = req.body.bookId;

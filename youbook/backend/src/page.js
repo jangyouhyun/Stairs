@@ -18,7 +18,6 @@ const categoryRouter = require('./api/category.js');
 const summaryRouter = require('./api/summary.js');
 const printRouter = require('./api/print_book.js');
 const updateContentRouter = require('./api/update_book_content.js');
-const insertContentRouter = require('./api/insert_book_content.js');
 const deleteContentRouter = require('./api/delete_book_content.js');
 const updateCategoryRouter = require('./api/update_book_category.js');
 const updateOrderRouter = require('./api/update_book_order.js');
@@ -34,6 +33,11 @@ const findIDPWRouter = require('./api/get_idpw.js');
 var addRouter = require('./api/add_content.js');
 
 const app = express();
+const cors = require('cors');
+app.use(cors());
+
+const { swaggerUi, specs } = require("./swagger/swagger.js")
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs))
 
 // 요청 본문 해석
 app.use(bodyParser.json());
@@ -100,7 +104,6 @@ app.use('/api', deleteContentRouter);
 app.use('/api', updateCategoryRouter);
 app.use('/api', updateOrderRouter);
 app.use('/api', updateTitleRouter);
-app.use('/api', insertContentRouter);
 app.use('/api', updateImageRouter);
 app.use('/api', storeRouter);
 app.use('/api', dalleRouter);
@@ -110,6 +113,7 @@ app.use('/api', addRouter);
 app.use('/api', semisaveRouter);
 app.use('/api', recommendRouter);
 app.use('/api', findIDPWRouter);
+
 
 
 app.use((req, res, next) => {

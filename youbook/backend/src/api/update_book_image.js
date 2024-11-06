@@ -20,6 +20,79 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+/**
+ * @swagger
+ * tags:
+ *   name: Image
+ *   description: 문단의 이미지 업데이트 API
+ */
+
+/**
+ * @swagger
+ * /update_image:
+ *   post:
+ *     summary: 문단의 이미지를 업데이트
+ *     tags: [Image]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bookId:
+ *                 type: string
+ *                 description: 책 ID
+ *               inputCount:
+ *                 type: integer
+ *                 description: 입력 횟수
+ *               content_order:
+ *                 type: integer
+ *                 description: 업데이트할 레코드의 content_order
+ *               whatData:
+ *                 type: integer
+ *                 description: 데이터 타입 (1 = 업로드된 파일, 2 = AI 생성 이미지 경로, 3 = URL 리다이렉트)
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: 업로드할 이미지 파일 (whatData가 1일 때 필요)
+ *               image_path:
+ *                 type: string
+ *                 description: AI로 생성된 이미지 경로 (whatData가 2일 때 필요)
+ *     responses:
+ *       200:
+ *         description: 이미지가 성공적으로 업데이트됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 성공 여부
+ *                 image_path:
+ *                   type: string
+ *                   description: 업데이트된 이미지 경로
+ *       302:
+ *         description: 업데이트된 이미지 경로로 리다이렉트됨 (whatData가 3일 때)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 성공 여부
+ *                 image_path:
+ *                   type: string
+ *                   description: 업데이트된 이미지 경로
+ *       400:
+ *         description: 요청 데이터가 잘못됨
+ *       404:
+ *         description: 해당하는 레코드가 없음
+ *       500:
+ *         description: 서버 오류
+ */
 // 문단 내부 이미지 업데이트 API
 router.post('/update_image', upload.single('image'), function (req, res) {
     const book_id = req.body.bookId;
@@ -75,7 +148,9 @@ router.post('/update_image', upload.single('image'), function (req, res) {
     `;
 
     // 데이터베이스에서 업데이트 수행
-    db.query(updateImageQuery, [image, user_id, book_id, input_count, content_order], function (err, results) {
+    db.query(updateImageQuery, [image, user_id, book_id, input_count + 1, content_order], function (err, results) {
+
+        console.log("image: ", image, "\n user_id: ", user_id, "\n book_id: ", book_id, "\n ic: ", input_count, "\n co: ", content_order)
         if (err) {
             console.error('Failed to update image:', err);
             return res.status(500).json({ error: 'Failed to update image' });

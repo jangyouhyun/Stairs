@@ -2,6 +2,41 @@ const express = require('express');
 const router = express.Router();
 var db = require('../db.js');
 
+/**
+ * @swagger
+ * tags:
+ *   name: Category
+ *   description: 카테고리 관리 API
+ */
+
+/**
+ * @swagger
+ * /get_category:
+ *   get:
+ *     summary: 사용자의 카테고리 목록 가져오기
+ *     tags: [Category]
+ *     responses:
+ *       200:
+ *         description: 사용자의 카테고리 목록을 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 categorys:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *       401:
+ *         description: 로그인하지 않은 사용자
+ *       500:
+ *         description: 서버 오류
+ */
 // 사용자 책 카테고리 가져오기
 router.get('/get_category', (req, res) => {
   const userId = req.session.nickname;
@@ -17,6 +52,44 @@ router.get('/get_category', (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /update_category:
+ *   post:
+ *     summary: 기존 카테고리 이름 업데이트
+ *     tags: [Category]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: 현재 카테고리 이름
+ *               new_name:
+ *                 type: string
+ *                 description: 변경할 새로운 카테고리 이름
+ *     responses:
+ *       200:
+ *         description: 카테고리가 성공적으로 업데이트됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: 잘못된 요청
+ *       401:
+ *         description: 로그인하지 않은 사용자
+ *       500:
+ *         description: 서버 오류
+ */
 // 카테고리 이름 업데이트
 router.post('/update_category', (req, res) => {
   const { name, new_name } = req.body;
@@ -41,6 +114,42 @@ router.post('/update_category', (req, res) => {
   });
 });
 
+
+/**
+ * @swagger
+ * /delete_category:
+ *   post:
+ *     summary: 사용자의 카테고리 삭제
+ *     tags: [Category]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: 삭제할 카테고리 이름
+ *     responses:
+ *       200:
+ *         description: 카테고리가 성공적으로 삭제됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: 잘못된 요청
+ *       401:
+ *         description: 로그인하지 않은 사용자
+ *       500:
+ *         description: 서버 오류
+ */
 // 카테고리 삭제
 router.post('/delete_category', (req, res) => {
   const { name } = req.body;
@@ -61,6 +170,41 @@ router.post('/delete_category', (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /add_category:
+ *   post:
+ *     summary: 새로운 카테고리 추가
+ *     tags: [Category]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: 추가할 카테고리 이름
+ *     responses:
+ *       200:
+ *         description: 카테고리가 성공적으로 추가됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: 잘못된 요청
+ *       401:
+ *         description: 로그인하지 않은 사용자
+ *       500:
+ *         description: 서버 오류
+ */
 router.post('/add_category', (req, res) => {
 	const { name } = req.body;
 	const userId = req.session.nickname;

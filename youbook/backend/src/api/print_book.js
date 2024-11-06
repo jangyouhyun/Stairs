@@ -2,6 +2,80 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db.js');
 
+/**
+ * @swagger
+ * tags:
+ *   name: Print
+ *   description: 책의 컨텐츠 출력 및 정리 API
+ */
+
+/**
+ * @swagger
+ * /print:
+ *   post:
+ *     summary: 책의 컨텐츠를 조회하고, `final_input` 테이블에 데이터를 정리하여 저장
+ *     tags: [Print]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               book_id:
+ *                 type: string
+ *                 description: 책 ID
+ *               input_count:
+ *                 type: integer
+ *                 description: 입력 횟수 (기본값 1)
+ *               content_order:
+ *                 type: integer
+ *                 description: 컨텐츠 순서 (기본값 0)
+ *               category:
+ *                 type: string
+ *                 description: 카테고리
+ *     responses:
+ *       200:
+ *         description: 컨텐츠가 성공적으로 조회되고 정리됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: 성공 메시지
+ *                 bookId:
+ *                   type: string
+ *                   description: 책 ID
+ *                 userId:
+ *                   type: string
+ *                   description: 사용자 ID
+ *                 contentCount:
+ *                   type: integer
+ *                   description: 컨텐츠 수
+ *                 contentArray:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       title:
+ *                         type: string
+ *                         description: 큰 제목 (존재하지 않으면 null)
+ *                       subtitle:
+ *                         type: string
+ *                         description: 소제목 (존재하지 않으면 null)
+ *                       imageUrl:
+ *                         type: string
+ *                         description: 이미지 경로 (존재하지 않으면 null)
+ *                       paragraph:
+ *                         type: string
+ *                         description: 문단 내용
+ *       404:
+ *         description: 지정된 조건에 맞는 컨텐츠를 찾을 수 없음
+ *       500:
+ *         description: 서버 오류
+ */
 // POST /api/print
 router.post('/print', function (req, res) {
     console.log("Request Body:", req.body);

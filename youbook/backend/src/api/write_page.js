@@ -91,6 +91,51 @@ function getFormatDate(date) {
     return year + '-' + month + '-' + day;
 }
 
+/**
+ * @swagger
+ * tags:
+ *   name: Autobiography
+ *   description: 자서전 작성 및 내용 관리 API
+ */
+
+/**
+ * @swagger
+ * /write_process/chatbot:
+ *   post:
+ *     summary: 초기 입력시, 챗봇으로 추가할 때 사용자 입력을 임시로 저장함
+ *     tags: [Autobiography]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: 작성할 자서전 내용
+ *               category:
+ *                 type: string
+ *                 description: 자서전 카테고리
+ *     responses:
+ *       200:
+ *         description: 자서전이 성공적으로 저장됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   description: 응답 상태 코드
+ *                 bookId:
+ *                   type: string
+ *                   description: 저장된 자서전의 고유 ID
+ *       400:
+ *         description: 잘못된 요청 데이터
+ *       500:
+ *         description: 서버 오류
+ */
 router.post('/write_process/chatbot', function (request, response) {
     var content = request.body.content;
     var date = getFormatDate(new Date());
@@ -148,6 +193,54 @@ router.post('/write_process/chatbot', function (request, response) {
     });
 });
 
+
+/**
+ * @swagger
+ * /write_process/book_reading:
+ *   post:
+ *     summary: 초기 입력시, 사용자 입력을 저장하고, 사용자 입력에 대한 AI 모델 응답을 반환받아 저장함
+ *     tags: [Autobiography]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: 사용자가 입력한 자서전 내용
+ *               bookId:
+ *                 type: string
+ *                 description: 자서전의 ID, 없을 경우 새로 생성됨
+ *               category:
+ *                 type: string
+ *                 description: 자서전의 카테고리
+ *               isChatbot:
+ *                 type: boolean
+ *                 description: 챗봇이 생성한 응답 여부
+ *     responses:
+ *       200:
+ *         description: 자서전 내용이 성공적으로 저장됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   description: 응답 상태 코드
+ *                 bookId:
+ *                   type: string
+ *                   description: 저장된 자서전의 ID
+ *                 inputCount:
+ *                   type: integer
+ *                   description: 저장된 내용의 input count
+ *       400:
+ *         description: 잘못된 요청 데이터
+ *       500:
+ *         description: 서버 오류
+ */
 router.post('/write_process/book_reading', function (req, res) {
     console.log('1라우터 진입 시 세션 상태:', req.session); 
     const content = req.body.content;

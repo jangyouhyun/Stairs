@@ -21,6 +21,49 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+/**
+ * @swagger
+ * tags:
+ *   name: Image
+ *   description: 이미지 업로드 관련 API
+ */
+
+/**
+ * @swagger
+ * /upload:
+ *   post:
+ *     summary: 이미지 파일을 업로드하고 경로를 DB에 저장
+ *     tags: [Image]
+ *     consumes:
+ *       - multipart/form-data
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: 업로드할 이미지 파일
+ *     responses:
+ *       200:
+ *         description: 이미지가 성공적으로 업로드되고 경로가 DB에 저장됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 성공 여부
+ *                 path:
+ *                   type: string
+ *                   description: 저장된 이미지의 경로
+ *       500:
+ *         description: DB 저장 오류 또는 서버 오류
+ */
 // 이미지 파일의 경로를 DB에 저장
 router.post('/upload', upload.single('image'), (req, res) => {
     const imagePath = `/uploads//${req.file.filename}`;
@@ -33,9 +76,41 @@ router.post('/upload', upload.single('image'), (req, res) => {
     });
 });
 
-
+/**
+ * @swagger
+ * /upload_base64:
+ *   post:
+ *     summary: base64 인코딩된 이미지 데이터를 업로드하고 저장
+ *     tags: [Image]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 description: base64로 인코딩된 이미지 데이터
+ *     responses:
+ *       200:
+ *         description: base64 이미지가 성공적으로 저장됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 성공 여부
+ *                 path:
+ *                   type: string
+ *                   description: 저장된 이미지의 경로
+ *       500:
+ *         description: 파일 저장 오류 또는 서버 오류
+ */
 // base64로 받은 이미지를 저장
-router.post('/upload_good', (req, res) => {
+router.post('/upload_base64', (req, res) => {
     const { image } = req.body; // base64 인코딩된 이미지 데이터
     const buffer = Buffer.from(image, 'base64'); // base64 데이터를 버퍼로 변환
     const filename = `${uuidv4()}.png`; // 파일명 설정
