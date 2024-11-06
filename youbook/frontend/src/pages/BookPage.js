@@ -376,7 +376,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
       y: rect.top + window.scrollY   // 요소의 y 위치 (스크롤 위치 보정)
     });
     setSubmenuVisible3(true); // Show the submenu
-    setTitleClickStatus(true);
+    //setTitleClickStatus(true);
   };
   
   const handleSubtitleRightClick = (event) => {
@@ -387,7 +387,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
       y: rect.top + window.scrollY   // 요소의 y 위치 (스크롤 위치 보정)
     });
     setSubmenuVisible4(true); // Show the submenu
-    setSubTitleClickStatus(true);
+    //setSubTitleClickStatus(true);
   };
   
  // Function to handle right-click on the Image
@@ -456,8 +456,30 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
 
   //데베 백 연결 필요!
   // Handle "임시 저장" click event to show a popup
-  const handleSemiSaveClick = () => {
-    alert('임시 저장되었습니다'); // Show popup when "임시 저장" is clicked
+  const handleSemiSaveClick = async () => {
+    try {
+      // API 호출을 통해 수정된 문단 데이터를 서버에 저장
+      const response = await fetch('/api/semi-save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookId: bookId,
+          bookTitle:bookName,
+          coverImg:savedCoverImageUrl,
+        }),
+      });
+
+      if (response.ok) {
+        alert('임시 저장되었습니다');
+        navigate('/my-autobiography');
+      } else {
+        console.error('Failed to save content');
+      }
+    } catch (error) {
+      console.error('Error saving content:', error);
+    }
   };
 
   const handleMenuClick = () => {
@@ -736,6 +758,60 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
     };
   }, []);
 
+  const handleRecommendSubClick = async () => {
+    try {
+      const response = await fetch('/api/recommend-title', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content:contentArray[selectedIndex - 1].paragraph,
+          bookId:bookId,
+          index:selectedIndex,
+          title:false
+        }),
+      });
+      if (response.ok) {
+        setSubmenuVisible3(false); // Close submenu
+        setSubmenuVisible4(false); // Close submenu
+        fetchBookContent();
+        alert('AI 추천에 성공했습니다');
+      } else {
+        alert('AI 추천에 실패했습니다.');
+      }
+    } catch (error) {
+      alert('오류가 발생했습니다.');
+    }
+  }
+
+  const handleRecommendBigClick = async () => {
+    try {
+      const response = await fetch('/api/recommend-title', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content:contentArray[selectedIndex - 1].paragraph,
+          bookId:bookId,
+          index:selectedIndex,
+          title:true
+        }),
+      });
+      if (response.ok) {
+        setSubmenuVisible3(false); // Close submenu
+        setSubmenuVisible4(false); // Close submenu
+        fetchBookContent();
+        alert('AI 추천에 성공했습니다');
+      } else {
+        alert('AI 추천에 실패했습니다.');
+      }
+    } catch (error) {
+      alert('오류가 발생했습니다.');
+    }
+  }
+
   return (
     <div className="book-page">
       {/* Header */}
@@ -930,7 +1006,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
               left: `${submenuPosition.x - 600}px`,
             }}
           >
-            <button>AI 추천 받기</button>
+            <button onClick={handleRecommendBigClick}>AI 추천 받기</button>
             <button onClick={handleTitleEditClick}>Edit</button>
             <button onClick={handleTitleDeleteClick}>Delete</button>
           </div>
@@ -944,7 +1020,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
               left: `${submenuPosition.x - 600}px`,
             }}
           >
-            <button>AI 추천 받기</button>
+            <button onClick={handleRecommendSubClick}>AI 추천 받기</button>
             <button onClick={handleTitleEditClick}>Edit</button>
             <button onClick={handleSubtitleDeleteClick}>Delete</button>
           </div>

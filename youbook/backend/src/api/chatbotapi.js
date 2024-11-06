@@ -16,7 +16,7 @@ const openaiInstance = new OpenAI({
 });
 
 // 데이터베이스에 질문과 응답을 저장하는 함수
-const saveChatbotData = (userId, bookId, question, response) => {
+const saveChatbotData = (userId, bookId, inputCount, question, response) => {
     const getMaxQuestNumQuery = `
         SELECT MAX(quest_num) AS max_quest_num 
         FROM chatbot_data 
@@ -30,13 +30,13 @@ const saveChatbotData = (userId, bookId, question, response) => {
         }
         
         const maxQuestNum = results[0].max_quest_num;
-        const newQuestNum = maxQuestNum ? maxQuestNum + 1 : 1;
+        const newQuestNum = maxQuestNum ? maxQuestNum : 1;
         const insertQuery = `
             INSERT INTO chatbot_data (user_id, book_id, input_count, quest_num, question, response) 
             VALUES (?, ?, ?, ?, ?, ?); 
         `;
         
-        db.query(insertQuery, [userId, bookId, 1, newQuestNum, question, response], (error, results) => { 
+        db.query(insertQuery, [userId, bookId, inputCount, newQuestNum, question, response], (error, results) => { 
             if (error) {
                 console.error('Error saving chatbot data:', error);
             } else {
@@ -48,37 +48,62 @@ const saveChatbotData = (userId, bookId, question, response) => {
     });
 };
 
+// input_count를 조회하는 함수 (콜백 방식)
+const getInputCount = (bookId, callback) => {
+    const getMaxInputCountQuery = `
+        SELECT MAX(input_count) AS max_input_count 
+        FROM init_input 
+        WHERE book_id = ?;
+    `;
+
+    db.query(getMaxInputCountQuery, [bookId], (error, results) => {
+        if (error) {
+            console.error('Error fetching max input_count:', error);
+            callback(error, null);
+        } else {
+            const maxInputCount = results[0].max_input_count;
+            const inputCount = maxInputCount ? maxInputCount : 1;
+            callback(null, inputCount);
+        }
+    });
+};
+
 // 초기 사용자 입력을 받아서 첫 질문 생성하는 라우트
-router.post('/chatbot/initiate/:book_id', async (req, res) => {
+router.post('/chatbot/initiate/:book_id', (req, res) => {
     const userId = req.session.nickname;
     const { initialInput } = req.body;
     const { book_id: bookId } = req.params;
 
-    try {
-        // 사용자 데이터를 초기화
-        userData[userId] = initialInput;
+    getInputCount(bookId, async (error, inputCount) => {
+        if (error) {
+            return res.status(500).json({ error: 'Error fetching input count' });
+        }
 
-        const questionPrompt = `${initialInput}`;
-        const response = await openaiInstance.chat.completions.create({
-            model: fineTunedModelId,
-            messages: [{ role: 'user', content: questionPrompt }],
-            max_tokens: 150
-        });
+        try {
+            // 사용자 데이터를 초기화
+            userData[userId] = initialInput;
 
-        const firstQuestion = response.choices[0].message.content;
+            const questionPrompt = `${initialInput}`;
+            const response = await openaiInstance.chat.completions.create({
+                model: fineTunedModelId,
+                messages: [{ role: 'user', content: questionPrompt }],
+                max_tokens: 150
+            });
 
-        // 첫 질문과 응답을 데이터베이스에 저장
-        saveChatbotData(userId, bookId, initialInput, firstQuestion);
+            const firstQuestion = response.choices[0].message.content;
 
-        res.json({ question: firstQuestion });
+            // 첫 질문과 응답을 데이터베이스에 저장
+            saveChatbotData(userId, bookId, inputCount, initialInput, firstQuestion);
 
-    } catch (error) {
-        console.error('Error generating question:', error);
-        res.status(500).json({ error: 'Error generating first question' });
-    }
+            res.json({ question: firstQuestion });
+        } catch (error) {
+            console.error('Error generating question:', error);
+            res.status(500).json({ error: 'Error generating first question' });
+        }
+    });
 });
 
-router.post('/chatbot/ask/:book_id', async (req, res) => {
+router.post('/chatbot/ask/:book_id', (req, res) => {
     console.log('2라우터 진입 시 세션 상태:', req.session); 
     const userId = req.session.nickname;
     const { userInput, previousQuestion } = req.body;
@@ -92,44 +117,41 @@ router.post('/chatbot/ask/:book_id', async (req, res) => {
             console.error('Error during data saving:', error);
             return res.status(500).json({ error: '데이터 저장 중 오류가 발생했습니다.' });
         }
-        return;  // 세션 저장 콜백에서 응답이 처리되므로 return
     }
 
-    try {
-        // 기존 사용자 데이터에 새로운 질문과 응답을 누적
-        if (!userData[userId]) {
-            userData[userId] = '';
+    // 최대 input_count를 콜백 방식으로 가져옴
+    getInputCount(bookId, async (error, inputCount) => {
+        if (error) {
+            return res.status(500).json({ error: 'Error fetching input count' });
         }
-        userData[userId] += ` ${previousQuestion}: ${userInput}`;
 
-        // 새로운 질문 생성
-        const questionPrompt = `${userData[userId]}.`;
-        const response = await openaiInstance.chat.completions.create({
-            model: fineTunedModelId,
-            messages: [{ role: 'user', content: questionPrompt }],
-            max_tokens: 150
-        });
+        try {
+            // 기존 사용자 데이터에 새로운 질문과 응답을 누적
+            if (!userData[userId]) {
+                userData[userId] = '';
+            }
+            userData[userId] += ` ${previousQuestion}: ${userInput}`;
 
-        const nextQuestion = response.choices[0].message.content;
+            // 새로운 질문 생성
+            const questionPrompt = `${userData[userId]}.`;
+            const response = await openaiInstance.chat.completions.create({
+                model: fineTunedModelId,
+                messages: [{ role: 'user', content: questionPrompt }],
+                max_tokens: 150
+            });
 
-        // 질문과 응답을 데이터베이스에 저장
-        saveChatbotData(userId, bookId, userInput, nextQuestion);
+            const nextQuestion = response.choices[0].message.content;
 
-        res.json({ question: nextQuestion });
-    } catch (error) {
-        console.error('Error generating question:', error);
-        res.status(500).json({ error: 'Error generating next question' });
-    }
+            // 질문과 응답을 데이터베이스에 저장
+            saveChatbotData(userId, bookId, inputCount, userInput, nextQuestion);
+
+            res.json({ question: nextQuestion });
+        } catch (error) {
+            console.error('Error generating question:', error);
+            res.status(500).json({ error: 'Error generating next question' });
+        }
+    });
 });
 
-// 사용자의 최종 데이터를 확인하는 라우트
-router.get('/get-final-data', (req, res) => {
-    const { userId } = req.query;
-    if (userData[userId]) {
-        res.json({ finalData: userData[userId] });
-    } else {
-        res.status(404).json({ error: 'No data found for the given userId' });
-    }
-});
 
 module.exports = router;
