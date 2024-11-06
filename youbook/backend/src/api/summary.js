@@ -45,7 +45,7 @@ async function getModelResponse(user_input) {
  * @swagger
  * /chatbot/summary:
  *   post:
- *     summary: 챗봇 대화 내용을 요약하여 데이터베이스에 저장
+ *     summary: 초기 입력시 챗봇 대화 내용을 요약하여 데이터베이스에 저장
  *     tags: [Chatbot]
  *     requestBody:
  *       required: true
@@ -177,7 +177,7 @@ router.post('/chatbot/summary', function (request, response) {
  * @swagger
  * /chatbot/summary2:
  *   post:
- *     summary: 챗봇 대화 내용을 요약하여 최신 input_count와 함께 데이터베이스에 저장
+ *     summary: 추가 입력시 챗봇 대화 내용을 요약하여 최신 input_count와 함께 데이터베이스에 저장
  *     tags: [Chatbot]
  *     requestBody:
  *       required: true

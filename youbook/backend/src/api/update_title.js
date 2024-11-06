@@ -2,59 +2,6 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db.js');
 
-/**
- * @swagger
- * tags:
- *   name: Title
- *   description: 문단의 타이틀 업데이트 API
- */
-
-/**
- * @swagger
- * /update_title:
- *   post:
- *     summary: 문단의 big_title과 small_title을 업데이트
- *     tags: [Title]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               bookId:
- *                 type: string
- *                 description: 책 ID
- *               inputCount:
- *                 type: integer
- *                 description: 입력 횟수
- *               content_order:
- *                 type: integer
- *                 description: 현재 content_order 값
- *               stitle:
- *                 type: string
- *                 description: 업데이트할 small_title
- *               big_title:
- *                 type: string
- *                 description: 업데이트할 big_title
- *     responses:
- *       200:
- *         description: 타이틀이 성공적으로 업데이트됨
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: 성공 메시지
- *       400:
- *         description: 요청 데이터가 잘못됨
- *       404:
- *         description: 해당하는 레코드가 없음
- *       500:
- *         description: 서버 오류
- */
 // 문단 타이틀 업데이트 API
 router.post('/update_title', function (req, res) {
     const book_id = req.body.bookId;

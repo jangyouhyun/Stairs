@@ -15,7 +15,7 @@ require('dotenv').config();
  * @swagger
  * /store:
  *   post:
- *     summary: 책의 데이터를 `book_list` 및 `real_book` 테이블에 저장하거나 업데이트
+ *     summary: 책의 데이터를 `book_list` 및 `real_book` 테이블에 저장하거나 혹은 이미 저장된 책에 대해서 업데이트
  *     tags: [Book]
  *     requestBody:
  *       required: true

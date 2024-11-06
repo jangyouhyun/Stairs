@@ -13,9 +13,9 @@
   "paths": {
     "/write_process/chatbot2": {
       "post": {
-        "summary": "초기 입력 데이터를 DB에 저장",
+        "summary": "내용 추가시 (자서전 수정, 임시 저장 자서전 작성시), 챗봇으로 추가할 때 사용자 입력을 임시로 저장함",
         "tags": [
-          "Autobiography"
+          "Autobiography_ADD"
         ],
         "requestBody": {
           "required": true,
@@ -74,9 +74,9 @@
     },
     "/write_process/book_reading2": {
       "post": {
-        "summary": "사용자 입력을 처리하고 모델 응답을 DB에 저장",
+        "summary": "내용 추가시 (자서전 수정, 임시 저장 자서전 작성시), 사용자 입력을 저장하고, 사용자 입력에 대한 AI 모델 응답을 반환받아 저장함",
         "tags": [
-          "Autobiography"
+          "Autobiography_ADD"
         ],
         "requestBody": {
           "required": true,
@@ -1052,70 +1052,6 @@
         }
       }
     },
-    "/insert_content": {
-      "post": {
-        "summary": "특정 책에 새 문단 삽입",
-        "tags": [
-          "Content"
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "bookId": {
-                    "type": "string",
-                    "description": "책 ID"
-                  },
-                  "inputCount": {
-                    "type": "integer",
-                    "description": "문단의 입력 횟수"
-                  },
-                  "category": {
-                    "type": "string",
-                    "description": "문단 카테고리"
-                  },
-                  "content_order": {
-                    "type": "integer",
-                    "description": "삽입할 문단의 순서"
-                  },
-                  "content": {
-                    "type": "string",
-                    "description": "새로 삽입할 문단 내용"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "문단이 성공적으로 삽입됨",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "성공 메시지"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "요청 데이터가 유효하지 않음"
-          },
-          "500": {
-            "description": "데이터베이스 오류 또는 서버 오류"
-          }
-        }
-      }
-    },
     "/modify_info": {
       "post": {
         "summary": "회원 정보 수정",
@@ -1368,7 +1304,7 @@
     },
     "/recreate": {
       "post": {
-        "summary": "주어진 콘텐츠를 한 개의 문단으로 재구성하고 DB 업데이트",
+        "summary": "문단 내용을 openAI api 를 이용해 재구성하고 DB 업데이트",
         "tags": [
           "Content"
         ],
@@ -1426,7 +1362,7 @@
     },
     "/semi-save": {
       "post": {
-        "summary": "자서전 책 정보를 임시 저장하거나 업데이트",
+        "summary": "자서전 책 정보를 임시 저장하거나 기존의 임시저장 내역 업데이트",
         "tags": [
           "SemiSave"
         ],
@@ -1543,7 +1479,7 @@
     },
     "/chatbot/summary": {
       "post": {
-        "summary": "챗봇 대화 내용을 요약하여 데이터베이스에 저장",
+        "summary": "초기 입력시 챗봇 대화 내용을 요약하여 데이터베이스에 저장",
         "tags": [
           "Chatbot"
         ],
@@ -1598,7 +1534,7 @@
     },
     "/chatbot/summary2": {
       "post": {
-        "summary": "챗봇 대화 내용을 요약하여 최신 input_count와 함께 데이터베이스에 저장",
+        "summary": "추가 입력시 챗봇 대화 내용을 요약하여 최신 input_count와 함께 데이터베이스에 저장",
         "tags": [
           "Chatbot"
         ],
@@ -1810,152 +1746,6 @@
         }
       }
     },
-    "/update_order": {
-      "post": {
-        "summary": "문단의 순서를 변경",
-        "tags": [
-          "Content"
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "bookId": {
-                    "type": "string",
-                    "description": "책 ID"
-                  },
-                  "inputCount": {
-                    "type": "integer",
-                    "description": "입력 횟수"
-                  },
-                  "content_order": {
-                    "type": "integer",
-                    "description": "현재 content_order 값"
-                  },
-                  "content_order_move": {
-                    "type": "integer",
-                    "description": "옮길 위치의 새 content_order 값"
-                  },
-                  "big_title": {
-                    "type": "string",
-                    "description": "대제목"
-                  },
-                  "small_title": {
-                    "type": "string",
-                    "description": "소제목"
-                  },
-                  "content": {
-                    "type": "string",
-                    "description": "문단 내용"
-                  },
-                  "category": {
-                    "type": "string",
-                    "description": "카테고리"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "문단 순서가 성공적으로 변경됨",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "성공 메시지"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "요청 데이터가 잘못됨"
-          },
-          "404": {
-            "description": "해당하는 레코드가 없음"
-          },
-          "500": {
-            "description": "서버 오류"
-          }
-        }
-      }
-    },
-    "/update_title": {
-      "post": {
-        "summary": "문단의 big_title과 small_title을 업데이트",
-        "tags": [
-          "Title"
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "bookId": {
-                    "type": "string",
-                    "description": "책 ID"
-                  },
-                  "inputCount": {
-                    "type": "integer",
-                    "description": "입력 횟수"
-                  },
-                  "content_order": {
-                    "type": "integer",
-                    "description": "현재 content_order 값"
-                  },
-                  "stitle": {
-                    "type": "string",
-                    "description": "업데이트할 small_title"
-                  },
-                  "big_title": {
-                    "type": "string",
-                    "description": "업데이트할 big_title"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "타이틀이 성공적으로 업데이트됨",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "성공 메시지"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "요청 데이터가 잘못됨"
-          },
-          "404": {
-            "description": "해당하는 레코드가 없음"
-          },
-          "500": {
-            "description": "서버 오류"
-          }
-        }
-      }
-    },
     "/upload": {
       "post": {
         "summary": "이미지 파일을 업로드하고 경로를 DB에 저장",
@@ -2060,7 +1850,7 @@
     },
     "/write_process/chatbot": {
       "post": {
-        "summary": "초기 자서전 작성 내용을 저장합니다.",
+        "summary": "초기 입력시, 챗봇으로 추가할 때 사용자 입력을 임시로 저장함",
         "tags": [
           "Autobiography"
         ],
@@ -2116,7 +1906,7 @@
     },
     "/write_process/book_reading": {
       "post": {
-        "summary": "자서전 내용을 읽고 요약을 포함하여 저장",
+        "summary": "초기 입력시, 사용자 입력을 저장하고, 사용자 입력에 대한 AI 모델 응답을 반환받아 저장함",
         "tags": [
           "Autobiography"
         ],
@@ -2457,8 +2247,8 @@
   "components": {},
   "tags": [
     {
-      "name": "Autobiography",
-      "description": "자서전 작성 관련 API"
+      "name": "Autobiography_ADD",
+      "description": "자서전 추가 작성 관련 API"
     },
     {
       "name": "Category",
@@ -2499,6 +2289,10 @@
     {
       "name": "SemiSave",
       "description": "자서전 임시 저장 API"
+    },
+    {
+      "name": "Autobiography",
+      "description": "자서전 작성 및 내용 관리 API"
     },
     {
       "name": "Auth",

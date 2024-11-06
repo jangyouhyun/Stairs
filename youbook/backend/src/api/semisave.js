@@ -15,7 +15,7 @@ require('dotenv').config();
  * @swagger
  * /semi-save:
  *   post:
- *     summary: 자서전 책 정보를 임시 저장하거나 업데이트
+ *     summary: 자서전 책 정보를 임시 저장하거나 기존의 임시저장 내역 업데이트
  *     tags: [SemiSave]
  *     requestBody:
  *       required: true

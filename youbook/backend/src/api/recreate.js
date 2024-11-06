@@ -41,7 +41,7 @@ async function recreateContentAsSingleParagraph(content) {
  * @swagger
  * /recreate:
  *   post:
- *     summary: 주어진 콘텐츠를 한 개의 문단으로 재구성하고 DB 업데이트
+ *     summary: 문단 내용을 openAI api 를 이용해 재구성하고 DB 업데이트
  *     tags: [Content]
  *     requestBody:
  *       required: true

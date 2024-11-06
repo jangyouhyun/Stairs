@@ -102,7 +102,7 @@ function getFormatDate(date) {
  * @swagger
  * /write_process/chatbot:
  *   post:
- *     summary: 초기 자서전 작성 내용을 저장합니다.
+ *     summary: 초기 입력시, 챗봇으로 추가할 때 사용자 입력을 임시로 저장함
  *     tags: [Autobiography]
  *     requestBody:
  *       required: true
@@ -198,7 +198,7 @@ router.post('/write_process/chatbot', function (request, response) {
  * @swagger
  * /write_process/book_reading:
  *   post:
- *     summary: 자서전 내용을 읽고 요약을 포함하여 저장
+ *     summary: 초기 입력시, 사용자 입력을 저장하고, 사용자 입력에 대한 AI 모델 응답을 반환받아 저장함
  *     tags: [Autobiography]
  *     requestBody:
  *       required: true

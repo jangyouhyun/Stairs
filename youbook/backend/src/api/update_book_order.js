@@ -2,68 +2,6 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db.js');
 
-/**
- * @swagger
- * tags:
- *   name: Content
- *   description: 문단 순서 변경 API
- */
-
-/**
- * @swagger
- * /update_order:
- *   post:
- *     summary: 문단의 순서를 변경
- *     tags: [Content]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               bookId:
- *                 type: string
- *                 description: 책 ID
- *               inputCount:
- *                 type: integer
- *                 description: 입력 횟수
- *               content_order:
- *                 type: integer
- *                 description: 현재 content_order 값
- *               content_order_move:
- *                 type: integer
- *                 description: 옮길 위치의 새 content_order 값
- *               big_title:
- *                 type: string
- *                 description: 대제목
- *               small_title:
- *                 type: string
- *                 description: 소제목
- *               content:
- *                 type: string
- *                 description: 문단 내용
- *               category:
- *                 type: string
- *                 description: 카테고리
- *     responses:
- *       200:
- *         description: 문단 순서가 성공적으로 변경됨
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: 성공 메시지
- *       400:
- *         description: 요청 데이터가 잘못됨
- *       404:
- *         description: 해당하는 레코드가 없음
- *       500:
- *         description: 서버 오류
- */
 // 문단 순서 변경 API
 router.post('/update_order', function (req, res) {
     const book_id = req.body.bookId;

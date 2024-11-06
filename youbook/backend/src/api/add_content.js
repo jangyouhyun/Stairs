@@ -97,16 +97,16 @@ function determineInputCount(userId, bookId, callback) {
 /**
  * @swagger
  * tags:
- *   name: Autobiography
- *   description: 자서전 작성 관련 API
+ *   name: Autobiography_ADD
+ *   description: 자서전 추가 작성 관련 API
  */
 
 /**
  * @swagger
  * /write_process/chatbot2:
  *   post:
- *     summary: 초기 입력 데이터를 DB에 저장
- *     tags: [Autobiography]
+ *     summary: 내용 추가시 (자서전 수정, 임시 저장 자서전 작성시), 챗봇으로 추가할 때 사용자 입력을 임시로 저장함
+ *     tags: [Autobiography_ADD]
  *     requestBody:
  *       required: true
  *       content:
@@ -195,8 +195,8 @@ router.post('/write_process/chatbot2', function (request, response) {
  * @swagger
  * /write_process/book_reading2:
  *   post:
- *     summary: 사용자 입력을 처리하고 모델 응답을 DB에 저장
- *     tags: [Autobiography]
+ *     summary: 내용 추가시 (자서전 수정, 임시 저장 자서전 작성시), 사용자 입력을 저장하고, 사용자 입력에 대한 AI 모델 응답을 반환받아 저장함
+ *     tags: [Autobiography_ADD]
  *     requestBody:
  *       required: true
  *       content:

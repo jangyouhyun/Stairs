@@ -148,7 +148,9 @@ router.post('/update_image', upload.single('image'), function (req, res) {
     `;
 
     // 데이터베이스에서 업데이트 수행
-    db.query(updateImageQuery, [image, user_id, book_id, input_count, content_order], function (err, results) {
+    db.query(updateImageQuery, [image, user_id, book_id, input_count + 1, content_order], function (err, results) {
+
+        console.log("image: ", image, "\n user_id: ", user_id, "\n book_id: ", book_id, "\n ic: ", input_count, "\n co: ", content_order)
         if (err) {
             console.error('Failed to update image:', err);
             return res.status(500).json({ error: 'Failed to update image' });
