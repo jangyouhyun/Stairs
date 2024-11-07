@@ -343,7 +343,15 @@ function MyAutobiographyPage() {
                   <h3>임시 저장 글 목록</h3>
                   <ul>
                     {savedArticles.map((article, index) => (
-                      <li key={index} onClick={() => navigate(`/bookModifyPage/${article.id}`)} className="article-item">
+                      <li 
+                      key={index} 
+                      onClick={() => navigate(`/book-modify/${article.id}`, {
+                        state: {
+                          selectedCategory: selectedCategory,
+                        },
+                      })}
+                      className="article-item"
+                    >
                         <div className="article-title">{article.title}</div>
                         <div className="saved-time">{article.savedAt}</div>
                       </li>

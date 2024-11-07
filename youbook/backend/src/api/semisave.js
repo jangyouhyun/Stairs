@@ -162,7 +162,7 @@ router.get('/saved-articles', function (req, res) {
 
         // user_id를 기준으로 semisave 테이블에서 데이터 조회
         connection.query(
-            'SELECT title, create_date FROM semisave WHERE user_id = ?',
+            'SELECT book_id, title, create_date FROM semisave WHERE user_id = ?',
             [user_id],
             function (error, results) {
                 connection.release();
@@ -173,6 +173,7 @@ router.get('/saved-articles', function (req, res) {
 
                 // 조회된 결과를 원하는 형식으로 변환
                 const articles = results.map(row => ({
+                    id: row.book_id,
                     title: row.title,
                     savedAt: moment(row.create_date).format('YYYY/MM/DD HH:mm') // 예쁜 형식으로 변환
                 }));

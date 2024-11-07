@@ -245,7 +245,18 @@ router.post('/register_process', upload.single('profileImage'), function (reques
                             response.status(500).json({ success: false, message: 'Internal server error' });
                             throw error;
                         }
-                        response.json({ success: true, message: '회원가입이 완료되었습니다!' });
+                        // 회원가입 성공 후 category 테이블에 기본 카테고리 추가
+                        db.query(
+                            'INSERT INTO category (user_id, name) VALUES (?, ?)',
+                            [id, "기본카테고리"],
+                            function (error, categoryData) {
+                                if (error) {
+                                    response.status(500).json({ success: false, message: '카테고리 추가 실패' });
+                                    throw error;
+                                }
+                                response.json({ success: true, message: '회원가입이 완료되었습니다!' });
+                            }
+                        );
                     }
                 );
             } else if (pw !== pw2) {
@@ -258,6 +269,7 @@ router.post('/register_process', upload.single('profileImage'), function (reques
         response.status(400).json({ success: false, message: '입력되지 않은 정보가 있습니다.' });
     }
 });
+
 
 /**
  * @swagger
