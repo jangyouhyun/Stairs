@@ -342,10 +342,9 @@ function MyAutobiographyPage() {
                 <div className="save-popup-content">
                   <h3>임시 저장 글 목록</h3>
                   <ul>
-                    {/* 데이터 연결 했습니다 -> article 에 잘 저장되는 거 같아요 li 클릭했을 때 bookModifyPage 로 연결되게 해주세요 ! */}
                     {savedArticles.map((article, index) => (
-                      <li key={index}>
-                        <div>{article.title}</div>
+                      <li key={index} onClick={() => navigate(`/bookModifyPage/${article.id}`)} className="article-item">
+                        <div className="article-title">{article.title}</div>
                         <div className="saved-time">{article.savedAt}</div>
                       </li>
                     ))}

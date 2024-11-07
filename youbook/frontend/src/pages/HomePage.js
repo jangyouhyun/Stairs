@@ -87,7 +87,7 @@ function HomePage() {
         alert(`사용자님의 아이디는 ${data.id} 입니다.`);
       } else {
         console.log(`Error: ${data.message}`);
-        aalert('해당 정보로 아이디를 찾을 수 없습니다.');
+        alert('해당 정보로 아이디를 찾을 수 없습니다.');
       }
     } catch (error) {
       console.error('Error fetching user ID:', error);

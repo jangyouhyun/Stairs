@@ -130,7 +130,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
   }, [contentArray]);
 
   const fetchBookContent = async () => {
-    setIsArrayLoading(true); // 로딩 시작
+    setIsArrayLoading(true);
     try {
       const response = await fetch('/api/print', {
         method: 'POST',
@@ -146,11 +146,64 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
       });
   
       const data = await response.json();
-      setContentArray(data.contentArray);
+      let newContentArray = [];
+      
+      data.contentArray.forEach((contentItem, originalIndex) => {
+        let paragraph = contentItem.paragraph;
+        const maxHeight = 500; // 페이지의 최대 높이 (px 기준으로 조정 필요)
+  
+        // 임시 div 생성 후 높이 측정
+        let tempDiv = document.createElement('div');
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.visibility = 'hidden';
+        tempDiv.style.width = '100%';
+        tempDiv.style.height = 'auto';
+        tempDiv.style.maxHeight = `${maxHeight}px`;
+        tempDiv.innerText = paragraph;
+        document.body.appendChild(tempDiv);
+  
+        // 문장을 분할할 필요가 있는지 확인
+        if (tempDiv.scrollHeight > maxHeight) {
+          let sentences = paragraph.split('.'); // 문장을 기준으로 분할
+          let currentParagraph = '';
+          let tempItems = []; // 나뉜 항목들을 임시 저장
+  
+          sentences.forEach(sentence => {
+            // 문장을 추가하고 임시 div로 높이 체크
+            let testParagraph = currentParagraph + sentence + '.';
+            tempDiv.innerText = testParagraph;
+  
+            // 새 줄이 최대 높이를 넘지 않으면 문장 추가
+            if (tempDiv.scrollHeight <= maxHeight) {
+              currentParagraph = testParagraph;
+            } else {
+              // 나뉜 contentItem을 tempItems 배열에 추가
+              tempItems.push({ ...contentItem, paragraph: currentParagraph.trim() });
+              currentParagraph = sentence + '.'; // 다음 페이지에 남은 문장을 추가
+            }
+          });
+  
+          // 마지막 문단이 있으면 추가
+          if (currentParagraph) {
+            tempItems.push({ ...contentItem, paragraph: currentParagraph.trim() });
+          }
+  
+          // 원래 위치에 분할된 항목들을 삽입
+          newContentArray.splice(originalIndex, 0, ...tempItems);
+        } else {
+          // 문단이 길지 않으면 그대로 추가
+          newContentArray.push(contentItem);
+        }
+  
+        // 임시 div 제거
+        document.body.removeChild(tempDiv);
+      });
+  
+      setContentArray(newContentArray); // 새로 생성된 contentArray 설정
     } catch (error) {
       console.error('Failed to fetch book content:', error);
     } finally {
-      setIsArrayLoading(false); // 로딩 완료
+      setIsArrayLoading(false);
     }
   };
 
@@ -188,13 +241,11 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
   const handleImageUpload = async (event) => {
     const formData = new FormData();
     const file = event.target.files[0];
-    formData.append('image', file); // Attach the uploaded file
-
-    // Additional data settings
+    formData.append('image', file);
     formData.append('bookId', bookId);
     formData.append('inputCount', 1);
     formData.append('content_order', selectedIndex);
-    formData.append('whatData', 1); // Assuming 1 means it's an image upload
+    formData.append('whatData', 1); 
 
     try {
       const response = await fetch('/api/update_image', {
@@ -206,8 +257,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
       if (result.success) {
         alert('이미지가 성공적으로 업로드되었습니다.');
 
-        // Fetch the updated book content
-        await fetchBookContent(); // Call fetchBookContent to reload contentArray
+        await fetchBookContent();
       } else {
         alert('이미지 업로드에 실패했습니다.');
       }
@@ -575,7 +625,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
       const payload = { image: base64Data }; // base64 데이터를 payload로 설정
 
       // 서버로 이미지 데이터 전송
-      const response = await fetch('/api/upload_good', {
+      const response = await fetch('/api/upload_base64', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
