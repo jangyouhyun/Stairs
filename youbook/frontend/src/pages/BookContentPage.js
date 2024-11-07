@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import $ from 'jquery';
-import '../assets/js/turn.js'; 
+import '../assets/js/turn.js';
 import './BookPage.css';
 import book from '../assets/images/book.png';
 import edit from '../assets/images/edit.png';
@@ -28,8 +28,13 @@ function BookContentPage() {
   const [contentArray, setContentArray] = useState([]);
   const [bookContent, setBookContent] = useState([]);
   const [categories, setCategories] = useState([]);
-  const selectedCategory = location.state?.selectedCategory;
-  
+  const [selectedCategory, setSelectedCategory] = useState();
+  const [bookName, setBookName] = useState();
+
+  // DOM 노드에 대한 참조를 저장하여 중복 초기화를 방지
+  const bookRef = useRef(null);
+  const turnJsInitialized = useRef(false);
+
   useEffect(() => {
     fetch('/api/get_user_info')
       .then(response => response.json())
@@ -42,7 +47,27 @@ function BookContentPage() {
         }
       })
       .catch(error => console.error('Error fetching user info:', error));
-  }, [navigate]);
+
+    fetch('/api/get_book_info', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bookId: bookId }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.books && data.books.length > 0) {
+          const book = data.books[0];
+          setBookName(book.title);
+          setSelectedCategory(book.category);
+          setSavedCoverImageUrl(book.image_path);
+        } else {
+          console.error('Failed to fetch book info or no book found.');
+        }
+      })
+      .catch(error => console.error('Error fetching book info:', error));
+  }, [navigate, bookId]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -105,46 +130,46 @@ function BookContentPage() {
     setTotalPages(newContent.length);
   };
 
-  const initializeTurnJS = () => {
-    const $book = $('#book');
-    if ($book.length && !$book.data('turn')) {
-      $book.turn({
-        width: 800,
-        height: 500,
-        autoCenter: true,
-        elevation: 50,
-        gradients: true,
-        duration: 1000,
-        pages: contentArray.length * 2 || 6, // Fix page count
-        when: {
-          turned: function (event, page) {
-            const actualPage = Math.floor((page - 2) / 2) + 1;
-            setCurrentPage(actualPage >= 0 ? actualPage : 0);
-          },
-        },
-      });
-    }
-  };
-
+  // Turn.js 초기화 및 클린업 관리
   useEffect(() => {
-    if (contentArray.length > 0) {
-      initializeTurnJS(); // Initialize only when content is ready
+    if (contentArray.length > 0 && !turnJsInitialized.current) {
+      const $book = $(bookRef.current);
+      if ($book.length && !$book.data('turn')) {
+        $book.turn({
+          width: 800,
+          height: 500,
+          autoCenter: true,
+          elevation: 50,
+          gradients: true,
+          duration: 1000,
+          pages: contentArray.length * 2 || 6,
+          when: {
+            turned: function (event, page) {
+              const actualPage = Math.floor((page - 2) / 2) + 1;
+              setCurrentPage(actualPage >= 0 ? actualPage : 0);
+            },
+          },
+        });
+        turnJsInitialized.current = true; // 초기화 상태 표시
+      }
     }
 
+    // 컴포넌트 언마운트 시 cleanup 보장
     return () => {
-      const $book = $('#book');
+      const $book = $(bookRef.current);
       if ($book.data('turn')) {
         $book.turn('destroy'); // Cleanup turn.js on unmount
+        turnJsInitialized.current = false; // 초기화 상태 리셋
       }
     };
-  }, [contentArray]); // Re-run only if contentArray changes
+  }, [contentArray]);
 
   const handlePrevious = () => {
-    $('#book').turn('previous');
+    $(bookRef.current).turn('previous');
   };
 
   const handleNext = () => {
-    $('#book').turn('next');
+    $(bookRef.current).turn('next');
   };
 
   const handleOpenModifyPage = () => {
@@ -179,13 +204,13 @@ function BookContentPage() {
       </aside>
 
       <div className="book-info">
-        <div className="book-name">{location.state?.name || 'Book Name'}</div>
+        <div className="book-name">{bookName || 'Book Name'}</div>
         <button className="modify-button" onClick={handleOpenModifyPage}>
           <img src={modifyicon} alt="Modify Icon" />
         </button>
       </div>
 
-      <div id="book">
+      <div id="book" ref={bookRef}>
         <div className="hard">
           {savedCoverImageUrl && <img src={savedCoverImageUrl} alt="Book Cover" className="cover-image" />}
         </div>
@@ -226,7 +251,6 @@ function BookContentPage() {
           <ul>
             <li onClick={() => window.location.href = 'https://open.kakao.com/o/s9YXw5Sg'}>채팅 상담</li>
             <li onClick={() => navigate('/qaboard')}>문의</li>
-
           </ul>
         </div>
       )}

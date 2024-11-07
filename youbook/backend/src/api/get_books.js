@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-var db = require('../db.js'); 
+var db = require('../db.js');
 
 /**
  * @swagger
@@ -55,15 +55,42 @@ var db = require('../db.js');
 router.get('/get_books', (req, res) => {
 	const userId = req.session.nickname;
 	if (!userId) {
-	  return res.status(401).json({ success: false, message: 'User not logged in' });
+		return res.status(401).json({ success: false, message: 'User not logged in' });
 	}
 	db.query('SELECT book_id, title, create_date, image_path, category FROM book_list WHERE user_id = ? ORDER BY create_date DESC', [userId], (error, results) => {
-	  if (error) {
-		console.error('Database query error:', error);
-		return res.status(500).json({ success: false, message: 'Internal server error' });
-	  }
-	  res.json({ success: true, books: results });
+		if (error) {
+			console.error('Database query error:', error);
+			return res.status(500).json({ success: false, message: 'Internal server error' });
+		}
+		res.json({ success: true, books: results });
 	});
-  });
+});
+
+// 서버 라우트 코드
+router.post('/get_book_info', (req, res) => {
+	const userId = req.session.nickname;
+	const bookId = req.body.bookId;
+
+	if (!userId) {
+		return res.status(401).json({ success: false, message: 'User not logged in' });
+	}
+
+	db.query(
+		'SELECT title, image_path, category FROM book_list WHERE user_id = ? and book_id = ?',
+		[userId, bookId],
+		(error, results) => {
+			if (error) {
+				console.error('Database query error:', error);
+				return res.status(500).json({ success: false, message: 'Internal server error' });
+			}
+			if (results.length > 0) {
+				res.json({ success: true, books: results });
+			} else {
+				res.json({ success: false, message: 'No book found' });
+			}
+		}
+	);
+});
+
 
 module.exports = router;

@@ -1,3 +1,4 @@
+//표지 카테고리 제목 에 대해서 수정 뒤에 가져가질 못함 - 1. 타이틀이 있는지 검색해야댐 2. 가져온 카테고리를 기초 카테고리로 셀렉해야댐 3. 표지는.. 북 거기서도 안되는데, 얘도 검색해서 가지고 들어와야됨
 import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import $ from 'jquery';
@@ -60,7 +61,7 @@ function BookPage() {
   const [bookContent, setBookContent] = useState([]);
   const [categories, setCategories] = useState([]);
   const bookRef = useRef(null);
-  const selectedCategory = location.state.selectedCategory;
+  const [selectedCategory, setSelectedCategory] = useState();
   var printIndex = location.state.selectedIndex ? location.state.selectedIndex : 0;
   const input_count = location.state.input_count? location.state.input_count : 0;
   const [selectedIndex, setSelectedIndex] = useState();
@@ -82,7 +83,27 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
         }
       })
       .catch(error => console.error('Error fetching user info:', error));
-  }, [navigate]);
+
+    fetch('/api/get_book_info', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bookId: bookId }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.books && data.books.length > 0) {
+          const book = data.books[0];
+          setBookName(book.title);
+          setSelectedCategory(book.category);
+          setSavedCoverImageUrl(book.image_path);
+        } else {
+          console.error('Failed to fetch book info or no book found.');
+        }
+      })
+      .catch(error => console.error('Error fetching book info:', error));
+  }, [navigate, bookId]);
 
   // 카테고리 목록 가져오기
   const fetchCategories = async () => {
@@ -654,7 +675,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
     setIsLoading(true);
     // 생성 날짜 설정
     //const createdDate = new Date().toLocaleDateString();
-    console.log("이미지데이터! : ", savedCoverImageUrl)
+    //alert("카테고리데이터 : ", selectedCategory);
     try {
       const response = await fetch('/api/store', {
         method: 'POST',
