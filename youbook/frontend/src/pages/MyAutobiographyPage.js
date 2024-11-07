@@ -345,7 +345,7 @@ function MyAutobiographyPage() {
                     {savedArticles.map((article, index) => (
                       <li 
                       key={index} 
-                      onClick={() => navigate(`/book-modify/${article.id}`, {
+                      onClick={() => navigate(`/book-semisave-modify/${article.id}`, {
                         state: {
                           selectedCategory: selectedCategory,
                         },

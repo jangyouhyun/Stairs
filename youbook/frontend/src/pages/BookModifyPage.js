@@ -539,6 +539,7 @@ const [isArrayLoading, setIsArrayLoading] = useState(true);
           bookId: bookId,
           bookTitle:bookName,
           coverImg:savedCoverImageUrl,
+          category:selectedCategory,
         }),
       });
 

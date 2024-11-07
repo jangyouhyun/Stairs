@@ -6,6 +6,7 @@ import MainPage from './pages/MainPage';
 import BookPage from './pages/BookPage';
 import BookContentPage from './pages/BookContentPage';
 import BookModifyPage from './pages/BookModifyPage';
+import BookSemisaveModify from './pages/BookSemisaveModify';
 import MyAutobiographyPage from './pages/MyAutobiographyPage';
 import BookDesignPage from './pages/BookDesignPage'; 
 import Chatbot from './pages/chatbot';
@@ -40,6 +41,7 @@ function App() {
         <Route path="/book-reading/:bookId" element={<BookPage />} />
         <Route path="/book-content/:bookId" element={<BookContentPage />} />
         <Route path="/book-modify/:bookId" element={<BookModifyPage />} />
+        <Route path="/book-semisave-modify/:bookId" element={<BookSemisaveModify />} />
         <Route path="/customerinquiry" element={<CustomerInquiryPage />} />
       </Routes>
     </Router>

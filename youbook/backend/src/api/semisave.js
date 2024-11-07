@@ -64,6 +64,7 @@ router.post('/semi-save', function (req, res) {
     const user_id = req.session.nickname;
     const title = req.body.bookTitle ? req.body.bookTitle : "제목없는 자서전";
     const image_path = req.body.coverImg;
+    const category = req.body.category;
 
     // 현재 시간 생성 (DATETIME 형식)
     const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -90,8 +91,8 @@ router.post('/semi-save', function (req, res) {
                 if (results.length > 0) {
                     // 기존 레코드 업데이트
                     connection.query(
-                        'UPDATE semisave SET title = ?, image_path = ?, create_date = ? WHERE book_id = ? AND user_id = ?',
-                        [title, image_path, currentTime, book_id, user_id],
+                        'UPDATE semisave SET category = ? , title = ?, image_path = ?, create_date = ? WHERE book_id = ? AND user_id = ?',
+                        [category, title, image_path, currentTime, book_id, user_id],
                         function (updateError) {
                             connection.release();
                             if (updateError) {
@@ -104,8 +105,8 @@ router.post('/semi-save', function (req, res) {
                 } else {
                     // 새로운 레코드 삽입
                     connection.query(
-                        'INSERT INTO semisave (book_id, user_id, title, image_path, create_date) VALUES (?, ?, ?, ?, ?)',
-                        [book_id, user_id, title, image_path, currentTime],
+                        'INSERT INTO semisave (book_id, user_id, title, image_path, create_date, category) VALUES (?, ?, ?, ?, ?, ?)',
+                        [book_id, user_id, title, image_path, currentTime, category],
                         function (insertError) {
                             connection.release();
                             if (insertError) {
@@ -183,6 +184,28 @@ router.get('/saved-articles', function (req, res) {
             }
         );
     });
+});
+
+router.post('/get_semisave_info', (req, res) => {
+	const bookId = req.body.bookId;
+
+    console.log("sebookid: ", bookId)
+	db.query(
+		'SELECT title, image_path, category FROM semisave WHERE book_id = ?',
+		[bookId],
+		(error, results) => {
+			if (error) {
+				console.error('Database query error:', error);
+				return res.status(500).json({ success: false, message: 'Internal server error' });
+			}
+			if (results.length > 0) {
+                console.log(results);
+				res.json({ success: true, books: results });
+			} else {
+				res.json({ success: false, message: 'No book found' });
+			}
+		}
+	);
 });
 
 module.exports = router;
