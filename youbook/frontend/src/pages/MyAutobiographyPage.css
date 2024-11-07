@@ -180,10 +180,31 @@
   text-align: center;
 }
 
-.save-popup-content ul {
+ul {
   list-style-type: none;
   padding: 0;
-  margin: 10px 0;
+}
+
+.article-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px;
+  border-bottom: 1px solid #ddd; /* 구분선 */
+}
+
+.article-item:hover {
+  background-color: #f5f5f5; /* 마우스 오버 시 배경색 */
+}
+
+.article-title {
+  flex: 1; /* 제목이 넓게 차지하도록 */
+  font-weight: bold;
+}
+
+.saved-time {
+  margin-left: 10px; /* 제목과 시간 사이의 간격 */
+  color: #888; /* 시간 텍스트 색상 */
 }
 
 .save-popup-content button {
