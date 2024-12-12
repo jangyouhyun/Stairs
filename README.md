@@ -70,7 +70,7 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';
 FLUSH PRIVILEGES;
 ```
 
-- 프로젝트에서 사용하는 데이터베이스 **"stair"**을 생성하고, 접속합니다.
+- 프로젝트에서 사용하는 데이터베이스 **stair**을 생성하고, 접속합니다.
 
 ```bash
 CREATE DATABASE stair;
@@ -95,7 +95,7 @@ USE stair;
 
 - 다운로드된 파일을 실행하여 기본 세팅으로 설치를 완료합니다.
 
-    ![Redis 설치 이미지](image.png)
+    ![Redis 설치 이미지](https://github.com/jangyouhyun/Stairs/blob/main/image.png?raw=true)
 
 - **설치 확인**: 작업 관리자의 서비스 탭에서 Redis가 실행 중인지 확인합니다.
 
@@ -178,7 +178,7 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';
 FLUSH PRIVILEGES;
 ```
 
-- 프로젝트에서 사용하는 데이터베이스 **"stair"**를 생성하고 접속합니다.
+- 프로젝트에서 사용하는 데이터베이스 **stair**를 생성하고 접속합니다.
 
 ```sql
 CREATE DATABASE stair;
