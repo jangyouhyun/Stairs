@@ -109,7 +109,7 @@ PRIMARY KEY (book_id, content_order),
 FOREIGN KEY (book_id) REFERENCES init_input(book_id) ON DELETE CASCADE
 );
 
-CREATE TABLE semisave
+CREATE TABLE semisave (
     book_id VARCHAR(255) NOT NULL,
     user_id VARCHAR(255) NOT NULL,
     create_date DATETIME NOT NULL,
